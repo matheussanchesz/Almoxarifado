@@ -1,0 +1,32 @@
+## Core dotnet GitIgnore
+# Pasta de compilação e artefatos de saída (Crucial!)
+bin/
+obj/
+
+# Arquivos gerados pelo Visual Studio ou VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Arquivos de log e relatórios de erro
+*.log
+*.crash
+.diagnostic/
+
+# Configurações locais do ambiente de desenvolvimento
+# (Guarda strings de conexão locais que não devem subir)
+appsettings.Development.json
+
+# --- TRAVAS DE SEGURANÇA ESPECÍFICAS DO PROJETO ---
+# Chaves privadas e credenciais do Google Cloud / Firebase
+firebase-credentials.json
+*.json.user
+
+# Arquivos temporários do sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
