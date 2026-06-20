@@ -8,11 +8,13 @@ import {
   FaBoxOpen,
   FaChartBar,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 import { api } from "../../services/api";
 import "./Login.css";
 
 function Login() {
+  const navigate = useNavigate();
   const [matricula, setMatricula] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [erro, setErro] = useState("");
@@ -91,9 +93,13 @@ function Login() {
             </div>
           </div>
 
-          <button type="button" className="botao-esqueceu">
-            Recuperar acesso
-          </button>
+          <button
+  type="button"
+  className="botao-esqueceu"
+  onClick={() => navigate("/recuperar-acesso")}
+>
+  Recuperar acesso
+</button>
 
           {erro && <p className="mensagem-erro">{erro}</p>}
 
