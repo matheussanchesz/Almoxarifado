@@ -48,11 +48,13 @@ export default function Sidebar() {
 
       <div className="sidebar-user">
         <div className="avatar">JP</div>
-        <div>
+
+        <div className="sidebar-user-info">
           <strong>João Pedro</strong>
           <span>Coordenador</span>
         </div>
-        <FiChevronDown />
+
+        <FiChevronDown className="sidebar-user-arrow" />
       </div>
     </aside>
   );
