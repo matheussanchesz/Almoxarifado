@@ -65,12 +65,13 @@
 .donut-center span {
   font-size: 15px;
   margin-top: 6px;
+  color: #64748b;
 }
 
 .priority-legend {
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 22px;
 }
 
 .legend-row {
@@ -95,6 +96,7 @@
 
 .table-panel {
   padding-bottom: 18px;
+  overflow-x: auto;
 }
 
 table {
@@ -102,19 +104,17 @@ table {
   border-collapse: collapse;
 }
 
-th {
-  text-align: left;
-  font-size: 14px;
-  color: #0f172a;
-  padding: 14px 10px 18px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
+th,
 td {
   padding: 18px 10px;
   border-bottom: 1px solid #e5e7eb;
-  color: #0f172a;
+  text-align: left;
   font-size: 15px;
+}
+
+th {
+  font-size: 14px;
+  color: #0f172a;
 }
 
 tr:last-child td {
@@ -188,29 +188,5 @@ tr:last-child td {
 
   .priority-content {
     grid-template-columns: 1fr;
-  }
-
-  .table-panel {
-    overflow-x: auto;
-  }
-
-  @media (max-width: 1200px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .charts-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 850px) {
-    .dashboard-layout {
-      flex-direction: column;
-    }
-
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
   }
 }
