@@ -8,7 +8,9 @@ import AtualizarSenha from "../pages/AtualizarSenha/AtualizarSenha";
 import SenhaRedefinida from "../pages/SenhaRedefinida/SenhaRedefinida";
 import SuporteAcesso from "../pages/SuporteAcesso/SuporteAcesso";
 
+
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Usuarios from "../pages/Usuarios/Usuarios";
 
 function AppRoutes() {
   return (
@@ -25,6 +27,7 @@ function AppRoutes() {
         <Route path="/suporte-acesso" element={<SuporteAcesso />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/usuarios" element={<Usuarios />} />
       </Routes>
     </BrowserRouter>
   );

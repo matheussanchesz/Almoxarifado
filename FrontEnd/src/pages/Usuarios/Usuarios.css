@@ -1,0 +1,231 @@
+.users-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.users-main {
+  flex: 1;
+  padding: 36px 38px;
+}
+
+/* HEADER */
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 44px;
+}
+
+.users-header h1 {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.users-header p {
+  color: #64748b;
+  font-size: 18px;
+}
+
+.users-header p span {
+  margin: 0 12px;
+}
+
+/* BOTÃO NOVO USUÁRIO */
+
+.new-user-button {
+  height: 64px;
+  padding: 0 34px;
+  border: none;
+  border-radius: 10px;
+  background: #0057d9;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 87, 217, 0.25);
+  transition: all 0.3s ease;
+}
+
+.new-user-button svg {
+  font-size: 28px;
+}
+
+.new-user-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* CARD DA TABELA */
+
+.users-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow-x: auto;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+/* TABELA */
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  text-align: left;
+  padding: 28px 24px;
+  font-size: 18px;
+  color: #0f172a;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table td {
+  padding: 18px 24px;
+  font-size: 20px;
+  color: #334155;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* INFORMAÇÕES DO USUÁRIO */
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-info strong {
+  color: #0f172a;
+}
+
+.user-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #0057d9;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+/* STATUS */
+
+.user-status {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.user-status.active {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.user-status.inactive {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* AÇÕES */
+
+.user-actions {
+  display: flex;
+  gap: 28px;
+}
+
+.user-actions button {
+  border: none;
+  background: transparent;
+  color: #0f172a;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-actions button:hover {
+  color: #0057d9;
+  transform: scale(1.1);
+}
+
+/* RODAPÉ */
+
+.users-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 24px;
+  font-size: 18px;
+  color: #475569;
+}
+
+/* PAGINAÇÃO */
+
+.pagination {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination button {
+  width: 48px;
+  height: 48px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination button:hover {
+  background: #f1f5f9;
+}
+
+.pagination button.active {
+  background: #0057d9;
+  color: #ffffff;
+  border-color: #0057d9;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 900px) {
+  .users-layout {
+    flex-direction: column;
+  }
+
+  .users-main {
+    padding: 24px;
+  }
+
+  .users-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .new-user-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .users-footer {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
