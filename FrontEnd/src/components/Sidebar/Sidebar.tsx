@@ -1,29 +1,42 @@
+import { useNavigate } from "react-router-dom";
 import {
-  FiHome,
-  FiFileText,
-  FiClipboard,
   FiArchive,
-  FiShoppingCart,
   FiBarChart2,
-  FiUsers,
-  FiSettings,
   FiChevronDown,
+  FiClipboard,
+  FiFileText,
+  FiHome,
+  FiSettings,
+  FiShoppingCart,
+  FiUsers,
 } from "react-icons/fi";
 
 import "./Sidebar.css";
 
-const menuItems = [
-  { icon: <FiHome />, label: "Dashboard", active: true },
-  { icon: <FiFileText />, label: "Demandas" },
-  { icon: <FiClipboard />, label: "Checklists" },
-  { icon: <FiArchive />, label: "Almoxarifado" },
-  { icon: <FiShoppingCart />, label: "Compras" },
-  { icon: <FiBarChart2 />, label: "Relatórios" },
-  { icon: <FiUsers />, label: "Usuários" },
-  { icon: <FiSettings />, label: "Configurações" },
+type SidebarProps = {
+  paginaAtiva?: string;
+};
+
+const itensMenu = [
+  { icone: <FiHome />, titulo: "Dashboard", caminho: "/dashboard" },
+  { icone: <FiFileText />, titulo: "Demandas", caminho: "/demandas" },
+  { icone: <FiClipboard />, titulo: "Checklists", caminho: "#" },
+  { icone: <FiArchive />, titulo: "Almoxarifado", caminho: "#" },
+  { icone: <FiShoppingCart />, titulo: "Compras", caminho: "#" },
+  { icone: <FiBarChart2 />, titulo: "Relatórios", caminho: "#" },
+  { icone: <FiUsers />, titulo: "Usuários", caminho: "#" },
+  { icone: <FiSettings />, titulo: "Configurações", caminho: "#" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ paginaAtiva = "Dashboard" }: SidebarProps) {
+  const navigate = useNavigate();
+
+  function abrirPagina(caminho: string) {
+    if (caminho !== "#") {
+      navigate(caminho);
+    }
+  }
+
   return (
     <aside className="sidebar">
       <div>
@@ -34,13 +47,15 @@ export default function Sidebar() {
         </div>
 
         <nav className="sidebar-menu">
-          {menuItems.map((item) => (
+          {itensMenu.map((item) => (
             <button
-              key={item.label}
-              className={`sidebar-item ${item.active ? "active" : ""}`}
+              key={item.titulo}
+              type="button"
+              onClick={() => abrirPagina(item.caminho)}
+              className={`sidebar-item ${paginaAtiva === item.titulo ? "active" : ""}`}
             >
-              {item.icon}
-              <span>{item.label}</span>
+              {item.icone}
+              <span>{item.titulo}</span>
             </button>
           ))}
         </nav>

@@ -1,0 +1,344 @@
+/* =========================================================
+   ESTRUTURA GERAL DA PÁGINA
+   ========================================================= */
+
+.demandas-layout {
+  height: 100vh;
+  background: #f8fafc;
+  display: flex;
+  color: #0f172a;
+  overflow: hidden;
+}
+
+.demandas-main {
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
+  padding: 14px 22px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.demandas-conteudo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* =========================================================
+   CABEÇALHO DA PÁGINA
+   ========================================================= */
+
+.demandas-cabecalho h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.demandas-cabecalho p {
+  font-size: 13px;
+  color: #475569;
+}
+
+/* =========================================================
+   FILTROS E BUSCA
+   ========================================================= */
+
+.demandas-filtros {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.demandas-busca,
+.demandas-select {
+  height: 40px;
+  border: 1px solid #d8dde7;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  color: #0f172a;
+}
+
+.demandas-busca {
+  padding: 0 18px;
+  gap: 14px;
+}
+
+.demandas-busca svg {
+  font-size: 22px;
+}
+
+.demandas-busca input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.demandas-busca input::placeholder {
+  color: #8b94a6;
+}
+
+.demandas-select {
+  justify-content: space-between;
+  padding: 0 18px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.demandas-botao-novo {
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #0057d9;
+  color: #ffffff;
+  padding: 0 22px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 87, 217, 0.22);
+}
+
+.demandas-botao-novo:hover {
+  background: #0049b8;
+}
+
+/* =========================================================
+   ABAS DE STATUS
+   ========================================================= */
+
+.demandas-abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.demandas-abas button {
+  height: 36px;
+  border: none;
+  border-radius: 7px;
+  background: #f1f3f6;
+  color: #0f172a;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.demandas-abas button.ativo {
+  background: #0057d9;
+  color: #ffffff;
+}
+
+.demandas-abas span {
+  min-width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* =========================================================
+   TABELA DE DEMANDAS
+   ========================================================= */
+
+.demandas-tabela-card {
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.demandas-tabela-area {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: auto;
+}
+
+.demandas-tabela {
+  width: 100%;
+  min-width: 1080px;
+  border-collapse: collapse;
+}
+
+.demandas-tabela th,
+.demandas-tabela td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.demandas-tabela th {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.demandas-tabela td {
+  color: #111827;
+}
+
+.demanda-prioridade,
+.demanda-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.demanda-prioridade > span,
+.demanda-status > span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.demanda-prioridade.urgente {
+  color: #ef233c;
+}
+.demanda-prioridade.urgente > span {
+  background: #ef233c;
+}
+.demanda-prioridade.alta {
+  color: #f59e0b;
+}
+.demanda-prioridade.alta > span {
+  background: #f59e0b;
+}
+.demanda-prioridade.normal {
+  color: #16a34a;
+}
+.demanda-prioridade.normal > span {
+  background: #16a34a;
+}
+
+.demanda-status {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.demanda-status.andamento {
+  color: #0057d9;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.demanda-status.aguardando {
+  color: #d89400;
+  background: #fffaf0;
+  border: 1px solid #f6d68a;
+}
+
+.demanda-status.andamento > span {
+  background: #0057d9;
+}
+.demanda-status.aguardando > span {
+  background: #f59e0b;
+}
+
+.demanda-acao {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+/* =========================================================
+   RODAPÉ E PAGINAÇÃO DA TABELA
+   ========================================================= */
+
+.demandas-rodape-tabela {
+  min-height: 58px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.demandas-rodape-tabela p {
+  color: #475569;
+  font-size: 15px;
+}
+
+.demandas-paginacao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.demandas-paginacao button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #0057d9;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.demandas-paginacao button.ativo {
+  background: #0057d9;
+  color: #ffffff;
+  border-color: #0057d9;
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .demandas-filtros {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .demandas-layout {
+    flex-direction: column;
+  }
+
+  .demandas-main {
+    height: auto;
+    min-height: 100vh;
+    padding: 22px 18px;
+  }
+}
+
+@media (max-width: 650px) {
+  .demandas-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .demandas-rodape-tabela {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+}

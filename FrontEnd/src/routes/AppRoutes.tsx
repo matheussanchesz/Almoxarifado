@@ -9,6 +9,8 @@ import SenhaRedefinida from "../pages/SenhaRedefinida/SenhaRedefinida";
 import SuporteAcesso from "../pages/SuporteAcesso/SuporteAcesso";
 
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Demandas from "../pages/Demandas/Demandas";
+import NovaDemanda from "../pages/NovaDemanda/NovaDemanda";
 
 function AppRoutes() {
   return (
@@ -25,6 +27,8 @@ function AppRoutes() {
         <Route path="/suporte-acesso" element={<SuporteAcesso />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/demandas" element={<Demandas />} />
+        <Route path="/nova-demanda" element={<NovaDemanda />} />
       </Routes>
     </BrowserRouter>
   );
