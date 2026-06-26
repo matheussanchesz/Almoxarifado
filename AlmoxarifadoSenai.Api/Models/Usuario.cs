@@ -16,7 +16,7 @@ namespace AlmoxarifadoSenai.Api.Models
         public string Perfil { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public DateTime DataNascimento { get; set; }
+        public string DataNascimento { get; set; } = string.Empty;
 
         [FirestoreProperty]
         public bool Ativo { get; set; } = true;

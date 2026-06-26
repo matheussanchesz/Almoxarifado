@@ -8,6 +8,6 @@ namespace AlmoxarifadoSenai.Api.DTOs
     public class LoginRequest
     {
         public string Matricula { get; set; } = string.Empty;
-        public DateTime DataNascimento { get; set; }
+        public string DataNascimento { get; set; } = string.Empty; // Formato: "01011990"
     }
 }
