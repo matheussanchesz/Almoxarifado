@@ -9,9 +9,11 @@ import SenhaRedefinida from "../pages/SenhaRedefinida/SenhaRedefinida";
 import SuporteAcesso from "../pages/SuporteAcesso/SuporteAcesso";
 
 import Dashboard from "../pages/Dashboard/Dashboard";
-import Demandas from "../pages/Demandas/Demandas";
-import NovaDemanda from "../pages/NovaDemanda/NovaDemanda";
 import Usuarios from "../pages/Usuarios/Usuarios";
+import NovaDemanda from "../pages/NovaDemanda/NovaDemanda";
+import Demandas from "../pages/Demandas/Demandas";
+
+import PrivateRoute from "./PrivateRoute";
 
 function AppRoutes() {
   return (
@@ -27,10 +29,48 @@ function AppRoutes() {
         <Route path="/senha-redefinida" element={<SenhaRedefinida />} />
         <Route path="/suporte-acesso" element={<SuporteAcesso />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/demandas" element={<Demandas />} />
-        <Route path="/nova-demanda" element={<NovaDemanda />} />
-        <Route path="/usuarios" element={<Usuarios />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/usuarios"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Coordenador"]}>
+              <Usuarios />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/nova-demanda"
+          element={
+            <PrivateRoute allowedProfiles={["Professor"]}>
+              <NovaDemanda />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/demandas"
+          element={
+            <PrivateRoute
+              allowedProfiles={[
+                "Admin",
+                "Professor",
+                "Almoxarife",
+                "Coordenador",
+              ]}
+            >
+              <Demandas />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

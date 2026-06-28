@@ -2,15 +2,12 @@ import { useState } from "react";
 import {
   FaLock,
   FaUser,
-  FaCalendarAlt,
-  FaClipboardList,
-  FaTools,
-  FaBoxOpen,
-  FaChartBar,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import { api } from "../../services/api";
+import { login } from "../../services/auth";
 import "./Login.css";
 
 function Login() {
@@ -19,6 +16,7 @@ function Login() {
   const [dataNascimento, setDataNascimento] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   async function entrar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -26,24 +24,18 @@ function Login() {
     setErro("");
 
     if (!matricula || !dataNascimento) {
-      setErro("Preencha matrícula e data de nascimento.");
+      setErro("Preencha matrícula e senha.");
       return;
     }
 
     try {
       setCarregando(true);
 
-      const resposta = await api.post("/Auth/login", {
-        matricula,
-        dataNascimento,
-      });
-
-      localStorage.setItem("token", resposta.data.token);
-      localStorage.setItem("usuario", JSON.stringify(resposta.data.usuario));
+      await login(matricula, dataNascimento);
 
       navigate("/dashboard");
     } catch {
-      setErro("Matrícula ou data de nascimento inválida.");
+      setErro("Matrícula ou senha inválida.");
     } finally {
       setCarregando(false);
     }
@@ -54,8 +46,6 @@ function Login() {
       <section className="login-conteudo">
         <header className="login-logo">
           <h1>SENAI</h1>
-          <p>AUTOMOTIVO</p>
-          <p>CAXIAS DO SUL</p>
         </header>
 
         <form className="login-card" onSubmit={entrar}>
@@ -81,25 +71,35 @@ function Login() {
           </div>
 
           <div className="campo-grupo">
-            <label>Data de nascimento</label>
+            <label>Senha</label>
 
             <div className="campo-input">
-              <FaCalendarAlt />
+              <FaLock />
               <input
-                type="date"
+                type={mostrarSenha ? "text" : "password"}
+                placeholder="Digite sua senha"
                 value={dataNascimento}
                 onChange={(e) => setDataNascimento(e.target.value)}
               />
+
+              <button
+                type="button"
+                className="botao-ver-senha"
+                onClick={() => setMostrarSenha(!mostrarSenha)}
+                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
           </div>
 
           <button
-  type="button"
-  className="botao-esqueceu"
-  onClick={() => navigate("/recuperar-acesso")}
->
-  Recuperar acesso
-</button>
+            type="button"
+            className="botao-esqueceu"
+            onClick={() => navigate("/recuperar-acesso")}
+          >
+            Recuperar acesso
+          </button>
 
           {erro && <p className="mensagem-erro">{erro}</p>}
 
@@ -108,30 +108,7 @@ function Login() {
           </button>
         </form>
 
-        <div className="login-atalhos">
-          <div>
-            <FaClipboardList />
-            <p>Demandas</p>
-          </div>
-
-          <div>
-            <FaTools />
-            <p>Checklists</p>
-          </div>
-
-          <div>
-            <FaBoxOpen />
-            <p>Almoxarifado</p>
-          </div>
-
-          <div>
-            <FaChartBar />
-            <p>Relatórios</p>
-          </div>
-        </div>
-
         <footer className="login-rodape">
-          <p>SENAI Automotivo de Caxias do Sul</p>
           <span></span>
         </footer>
       </section>

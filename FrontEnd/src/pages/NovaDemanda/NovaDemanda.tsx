@@ -12,14 +12,21 @@ import {
 } from "react-icons/fi";
 
 import Sidebar from "../../components/Sidebar/Sidebar";
+import { getUsuarioLogado } from "../../services/auth";
+import { criarDemandaLocal } from "../../services/localData";
 
 import "./NovaDemanda.css";
 
 type Prioridade = "Normal" | "Alta" | "Urgente";
-type TipoServico = "Manutenção / Oficina" | "Reparos / Serviços" | "Compra de Materiais" | "Outros / Solicitação";
+type TipoServico =
+  | "Manutenção / Oficina"
+  | "Reparos / Serviços"
+  | "Compra de Materiais"
+  | "Outros / Solicitação";
 
 function NovaDemanda() {
   const navigate = useNavigate();
+  const usuario = getUsuarioLogado();
 
   const [tituloDemanda, setTituloDemanda] = useState("");
   const [oficinaLaboratorio, setOficinaLaboratorio] = useState("");
@@ -29,7 +36,12 @@ function NovaDemanda() {
   const [descricaoDemanda, setDescricaoDemanda] = useState("");
 
   const numeroDemanda = "—";
-  const prazoResposta = prioridade === "Urgente" ? "Até 2 horas" : prioridade === "Alta" ? "Até 8 horas" : "Até 24 horas";
+  const prazoResposta =
+    prioridade === "Urgente"
+      ? "Até 2 horas"
+      : prioridade === "Alta"
+        ? "Até 8 horas"
+        : "Até 24 horas";
 
   const dataFormatada = useMemo(() => {
     if (!dataSolicitada) return "—";
@@ -38,19 +50,49 @@ function NovaDemanda() {
 
   function salvarDemanda(evento: React.FormEvent) {
     evento.preventDefault();
+
+    if (!usuario) {
+      alert("Usuário não encontrado. Faça login novamente.");
+      navigate("/login");
+      return;
+    }
+
+    if (usuario.perfil !== "Professor") {
+      alert("Apenas professores podem abrir novas demandas.");
+      navigate("/dashboard");
+      return;
+    }
+
+    if (!tipoServico) {
+      alert("Selecione o tipo de serviço.");
+      return;
+    }
+
+    criarDemandaLocal({
+      titulo: tituloDemanda,
+      descricao: `${descricaoDemanda}\n\nTipo de serviço: ${tipoServico}`,
+      oficina: oficinaLaboratorio,
+      prioridade,
+      dataHoraNecessaria: dataSolicitada,
+      professorNome: usuario.nome,
+      professorMatricula: usuario.matricula,
+    });
+
     alert("Demanda salva com sucesso!");
     navigate("/demandas");
   }
 
   return (
     <div className="nova-demanda-layout">
-      <Sidebar paginaAtiva="Demandas" />
+      <Sidebar />
 
       <main className="nova-demanda-main">
         <header className="nova-demanda-topo">
           <h1>Nova Demanda</h1>
           <div className="nova-demanda-breadcrumb">
-            <button type="button" onClick={() => navigate("/demandas")}>Demandas</button>
+            <button type="button" onClick={() => navigate("/demandas")}>
+              Demandas
+            </button>
             <span>›</span>
             <strong>Nova Demanda</strong>
           </div>
@@ -61,7 +103,9 @@ function NovaDemanda() {
             <h2>Informações da Demanda</h2>
 
             <div className="nova-demanda-grupo">
-              <label>Título da Demanda <span>*</span></label>
+              <label>
+                Título da Demanda <span>*</span>
+              </label>
               <input
                 type="text"
                 placeholder="Ex.: Manutenção preventiva, revisão de veículo, compra de peças..."
@@ -72,48 +116,134 @@ function NovaDemanda() {
             </div>
 
             <div className="nova-demanda-grupo">
-              <label>Oficina / Laboratório <span>*</span></label>
+              <label>
+                Oficina / Laboratório <span>*</span>
+              </label>
               <div className="nova-demanda-select">
-                <select value={oficinaLaboratorio} onChange={(evento) => setOficinaLaboratorio(evento.target.value)} required>
+                <select
+                  value={oficinaLaboratorio}
+                  onChange={(evento) =>
+                    setOficinaLaboratorio(evento.target.value)
+                  }
+                  required
+                >
                   <option value="">Selecione uma opção</option>
                   <option value="Chassi">Chassi</option>
                   <option value="Pneumática">Pneumática</option>
                   <option value="Motores Ciclo Otto">Motores Ciclo Otto</option>
-                  <option value="Elétrica e Eletrônica">Elétrica e Eletrônica</option>
+                  <option value="Elétrica e Eletrônica">
+                    Elétrica e Eletrônica
+                  </option>
                 </select>
                 <FiChevronDown />
               </div>
             </div>
 
             <div className="nova-demanda-grupo">
-              <label>Tipo de Serviço <span>*</span></label>
+              <label>
+                Tipo de Serviço <span>*</span>
+              </label>
               <div className="nova-demanda-servicos">
-                <button type="button" className={tipoServico === "Manutenção / Oficina" ? "ativo" : ""} onClick={() => setTipoServico("Manutenção / Oficina")}><FiSettings /><span>Manutenção / Oficina</span></button>
-                <button type="button" className={tipoServico === "Reparos / Serviços" ? "ativo" : ""} onClick={() => setTipoServico("Reparos / Serviços")}><FiTool /><span>Reparos / Serviços</span></button>
-                <button type="button" className={tipoServico === "Compra de Materiais" ? "ativo" : ""} onClick={() => setTipoServico("Compra de Materiais")}><FiBox /><span>Compra de Materiais</span></button>
-                <button type="button" className={tipoServico === "Outros / Solicitação" ? "ativo" : ""} onClick={() => setTipoServico("Outros / Solicitação")}><FiTruck /><span>Outros / Solicitação</span></button>
+                <button
+                  type="button"
+                  className={
+                    tipoServico === "Manutenção / Oficina" ? "ativo" : ""
+                  }
+                  onClick={() => setTipoServico("Manutenção / Oficina")}
+                >
+                  <FiSettings />
+                  <span>Manutenção / Oficina</span>
+                </button>
+                <button
+                  type="button"
+                  className={
+                    tipoServico === "Reparos / Serviços" ? "ativo" : ""
+                  }
+                  onClick={() => setTipoServico("Reparos / Serviços")}
+                >
+                  <FiTool />
+                  <span>Reparos / Serviços</span>
+                </button>
+                <button
+                  type="button"
+                  className={
+                    tipoServico === "Compra de Materiais" ? "ativo" : ""
+                  }
+                  onClick={() => setTipoServico("Compra de Materiais")}
+                >
+                  <FiBox />
+                  <span>Compra de Materiais</span>
+                </button>
+                <button
+                  type="button"
+                  className={
+                    tipoServico === "Outros / Solicitação" ? "ativo" : ""
+                  }
+                  onClick={() => setTipoServico("Outros / Solicitação")}
+                >
+                  <FiTruck />
+                  <span>Outros / Solicitação</span>
+                </button>
               </div>
             </div>
 
             <div className="nova-demanda-grupo">
-              <label>Data Solicitada <span>*</span></label>
+              <label>
+                Data Solicitada <span>*</span>
+              </label>
               <div className="nova-demanda-data">
-                <input type="datetime-local" value={dataSolicitada} onChange={(evento) => setDataSolicitada(evento.target.value)} required />
+                <input
+                  type="datetime-local"
+                  value={dataSolicitada}
+                  onChange={(evento) => setDataSolicitada(evento.target.value)}
+                  required
+                />
                 <FiCalendar />
               </div>
             </div>
 
             <div className="nova-demanda-grupo">
-              <label>Prioridade <span>*</span></label>
+              <label>
+                Prioridade <span>*</span>
+              </label>
               <div className="nova-demanda-prioridades">
-                <button type="button" className={`normal ${prioridade === "Normal" ? "ativo" : ""}`} onClick={() => setPrioridade("Normal")}><strong><FiCircle /> Normal</strong><span>Baixa prioridade</span></button>
-                <button type="button" className={`alta ${prioridade === "Alta" ? "ativo" : ""}`} onClick={() => setPrioridade("Alta")}><strong><FiAlertTriangle /> Alta</strong><span>Atenção</span></button>
-                <button type="button" className={`urgente ${prioridade === "Urgente" ? "ativo" : ""}`} onClick={() => setPrioridade("Urgente")}><strong><FiAlertTriangle /> Urgente</strong><span>Alta prioridade</span></button>
+                <button
+                  type="button"
+                  className={`normal ${prioridade === "Normal" ? "ativo" : ""}`}
+                  onClick={() => setPrioridade("Normal")}
+                >
+                  <strong>
+                    <FiCircle /> Normal
+                  </strong>
+                  <span>Baixa prioridade</span>
+                </button>
+                <button
+                  type="button"
+                  className={`alta ${prioridade === "Alta" ? "ativo" : ""}`}
+                  onClick={() => setPrioridade("Alta")}
+                >
+                  <strong>
+                    <FiAlertTriangle /> Alta
+                  </strong>
+                  <span>Atenção</span>
+                </button>
+                <button
+                  type="button"
+                  className={`urgente ${prioridade === "Urgente" ? "ativo" : ""}`}
+                  onClick={() => setPrioridade("Urgente")}
+                >
+                  <strong>
+                    <FiAlertTriangle /> Urgente
+                  </strong>
+                  <span>Alta prioridade</span>
+                </button>
               </div>
             </div>
 
             <div className="nova-demanda-grupo">
-              <label>Descrição da Demanda <span>*</span></label>
+              <label>
+                Descrição da Demanda <span>*</span>
+              </label>
               <textarea
                 maxLength={500}
                 placeholder="Descreva com detalhes o que precisa ser realizado..."
@@ -121,19 +251,39 @@ function NovaDemanda() {
                 onChange={(evento) => setDescricaoDemanda(evento.target.value)}
                 required
               />
-              <p className="nova-demanda-contador">{descricaoDemanda.length} / 500</p>
+              <p className="nova-demanda-contador">
+                {descricaoDemanda.length} / 500
+              </p>
             </div>
           </section>
 
           <aside className="nova-demanda-lateral">
             <section className="nova-demanda-card">
               <h2>Informações Adicionais</h2>
-              <div className="nova-demanda-info"><strong>Número da Demanda</strong><span>{numeroDemanda}</span></div>
-              <div className="nova-demanda-info"><strong>Tipo de Atendimento</strong><span>{tipoServico || "—"}</span></div>
-              <div className="nova-demanda-info"><strong>Prazo de Resposta</strong><span>{prazoResposta}</span></div>
-              <div className="nova-demanda-info"><strong>Data e Hora Limite</strong><span>{dataFormatada}</span></div>
-              <div className="nova-demanda-info"><strong>Prioridade</strong><span>{prioridade}</span></div>
-              <div className="nova-demanda-info"><strong>Solicitante</strong><span>—</span></div>
+              <div className="nova-demanda-info">
+                <strong>Número da Demanda</strong>
+                <span>{numeroDemanda}</span>
+              </div>
+              <div className="nova-demanda-info">
+                <strong>Tipo de Atendimento</strong>
+                <span>{tipoServico || "—"}</span>
+              </div>
+              <div className="nova-demanda-info">
+                <strong>Prazo de Resposta</strong>
+                <span>{prazoResposta}</span>
+              </div>
+              <div className="nova-demanda-info">
+                <strong>Data e Hora Limite</strong>
+                <span>{dataFormatada}</span>
+              </div>
+              <div className="nova-demanda-info">
+                <strong>Prioridade</strong>
+                <span>{prioridade}</span>
+              </div>
+              <div className="nova-demanda-info">
+                <strong>Solicitante</strong>
+                <span>{usuario?.nome || "—"}</span>
+              </div>
             </section>
 
             <section className="nova-demanda-card nova-demanda-anexos">
@@ -143,8 +293,16 @@ function NovaDemanda() {
           </aside>
 
           <div className="nova-demanda-acoes">
-            <button type="button" className="nova-demanda-cancelar" onClick={() => navigate("/demandas")}>Cancelar</button>
-            <button type="submit" className="nova-demanda-salvar">Salvar Demanda</button>
+            <button
+              type="button"
+              className="nova-demanda-cancelar"
+              onClick={() => navigate("/demandas")}
+            >
+              Cancelar
+            </button>
+            <button type="submit" className="nova-demanda-salvar">
+              Salvar Demanda
+            </button>
           </div>
         </form>
       </main>
