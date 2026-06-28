@@ -9,6 +9,8 @@ import {
   FiSearch,
 } from "react-icons/fi";
 
+import { getUsuarioLogado } from "../../services/auth";
+import { listarDemandasLocais } from "../../services/localData";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 
@@ -24,31 +26,60 @@ type Demanda = {
   status: "Aguardando" | "Em Andamento" | "Concluída" | "Cancelada";
 };
 
-const demandasMock: Demanda[] = [
-  { prioridade: "Urgente", id: "#2024-043", titulo: "Quebra no Elevador 02", oficina: "Chassi", solicitante: "Carlos Eduardo", prazo: "21/05/2024 14:30", status: "Em Andamento" },
-  { prioridade: "Urgente", id: "#2024-042", titulo: "Troca óleo do Compressor", oficina: "Pneumática", solicitante: "Mariana Costa", prazo: "21/05/2024 14:00", status: "Aguardando" },
-  { prioridade: "Alta", id: "#2024-040", titulo: "Preparação Oficina de Motores", oficina: "Motores Ciclo Otto", solicitante: "Lucas Silva", prazo: "20/05/2024 08:00", status: "Em Andamento" },
-  { prioridade: "Alta", id: "#2024-039", titulo: "Reposição Correia Poly-V HB20", oficina: "Oficina Veicular 01", solicitante: "João Pedro", prazo: "20/05/2024 09:15", status: "Aguardando" },
-  { prioridade: "Normal", id: "#2024-038", titulo: "Organização Laboratório Elétrica", oficina: "Elétrica e Eletrônica", solicitante: "Mariana Costa", prazo: "20/05/2024 10:00", status: "Aguardando" },
-  { prioridade: "Normal", id: "#2024-036", titulo: "Manutenção do Compressor", oficina: "Pneumática", solicitante: "Lucas Silva", prazo: "19/05/2024 09:45", status: "Aguardando" },
-];
-
-const abasStatus = [
-  { titulo: "Todas", quantidade: 32 },
-  { titulo: "Aguardando", quantidade: 9 },
-  { titulo: "Em Andamento", quantidade: 10 },
-  { titulo: "Concluídas", quantidade: 10 },
-  { titulo: "Canceladas", quantidade: 2 },
-];
-
 function Demandas() {
   const navigate = useNavigate();
+
+  const usuario = getUsuarioLogado();
+  const podeCriarDemanda = usuario?.perfil === "Professor";
+
   const [buscaDemanda, setBuscaDemanda] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("Todas");
 
+  const [demandas] = useState<Demanda[]>(() => {
+    const demandasLocais = listarDemandasLocais();
+
+    return demandasLocais.map((demanda) => ({
+      prioridade: demanda.prioridade === "Baixa" ? "Normal" : demanda.prioridade,
+      id: demanda.id,
+      titulo: demanda.titulo,
+      oficina: demanda.oficina,
+      solicitante: demanda.professorNome,
+      prazo: new Date(demanda.dataHoraNecessaria).toLocaleString("pt-BR"),
+      status:
+        demanda.status === "Aberta"
+          ? "Aguardando"
+          : demanda.status === "Concluída"
+          ? "Concluída"
+          : demanda.status === "Cancelada"
+          ? "Cancelada"
+          : "Em Andamento",
+    }));
+  });
+
+  const abasStatus = [
+    { titulo: "Todas", quantidade: demandas.length },
+    {
+      titulo: "Aguardando",
+      quantidade: demandas.filter((d) => d.status === "Aguardando").length,
+    },
+    {
+      titulo: "Em Andamento",
+      quantidade: demandas.filter((d) => d.status === "Em Andamento").length,
+    },
+    {
+      titulo: "Concluídas",
+      quantidade: demandas.filter((d) => d.status === "Concluída").length,
+    },
+    {
+      titulo: "Canceladas",
+      quantidade: demandas.filter((d) => d.status === "Cancelada").length,
+    },
+  ];
+
   const demandasFiltradas = useMemo(() => {
-    return demandasMock.filter((demanda) => {
+    return demandas.filter((demanda) => {
       const busca = buscaDemanda.toLowerCase();
+
       const correspondeBusca =
         demanda.titulo.toLowerCase().includes(busca) ||
         demanda.id.toLowerCase().includes(busca) ||
@@ -60,13 +91,16 @@ function Demandas() {
         (abaAtiva === "Concluídas" && demanda.status === "Concluída") ||
         (abaAtiva === "Canceladas" && demanda.status === "Cancelada");
 
-      return correspondeBusca && correspondeStatus;
+      const correspondePerfil =
+        usuario?.perfil !== "Professor" || demanda.solicitante === usuario.nome;
+
+      return correspondeBusca && correspondeStatus && correspondePerfil;
     });
-  }, [buscaDemanda, abaAtiva]);
+  }, [buscaDemanda, abaAtiva, demandas, usuario]);
 
   return (
     <div className="demandas-layout">
-      <Sidebar paginaAtiva="Demandas" />
+      <Sidebar />
 
       <main className="demandas-main">
         <Header titulo="Demandas" />
@@ -90,14 +124,26 @@ function Demandas() {
               />
             </div>
 
-            <button type="button" className="demandas-select">Todas as oficinas <FiChevronDown /></button>
-            <button type="button" className="demandas-select">Todos os status <FiChevronDown /></button>
-            <button type="button" className="demandas-select">Todas as prioridades <FiChevronDown /></button>
-
-            <button type="button" className="demandas-botao-novo" onClick={() => navigate("/nova-demanda")}>
-              <FiPlus />
-              Nova Demanda
+            <button type="button" className="demandas-select">
+              Todas as oficinas <FiChevronDown />
             </button>
+            <button type="button" className="demandas-select">
+              Todos os status <FiChevronDown />
+            </button>
+            <button type="button" className="demandas-select">
+              Todas as prioridades <FiChevronDown />
+            </button>
+
+            {podeCriarDemanda && (
+              <button
+                type="button"
+                className="demandas-botao-novo"
+                onClick={() => navigate("/nova-demanda")}
+              >
+                <FiPlus />
+                Nova Demanda
+              </button>
+            )}
           </div>
 
           <div className="demandas-abas">
@@ -134,7 +180,9 @@ function Demandas() {
                   {demandasFiltradas.map((demanda) => (
                     <tr key={demanda.id}>
                       <td>
-                        <span className={`demanda-prioridade ${demanda.prioridade.toLowerCase()}`}>
+                        <span
+                          className={`demanda-prioridade ${demanda.prioridade.toLowerCase()}`}
+                        >
                           <span />
                           {demanda.prioridade}
                         </span>
@@ -145,31 +193,52 @@ function Demandas() {
                       <td>{demanda.solicitante}</td>
                       <td>{demanda.prazo}</td>
                       <td>
-                        <span className={`demanda-status ${demanda.status === "Em Andamento" ? "andamento" : "aguardando"}`}>
+                        <span
+                          className={`demanda-status ${
+                            demanda.status === "Em Andamento"
+                              ? "andamento"
+                              : "aguardando"
+                          }`}
+                        >
                           <span />
                           {demanda.status}
                         </span>
                       </td>
                       <td>
-                        <button type="button" className="demanda-acao"><FiMoreHorizontal /></button>
+                        <button type="button" className="demanda-acao">
+                          <FiMoreHorizontal />
+                        </button>
                       </td>
                     </tr>
                   ))}
+
+                  {demandasFiltradas.length === 0 && (
+                    <tr>
+                      <td colSpan={8}>
+                        Nenhuma demanda encontrada.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
             <footer className="demandas-rodape-tabela">
-              <p>Exibindo 1 a {demandasFiltradas.length} de 32 demandas</p>
+              <p>
+                Exibindo {demandasFiltradas.length > 0 ? 1 : 0} a{" "}
+                {demandasFiltradas.length} de {demandas.length} demandas
+              </p>
 
               <div className="demandas-paginacao">
-                <button type="button"><FiChevronLeft /></button>
-                <button type="button" className="ativo">1</button>
-                <button type="button">2</button>
-                <button type="button">3</button>
-                <button type="button">4</button>
-                <button type="button">5</button>
-                <button type="button"><FiChevronRight /></button>
+                <button type="button">
+                  <FiChevronLeft />
+                </button>
+                <button type="button" className="ativo">
+                  1
+                </button>
+                <button type="button">
+                  <FiChevronRight />
+                </button>
               </div>
             </footer>
           </div>

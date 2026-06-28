@@ -2,29 +2,127 @@ import { NavLink } from "react-router-dom";
 import {
   FiArchive,
   FiBarChart2,
+  FiBell,
   FiChevronDown,
   FiClipboard,
   FiFileText,
   FiHome,
-  FiSettings,
+  FiPlusCircle,
   FiShoppingCart,
   FiUsers,
 } from "react-icons/fi";
-
+import React from "react";
 import "./Sidebar.css";
 
-const itensMenu = [
-  { icone: <FiHome />, titulo: "Dashboard", caminho: "/dashboard" },
-  { icone: <FiFileText />, titulo: "Demandas", caminho: "/demandas" },
-  { icone: <FiClipboard />, titulo: "Checklists", caminho: "/checklists" },
-  { icone: <FiArchive />, titulo: "Almoxarifado", caminho: "/almoxarifado" },
-  { icone: <FiShoppingCart />, titulo: "Compras", caminho: "/compras" },
-  { icone: <FiBarChart2 />, titulo: "Relatórios", caminho: "/relatorios" },
-  { icone: <FiUsers />, titulo: "Usuários", caminho: "/usuarios" },
-  { icone: <FiSettings />, titulo: "Configurações", caminho: "/configuracoes" },
+type Perfil = "Admin" | "Coordenador" | "Professor" | "Almoxarife";
+
+type ItemMenu = {
+  icone: React.ReactNode;
+  titulo: string;
+  caminho: string;
+  perfis: Perfil[];
+};
+
+const itensMenu: ItemMenu[] = [
+  {
+    icone: <FiHome />,
+    titulo: "Dashboard",
+    caminho: "/dashboard",
+    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife"],
+  },
+  {
+    icone: <FiFileText />,
+    titulo: "Demandas",
+    caminho: "/demandas",
+    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife"],
+  },
+ {
+  icone: <FiPlusCircle />,
+  titulo: "Nova Demanda",
+  caminho: "/nova-demanda",
+  perfis: ["Professor"],
+},
+  {
+    icone: <FiArchive />,
+    titulo: "Fila Almoxarifado",
+    caminho: "/almoxarifado",
+    perfis: ["Admin", "Coordenador", "Almoxarife"],
+  },
+  {
+    icone: <FiClipboard />,
+    titulo: "Checklists",
+    caminho: "/checklists",
+    perfis: ["Admin", "Coordenador", "Almoxarife"],
+  },
+  {
+    icone: <FiShoppingCart />,
+    titulo: "Compras",
+    caminho: "/compras",
+    perfis: ["Admin", "Coordenador", "Almoxarife"],
+  },
+  {
+    icone: <FiBarChart2 />,
+    titulo: "Relatórios",
+    caminho: "/relatorios",
+    perfis: ["Admin", "Coordenador"],
+  },
+  {
+    icone: <FiUsers />,
+    titulo: "Usuários",
+    caminho: "/usuarios",
+    perfis: ["Admin", "Coordenador"],
+  },
+  {
+    icone: <FiBell />,
+    titulo: "Notificações",
+    caminho: "/notificacoes",
+    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife"],
+  },
 ];
 
+function obterUsuarioLogado() {
+  const usuarioSalvo = localStorage.getItem("@senai:user");
+
+  if (!usuarioSalvo) {
+    return {
+      nome: "Usuário",
+      matricula: "",
+      perfil: "Coordenador" as Perfil,
+    };
+  }
+
+  try {
+    return JSON.parse(usuarioSalvo) as {
+      nome: string;
+      matricula: string;
+      perfil: Perfil;
+    };
+  } catch {
+    return {
+      nome: "Usuário",
+      matricula: "",
+      perfil: "Coordenador" as Perfil,
+    };
+  }
+}
+
+function gerarIniciais(nome: string) {
+  return nome
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0])
+    .join("")
+    .toUpperCase();
+}
+
 export default function Sidebar() {
+  const usuario = obterUsuarioLogado();
+
+  const itensPermitidos = itensMenu.filter((item) =>
+    item.perfis.includes(usuario.perfil)
+  );
+
   return (
     <aside className="sidebar">
       <div>
@@ -35,7 +133,7 @@ export default function Sidebar() {
         </div>
 
         <nav className="sidebar-menu">
-          {itensMenu.map((item) => (
+          {itensPermitidos.map((item) => (
             <NavLink
               key={item.titulo}
               to={item.caminho}
@@ -51,11 +149,11 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar-user">
-        <div className="avatar">JP</div>
+        <div className="avatar">{gerarIniciais(usuario.nome)}</div>
 
         <div className="sidebar-user-info">
-          <strong>João Pedro</strong>
-          <span>Coordenador</span>
+          <strong>{usuario.nome}</strong>
+          <span>{usuario.perfil}</span>
         </div>
 
         <FiChevronDown className="sidebar-user-arrow" />

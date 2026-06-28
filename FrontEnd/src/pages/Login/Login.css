@@ -207,6 +207,21 @@
   border-radius: 999px;
 }
 
+.botao-ver-senha {
+  border: none;
+  background: transparent;
+  color: #0057d9;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.botao-ver-senha svg {
+  font-size: 20px;
+}
+
 /* TABLET */
 @media (max-width: 900px){
   .login-pagina {
