@@ -1,0 +1,263 @@
+.execucao-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.execucao-main {
+  flex: 1;
+  overflow: hidden;
+}
+
+.execucao-conteudo {
+  height: 100vh;
+  padding: 28px 40px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.execucao-cabecalho {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.execucao-voltar,
+.execucao-finalizar,
+.execucao-salvar {
+  border: none;
+  border-radius: 10px;
+  height: 44px;
+  padding: 0 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.execucao-voltar {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+}
+
+.execucao-finalizar {
+  background: #003fbd;
+  color: white;
+}
+
+.execucao-salvar {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+}
+
+.execucao-titulo h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.execucao-titulo p,
+.execucao-titulo span {
+  color: #667085;
+}
+
+.execucao-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.execucao-resumo div {
+  background: white;
+  border-radius: 14px;
+  padding: 14px 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.execucao-resumo strong {
+  font-size: 24px;
+  margin-right: 4px;
+}
+
+.execucao-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.execucao-tabela-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.execucao-tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.execucao-tabela th,
+.execucao-tabela td {
+  padding: 18px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.execucao-tabela th {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+}
+
+.execucao-status-opcoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.execucao-status-opcoes button {
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  background: white;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.execucao-status-opcoes .ativo.conforme {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+  font-weight: 800;
+}
+
+.execucao-status-opcoes .ativo.faltante {
+  background: #fef3c7;
+  border-color: #facc15;
+  color: #b45309;
+  font-weight: 800;
+}
+
+.execucao-status-opcoes .ativo.danificado {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.execucao-tabela input[type="text"] {
+  width: 100%;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 12px;
+}
+
+.execucao-foto {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.execucao-foto input {
+  display: none;
+}
+
+.execucao-foto-ok {
+  color: #16a34a;
+  font-weight: 700;
+  margin-left: 10px;
+}
+
+.execucao-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #edf2f7;
+}
+
+.checklists-acao.executar {
+  width: auto;
+  min-width: 78px;
+  padding: 0 12px;
+  background: #0046c7;
+  color: #ffffff;
+  border-color: #0046c7;
+  font-weight: 700;
+}
+
+.checklists-acao.executar:hover {
+  background: #003cab;
+}
+
+.execucao-toast {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 100;
+  min-width: 320px;
+  max-width: 420px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: toastEntrada 0.2s ease-out;
+}
+
+.execucao-toast strong {
+  font-size: 15px;
+}
+
+.execucao-toast span {
+  font-size: 14px;
+}
+
+.execucao-toast.sucesso {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.execucao-toast.erro {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.execucao-toast.aviso {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+@keyframes toastEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .execucao-cabecalho {
+    grid-template-columns: 1fr;
+  }
+
+  .execucao-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
