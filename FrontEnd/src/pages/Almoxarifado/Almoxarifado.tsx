@@ -12,6 +12,9 @@ import {
   FiPackage,
   FiCheckCircle,
   FiSlash,
+  FiAlertCircle,
+  FiBox,
+  FiCheck,
 } from "react-icons/fi";
 
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -63,14 +66,22 @@ function proximoStatus(status: StatusDemanda): StatusDemanda {
 
 function Almoxarifado() {
   const [demandas, setDemandas] = useState<DemandaLocal[]>(() =>
-    listarDemandasLocais()
+    listarDemandasLocais(),
   );
 
   const [demandaAberta, setDemandaAberta] = useState<DemandaLocal | null>(null);
 
+  const [filtroPrioridade, setFiltroPrioridade] = useState("");
+  const [filtroOficina, setFiltroOficina] = useState("");
+  const [ordenacao, setOrdenacao] = useState("prazo");
+
   const [colunasExpandidas, setColunasExpandidas] = useState<
     Record<string, boolean>
   >({});
+
+  const oficinasDisponiveis = useMemo(() => {
+    return [...new Set(demandas.map((demanda) => demanda.oficina))];
+  }, [demandas]);
 
   const demandasOrdenadas = useMemo(() => {
     const pesoPrioridade = {
@@ -80,31 +91,37 @@ function Almoxarifado() {
       Baixa: 4,
     };
 
-    return [...demandas].sort((a, b) => {
-      const prioridadeA = pesoPrioridade[a.prioridade];
-      const prioridadeB = pesoPrioridade[b.prioridade];
+    return demandas
+      .filter((demanda) => {
+        const correspondePrioridade =
+          !filtroPrioridade || demanda.prioridade === filtroPrioridade;
 
-      if (prioridadeA !== prioridadeB) {
-        return prioridadeA - prioridadeB;
-      }
+        const correspondeOficina =
+          !filtroOficina || demanda.oficina === filtroOficina;
 
-      return (
-        new Date(a.dataHoraNecessaria).getTime() -
-        new Date(b.dataHoraNecessaria).getTime()
-      );
-    });
-  }, [demandas]);
+        return correspondePrioridade && correspondeOficina;
+      })
+      .sort((a, b) => {
+        if (ordenacao === "prioridade") {
+          return pesoPrioridade[a.prioridade] - pesoPrioridade[b.prioridade];
+        }
 
+        return (
+          new Date(a.dataHoraNecessaria).getTime() -
+          new Date(b.dataHoraNecessaria).getTime()
+        );
+      });
+  }, [demandas, filtroPrioridade, filtroOficina, ordenacao]);
 
-function alterarStatus(id: string, novoStatus: StatusDemanda) {
-  alterarStatusDemandaLocal(id, novoStatus);
+  function alterarStatus(id: string, novoStatus: StatusDemanda) {
+    alterarStatusDemandaLocal(id, novoStatus);
 
-  setDemandas(listarDemandasLocais());
+    setDemandas(listarDemandasLocais());
 
-  setTimeout(() => {
-    setDemandaAberta(null);
-  }, 300);
-}
+    setTimeout(() => {
+      setDemandaAberta(null);
+    }, 300);
+  }
 
   function avancarStatus(demanda: DemandaLocal) {
     alterarStatus(demanda.id, proximoStatus(demanda.status));
@@ -128,27 +145,144 @@ function alterarStatus(id: string, novoStatus: StatusDemanda) {
               <h1>Fila de Demandas</h1>
               <p>Gerencie e priorize as demandas do almoxarifado.</p>
             </div>
-
-            <div className="almoxarifado-filtros-topo">
-              <label>
-                Ordenar por:
-                <button type="button" className="almoxarifado-select">
-                  Prazo mais próximo
-                  <FiChevronDown />
-                </button>
-              </label>
-
-              <button type="button" className="almoxarifado-filtrar">
-                <FiFilter />
-                Filtrar
-              </button>
-            </div>
           </header>
+          <section className="almoxarifado-resumo">
+            <article className="almoxarifado-resumo-card abertas">
+              <div className="almoxarifado-resumo-icone">
+                <FiAlertCircle />
+              </div>
+              <div>
+                <strong>
+                  {
+                    demandas.filter((demanda) => demanda.status === "Aberta")
+                      .length
+                  }
+                </strong>
+                <span>Abertas</span>
+                <small>Demandas</small>
+              </div>
+            </article>
+
+            <article className="almoxarifado-resumo-card andamento">
+              <div className="almoxarifado-resumo-icone">
+                <FiPlayCircle />
+              </div>
+              <div>
+                <strong>
+                  {
+                    demandas.filter(
+                      (demanda) => demanda.status === "Em Andamento",
+                    ).length
+                  }
+                </strong>
+                <span>Em Andamento</span>
+                <small>Demanda</small>
+              </div>
+            </article>
+
+            <article className="almoxarifado-resumo-card material">
+              <div className="almoxarifado-resumo-icone">
+                <FiBox />
+              </div>
+              <div>
+                <strong>
+                  {
+                    demandas.filter(
+                      (demanda) => demanda.status === "Aguardando Material",
+                    ).length
+                  }
+                </strong>
+                <span>Aguardando Material</span>
+                <small>Demanda</small>
+              </div>
+            </article>
+
+            <article className="almoxarifado-resumo-card concluidas">
+              <div className="almoxarifado-resumo-icone">
+                <FiCheck />
+              </div>
+              <div>
+                <strong>
+                  {
+                    demandas.filter((demanda) => demanda.status === "Concluída")
+                      .length
+                  }
+                </strong>
+                <span>Concluídas</span>
+                <small>Demanda</small>
+              </div>
+            </article>
+          </section>
+          <div className="almoxarifado-filtros-topo">
+            <label>
+              Ordenar por:
+              <div className="almoxarifado-select">
+                <select
+                  value={ordenacao}
+                  onChange={(evento) => setOrdenacao(evento.target.value)}
+                >
+                  <option value="prazo">Prazo mais próximo</option>
+                  <option value="prioridade">Prioridade</option>
+                </select>
+                <FiChevronDown />
+              </div>
+            </label>
+
+            <label>
+              Oficina:
+              <div className="almoxarifado-select">
+                <select
+                  value={filtroOficina}
+                  onChange={(evento) => setFiltroOficina(evento.target.value)}
+                >
+                  <option value="">Todas</option>
+                  {oficinasDisponiveis.map((oficina) => (
+                    <option key={oficina} value={oficina}>
+                      {oficina}
+                    </option>
+                  ))}
+                </select>
+                <FiChevronDown />
+              </div>
+            </label>
+
+            <label>
+              Prioridade:
+              <div className="almoxarifado-select">
+                <select
+                  value={filtroPrioridade}
+                  onChange={(evento) =>
+                    setFiltroPrioridade(evento.target.value)
+                  }
+                >
+                  <option value="">Todas</option>
+                  <option value="Urgente">Urgente</option>
+                  <option value="Alta">Alta</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Baixa">Baixa</option>
+                </select>
+                <FiChevronDown />
+              </div>
+            </label>
+
+            <button
+              type="button"
+              className="almoxarifado-filtrar"
+              onClick={() => {
+                setFiltroOficina("");
+                setFiltroPrioridade("");
+                setOrdenacao("prazo");
+              }}
+            >
+              <FiFilter />
+              Limpar
+            </button>
+          </div>
 
           <div className="almoxarifado-kanban">
             {colunas.map((coluna) => {
               const demandasDaColuna = demandasOrdenadas.filter(
-                (demanda) => demanda.status === coluna.status
+                (demanda) => demanda.status === coluna.status,
               );
 
               const estaExpandida = colunasExpandidas[coluna.status];
@@ -193,7 +327,7 @@ function alterarStatus(id: string, novoStatus: StatusDemanda) {
 
                         <span
                           className={`almoxarifado-prioridade ${classePrioridade(
-                            demanda.prioridade
+                            demanda.prioridade,
                           )}`}
                         >
                           {demanda.prioridade}
@@ -246,7 +380,7 @@ function alterarStatus(id: string, novoStatus: StatusDemanda) {
               <div>
                 <span
                   className={`almoxarifado-prioridade ${classePrioridade(
-                    demandaAberta.prioridade
+                    demandaAberta.prioridade,
                   )}`}
                 >
                   {demandaAberta.prioridade}
@@ -286,7 +420,9 @@ function alterarStatus(id: string, novoStatus: StatusDemanda) {
                 <FiClock />
                 <div>
                   <span>Prazo operacional</span>
-                  <strong>{formatarData(demandaAberta.dataHoraNecessaria)}</strong>
+                  <strong>
+                    {formatarData(demandaAberta.dataHoraNecessaria)}
+                  </strong>
                 </div>
               </div>
 
