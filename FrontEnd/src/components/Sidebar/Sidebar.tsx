@@ -36,12 +36,6 @@ const itensMenu: ItemMenu[] = [
     caminho: "/demandas",
     perfis: ["Admin", "Coordenador", "Professor", "Almoxarife"],
   },
- {
-  icone: <FiPlusCircle />,
-  titulo: "Nova Demanda",
-  caminho: "/nova-demanda",
-  perfis: ["Professor"],
-},
   {
     icone: <FiArchive />,
     titulo: "Fila Almoxarifado",

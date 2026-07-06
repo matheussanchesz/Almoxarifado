@@ -340,6 +340,56 @@
   background: #0049b8;
 }
 
+.nova-demanda-botao-anexo {
+  height: 42px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0057d9;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.nova-demanda-botao-anexo input {
+  display: none;
+}
+
+.nova-demanda-lista-anexos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nova-demanda-anexo-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.nova-demanda-anexo-item span {
+  font-size: 13px;
+  color: #334155;
+  word-break: break-word;
+}
+
+.nova-demanda-anexo-item button {
+  border: none;
+  background: transparent;
+  color: #dc2626;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 /* =========================================================
    RESPONSIVIDADE
    ========================================================= */

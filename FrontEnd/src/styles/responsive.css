@@ -1,0 +1,650 @@
+/* =========================================================
+   RESPONSIVIDADE GLOBAL DO SISTEMA
+   Etapa 1: ajustes gerais de layout, sidebar, tabelas,
+   formulários, cards e modais para desktop, tablet e mobile.
+   ========================================================= */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  min-width: 0;
+}
+
+button {
+  min-width: 0;
+}
+
+/* Layouts principais com sidebar */
+.dashboard-layout,
+.users-layout,
+.demandas-layout,
+.almoxarifado-layout,
+.checklists-layout,
+.compras-layout,
+.nova-compra-layout,
+.nova-demanda-layout,
+.detalhes-compra-layout,
+.detalhes-demanda-layout,
+.execucao-layout {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100dvh;
+}
+
+.dashboard-main,
+.users-main,
+.demandas-main,
+.almoxarifado-main,
+.checklists-main,
+.compras-main,
+.nova-compra-main,
+.nova-demanda-main,
+.detalhes-compra-main,
+.detalhes-demanda-main,
+.execucao-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Áreas com rolagem própria deixam de travar em telas menores */
+.compras-layout,
+.demandas-layout,
+.almoxarifado-layout,
+.checklists-layout,
+.nova-compra-layout,
+.nova-demanda-layout,
+.detalhes-compra-layout,
+.detalhes-demanda-layout,
+.execucao-layout {
+  min-height: 100dvh;
+}
+
+.table-panel,
+.users-card,
+.demandas-tabela-card,
+.compras-card,
+.checklists-card,
+.execucao-card {
+  max-width: 100%;
+}
+
+.table-panel,
+.users-card,
+.demandas-tabela-area,
+.compras-tabela-wrapper,
+.checklists-tabela-wrapper,
+.execucao-tabela-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Desktop médio / notebooks */
+@media (max-width: 1280px) {
+  .dashboard-main,
+  .users-main,
+  .demandas-conteudo,
+  .almoxarifado-conteudo,
+  .checklists-conteudo,
+  .compras-conteudo,
+  .nova-compra-conteudo,
+  .nova-demanda-main,
+  .detalhes-compra-conteudo,
+  .detalhes-demanda-conteudo,
+  .execucao-conteudo {
+    padding: 28px;
+  }
+
+  .stats-grid,
+  .compras-indicadores,
+  .almoxarifado-resumo,
+  .detalhes-compra-resumo,
+  .detalhes-demanda-resumo,
+  .execucao-resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .almoxarifado-kanban {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    overflow-x: auto;
+  }
+
+  .demandas-filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .almoxarifado-filtros-topo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet e mobile: sidebar vira barra superior organizada */
+@media (max-width: 900px) {
+  .dashboard-layout,
+  .users-layout,
+  .demandas-layout,
+  .almoxarifado-layout,
+  .checklists-layout,
+  .compras-layout,
+  .nova-compra-layout,
+  .nova-demanda-layout,
+  .detalhes-compra-layout,
+  .detalhes-demanda-layout,
+  .execucao-layout {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    padding: 14px 16px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    gap: 12px;
+  }
+
+  .sidebar-logo {
+    margin-bottom: 8px;
+    padding-left: 0;
+  }
+
+  .sidebar-logo h1 {
+    font-size: 28px;
+    letter-spacing: -1px;
+  }
+
+  .sidebar-logo span {
+    font-size: 12px;
+  }
+
+  .sidebar-menu {
+    width: 100%;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-item {
+    width: auto;
+    min-width: max-content;
+    height: 40px;
+    padding: 0 12px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    font-size: 14px;
+  }
+
+  .sidebar-item svg {
+    font-size: 17px;
+  }
+
+  .sidebar-user {
+    display: none;
+  }
+
+  .dashboard-main,
+  .users-main,
+  .demandas-main,
+  .almoxarifado-main,
+  .checklists-main,
+  .compras-main,
+  .nova-compra-main,
+  .nova-demanda-main,
+  .detalhes-compra-main,
+  .detalhes-demanda-main,
+  .execucao-main {
+    width: 100%;
+    height: auto;
+    min-height: calc(100dvh - 84px);
+    overflow: visible;
+  }
+
+  .dashboard-main,
+  .users-main,
+  .demandas-conteudo,
+  .almoxarifado-conteudo,
+  .checklists-conteudo,
+  .compras-conteudo,
+  .nova-compra-conteudo,
+  .nova-demanda-main,
+  .detalhes-compra-conteudo,
+  .detalhes-demanda-conteudo,
+  .execucao-conteudo {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    padding: 24px;
+  }
+
+  .header,
+  .users-header,
+  .compras-cabecalho,
+  .checklists-cabecalho,
+  .almoxarifado-cabecalho,
+  .demandas-cabecalho,
+  .nova-compra-cabecalho,
+  .nova-demanda-topo,
+  .detalhes-compra-cabecalho,
+  .detalhes-demanda-topo,
+  .execucao-cabecalho {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .header-title h2,
+  .users-header h1,
+  .compras-cabecalho h1,
+  .checklists-cabecalho h1,
+  .almoxarifado-cabecalho h1,
+  .demandas-cabecalho h1,
+  .nova-compra-cabecalho h1,
+  .detalhes-compra-titulo h1,
+  .detalhes-demanda-topo h1,
+  .execucao-titulo h1 {
+    font-size: clamp(24px, 5vw, 31px);
+    line-height: 1.15;
+  }
+
+  .users-header p,
+  .compras-cabecalho p,
+  .checklists-cabecalho p,
+  .almoxarifado-cabecalho p,
+  .demandas-cabecalho p,
+  .nova-compra-cabecalho p,
+  .detalhes-compra-titulo p,
+  .detalhes-demanda-topo p,
+  .execucao-titulo p {
+    font-size: 15px;
+  }
+
+  .new-user-button,
+  .compras-botao-novo,
+  .checklists-botao-novo,
+  .demandas-botao-novo,
+  .nova-compra-salvar,
+  .nova-compra-cancelar,
+  .nova-demanda-salvar,
+  .nova-demanda-cancelar,
+  .execucao-finalizar,
+  .execucao-salvar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-grid,
+  .compras-indicadores,
+  .almoxarifado-resumo,
+  .detalhes-compra-resumo,
+  .detalhes-demanda-resumo,
+  .execucao-resumo,
+  .nova-compra-grid,
+  .checklists-modal-grid,
+  .checklists-categorias-grid,
+  .almoxarifado-modal-grid,
+  .detalhes-compra-grid,
+  .detalhes-demanda-grid,
+  .nova-compra-formulario,
+  .nova-demanda-formulario,
+  .nova-demanda-card-principal,
+  .priority-content,
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compras-filtros,
+  .demandas-filtros,
+  .almoxarifado-filtros-topo {
+    grid-template-columns: 1fr;
+  }
+
+  .almoxarifado-filtros-topo label {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    white-space: normal;
+  }
+
+  .almoxarifado-kanban {
+    grid-template-columns: minmax(280px, 1fr);
+    overflow: visible;
+  }
+
+  .almoxarifado-coluna {
+    min-height: auto;
+  }
+
+  .panel,
+  .nova-compra-card,
+  .nova-demanda-card,
+  .detalhes-compra-card,
+  .detalhes-demanda-card,
+  .almoxarifado-resumo-card,
+  .compras-indicadores div {
+    padding: 20px;
+  }
+
+  .users-table,
+  .demandas-tabela,
+  .compras-tabela,
+  .checklists-tabela,
+  .execucao-tabela {
+    min-width: 760px;
+  }
+
+  .users-footer,
+  .demandas-rodape-tabela,
+  .checklists-rodape,
+  .execucao-rodape,
+  .nova-compra-acoes,
+  .nova-demanda-acoes,
+  .modal-botoes,
+  .checklists-modal-acoes {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .pagination,
+  .demandas-paginacao,
+  .checklists-paginacao {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Celulares grandes */
+@media (max-width: 640px) {
+  .dashboard-main,
+  .users-main,
+  .demandas-conteudo,
+  .almoxarifado-conteudo,
+  .checklists-conteudo,
+  .compras-conteudo,
+  .nova-compra-conteudo,
+  .nova-demanda-main,
+  .detalhes-compra-conteudo,
+  .detalhes-demanda-conteudo,
+  .execucao-conteudo {
+    padding: 18px 14px 24px;
+  }
+
+  .sidebar {
+    padding: 12px;
+  }
+
+  .sidebar-menu::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .header-actions,
+  .header-title,
+  .compras-cabecalho,
+  .checklists-cabecalho,
+  .users-header,
+  .demandas-cabecalho,
+  .almoxarifado-cabecalho {
+    width: 100%;
+  }
+
+  .profile-button {
+    flex: 1;
+    height: 46px;
+    padding: 0 12px;
+    justify-content: center;
+  }
+
+  .notification {
+    font-size: 23px;
+  }
+
+  .stats-grid,
+  .compras-indicadores,
+  .almoxarifado-resumo,
+  .detalhes-compra-resumo,
+  .detalhes-demanda-resumo,
+  .execucao-resumo {
+    gap: 12px;
+  }
+
+  .panel,
+  .users-card,
+  .compras-card,
+  .checklists-card,
+  .demandas-tabela-card,
+  .execucao-card,
+  .nova-compra-card,
+  .nova-demanda-card,
+  .detalhes-compra-card,
+  .detalhes-demanda-card {
+    border-radius: 12px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .donut-wrapper {
+    height: 210px;
+  }
+
+  .donut-center strong {
+    font-size: 32px;
+  }
+
+  .legend-row {
+    font-size: 14px;
+  }
+
+  .users-table th,
+  .users-table td,
+  .demandas-tabela th,
+  .demandas-tabela td,
+  .compras-tabela th,
+  .compras-tabela td,
+  .checklists-tabela th,
+  .checklists-tabela td,
+  .execucao-tabela th,
+  .execucao-tabela td {
+    padding: 14px 12px;
+    font-size: 13px;
+  }
+
+  .users-table {
+    min-width: 680px;
+  }
+
+  .user-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .user-info {
+    gap: 10px;
+  }
+
+  .user-actions {
+    gap: 16px;
+  }
+
+  .user-actions button {
+    font-size: 22px;
+  }
+
+  .user-status,
+  .badge,
+  .demanda-status,
+  .demanda-prioridade,
+  .compras-status,
+  .compras-urgencia,
+  .checklists-status {
+    font-size: 12px;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+
+  .compras-busca,
+  .checklists-busca,
+  .demandas-busca,
+  .demandas-select,
+  .almoxarifado-select,
+  .almoxarifado-filtrar {
+    width: 100%;
+  }
+
+  .login-conteudo {
+    padding: 18px;
+  }
+
+  .login-card,
+  .auth-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 28px 20px;
+  }
+
+  .login-card h2,
+  .auth-card h2 {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  .login-atalhos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .checklists-modal-fundo,
+  .almoxarifado-modal-fundo,
+  .modal-overlay {
+    padding: 14px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .checklists-modal,
+  .almoxarifado-modal,
+  .modal-confirmacao {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 22px 18px;
+  }
+
+  .toast,
+  .execucao-toast {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: auto;
+  }
+}
+
+/* Celulares pequenos */
+@media (max-width: 420px) {
+  .dashboard-main,
+  .users-main,
+  .demandas-conteudo,
+  .almoxarifado-conteudo,
+  .checklists-conteudo,
+  .compras-conteudo,
+  .nova-compra-conteudo,
+  .nova-demanda-main,
+  .detalhes-compra-conteudo,
+  .detalhes-demanda-conteudo,
+  .execucao-conteudo {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .sidebar-item {
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .sidebar-logo h1 {
+    font-size: 24px;
+  }
+
+  .header-title {
+    gap: 10px;
+  }
+
+  .header-title svg {
+    font-size: 22px;
+  }
+
+  .header-title h2,
+  .users-header h1,
+  .compras-cabecalho h1,
+  .checklists-cabecalho h1,
+  .almoxarifado-cabecalho h1,
+  .demandas-cabecalho h1,
+  .nova-compra-cabecalho h1,
+  .detalhes-compra-titulo h1,
+  .detalhes-demanda-topo h1,
+  .execucao-titulo h1 {
+    font-size: 23px;
+  }
+
+  .profile-button span,
+  .profile-button strong {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .panel,
+  .nova-compra-card,
+  .nova-demanda-card,
+  .detalhes-compra-card,
+  .detalhes-demanda-card,
+  .almoxarifado-resumo-card,
+  .compras-indicadores div {
+    padding: 16px;
+  }
+
+  .login-atalhos {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination button,
+  .demandas-paginacao button,
+  .checklists-paginacao button {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+  }
+}
