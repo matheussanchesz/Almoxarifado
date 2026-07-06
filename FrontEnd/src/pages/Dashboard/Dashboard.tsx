@@ -17,78 +17,114 @@ import {
   YAxis,
 } from "recharts";
 
-  import Header from "../../components/Header/Header";
-  import Sidebar from "../../components/Sidebar/Sidebar";
-  import StatCard from "../../components/StatCard/StatCard";
-  import "../../components/Sidebar/Sidebar.css";
-  import "../../components/Header/Header.css";
+import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import StatCard from "../../components/StatCard/StatCard";
+import { listarDemandasLocais } from "../../services/localData";
 
+import "../../components/Sidebar/Sidebar.css";
+import "../../components/Header/Header.css";
 import "./Dashboard.css";
 
-const priorityData = [
-  { name: "Urgente (vermelho)", value: 13, percent: "40%", color: "#ef233c" },
-  { name: "Alta (amarelo)", value: 10, percent: "30%", color: "#ff8906" },
-  { name: "Normal (azul)", value: 6, percent: "20%", color: "#2563eb" },
-  { name: "Normal (verde)", value: 3, percent: "10%", color: "#22c55e" },
-];
+function calcularPercentual(valor: number, total: number) {
+  if (total === 0) return "0%";
+  return `${Math.round((valor / total) * 100)}%`;
+}
 
-const statusData = [
-  { name: "Abertas", value: 18, color: "#2563eb" },
-  { name: "Em andamento", value: 9, color: "#2563eb" },
-  { name: "Concluídas", value: 14, color: "#22c55e" },
-  { name: "Atrasadas", value: 2, color: "#ef233c" },
-];
+function formatarData(data: string) {
+  return new Date(data).toLocaleString("pt-BR");
+}
 
-const recentDemands = [
-  {
-    id: "#2024-082",
-    title: "Troca de óleo do Motor",
-    requester: "Lucas Silva",
-    workshop: "Motores Ciclo Otto",
-    deadline: "14/05/2024 08:00",
-    priority: "Alta",
-    priorityClass: "high",
-    status: "Em Andamento",
-    statusClass: "progress",
-  },
-  {
-    id: "#2024-081",
-    title: "Reparação de cabos elétricos",
-    requester: "Mariana Costa",
-    workshop: "Elétrica e Eletrônica",
-    deadline: "14/05/2024 10:30",
-    priority: "Normal",
-    priorityClass: "normal",
-    status: "Aguardando",
-    statusClass: "waiting",
-  },
-  {
-    id: "#2024-080",
-    title: "Revisão em Freios",
-    requester: "Carlos Eduardo",
-    workshop: "Freios",
-    deadline: "13/05/2024 14:00",
-    priority: "Urgente",
-    priorityClass: "urgent",
-    status: "Em Andamento",
-    statusClass: "progress",
-  },
-  {
-    id: "#2024-079",
-    title: "Preparar filtros e ignição",
-    requester: "João Pedro",
-    workshop: "Motores Veículos Pes.",
-    deadline: "12/05/2024 09:30",
-    priority: "Alta",
-    priorityClass: "high",
-    status: "Aguardando",
-    statusClass: "waiting",
-  },
-];
+function obterClassePrioridade(prioridade: string) {
+  if (prioridade === "Urgente") return "urgent";
+  if (prioridade === "Alta") return "high";
+  return "normal";
+}
 
-
+function obterClasseStatus(status: string) {
+  if (status === "Em Andamento") return "progress";
+  if (status === "Concluída") return "done";
+  if (status === "Cancelada") return "cancelled";
+  return "waiting";
+}
 
 export default function Dashboard() {
+  const demandas = listarDemandasLocais();
+
+  const totalDemandas = demandas.length;
+  const abertas = demandas.filter((d) => d.status === "Aberta").length;
+  const aguardandoAtendimento = demandas.filter(
+    (d) => d.status === "Aberta" || d.status === "Em Análise"
+  ).length;
+  const emAndamento = demandas.filter((d) => d.status === "Em Andamento").length;
+  const aguardandoMaterial = demandas.filter(
+    (d) => d.status === "Aguardando Material"
+  ).length;
+  const concluidas = demandas.filter((d) => d.status === "Concluída").length;
+  const urgentes = demandas.filter((d) => d.prioridade === "Urgente").length;
+
+  const prioridadeUrgente = demandas.filter(
+    (d) => d.prioridade === "Urgente"
+  ).length;
+  const prioridadeAlta = demandas.filter((d) => d.prioridade === "Alta").length;
+  const prioridadeNormal = demandas.filter(
+    (d) => d.prioridade === "Normal"
+  ).length;
+  const prioridadeBaixa = demandas.filter((d) => d.prioridade === "Baixa").length;
+
+  const priorityData = [
+    {
+      name: "Urgente (vermelho)",
+      value: prioridadeUrgente,
+      percent: calcularPercentual(prioridadeUrgente, totalDemandas),
+      color: "#ef233c",
+    },
+    {
+      name: "Alta (amarelo)",
+      value: prioridadeAlta,
+      percent: calcularPercentual(prioridadeAlta, totalDemandas),
+      color: "#ff8906",
+    },
+    {
+      name: "Normal (verde)",
+      value: prioridadeNormal,
+      percent: calcularPercentual(prioridadeNormal, totalDemandas),
+      color: "#22c55e",
+    },
+    {
+      name: "Baixa (azul)",
+      value: prioridadeBaixa,
+      percent: calcularPercentual(prioridadeBaixa, totalDemandas),
+      color: "#2563eb",
+    },
+  ];
+
+  const statusData = [
+    { name: "Abertas", value: abertas, color: "#2563eb" },
+    { name: "Em andamento", value: emAndamento, color: "#ff8906" },
+    { name: "Aguard. material", value: aguardandoMaterial, color: "#7c3aed" },
+    { name: "Concluídas", value: concluidas, color: "#22c55e" },
+  ];
+
+  const recentDemands = [...demandas]
+    .sort(
+      (a, b) =>
+        new Date(b.dataHoraCriacao).getTime() -
+        new Date(a.dataHoraCriacao).getTime()
+    )
+    .slice(0, 5)
+    .map((demanda) => ({
+      id: `#${demanda.id.slice(0, 8)}`,
+      title: demanda.titulo,
+      requester: demanda.professorNome,
+      workshop: demanda.oficina,
+      deadline: formatarData(demanda.dataHoraNecessaria),
+      priority: demanda.prioridade,
+      priorityClass: obterClassePrioridade(demanda.prioridade),
+      status: demanda.status === "Aberta" ? "Aguardando" : demanda.status,
+      statusClass: obterClasseStatus(demanda.status),
+    }));
+
   return (
     <div className="dashboard-layout">
       <Sidebar />
@@ -99,32 +135,32 @@ export default function Dashboard() {
         <section className="stats-grid">
           <StatCard
             title="Demandas Abertas"
-            value={32}
-            description="Total em andamento"
+            value={abertas}
+            description={`${totalDemandas} demandas no total`}
             icon={<FiFileText />}
             variant="blue"
           />
 
           <StatCard
             title="Aguardando Atendimento"
-            value={18}
-            description="Histórico até a espera"
+            value={aguardandoAtendimento}
+            description="Abertas ou em análise"
             icon={<FiClock />}
             variant="orange"
           />
 
           <StatCard
-            title="Concluídas Hoje"
-            value={14}
-            description="Serviços realizados"
+            title="Concluídas"
+            value={concluidas}
+            description="Serviços finalizados"
             icon={<FiCheck />}
             variant="green"
           />
 
           <StatCard
             title="Urgentes"
-            value={2}
-            description="Demandas em prazo"
+            value={urgentes}
+            description="Demandas críticas"
             icon={<FiAlertTriangle />}
             variant="red"
           />
@@ -153,7 +189,7 @@ export default function Dashboard() {
                 </ResponsiveContainer>
 
                 <div className="donut-center">
-                  <strong>32</strong>
+                  <strong>{totalDemandas}</strong>
                   <span>Total</span>
                 </div>
               </div>
@@ -185,7 +221,7 @@ export default function Dashboard() {
               <BarChart data={statusData}>
                 <CartesianGrid stroke="#e5e7eb" vertical={false} />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} />
+                <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={54}>
                   {statusData.map((item) => (
                     <Cell key={item.name} fill={item.color} />
@@ -232,6 +268,12 @@ export default function Dashboard() {
                   </td>
                 </tr>
               ))}
+
+              {recentDemands.length === 0 && (
+                <tr>
+                  <td colSpan={7}>Nenhuma demanda encontrada.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </section>

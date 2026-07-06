@@ -12,6 +12,7 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import Usuarios from "../pages/Usuarios/Usuarios";
 import NovaDemanda from "../pages/NovaDemanda/NovaDemanda";
 import Demandas from "../pages/Demandas/Demandas";
+import Almoxarifado from "../pages/Almoxarifado/Almoxarifado";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -71,6 +72,15 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+
+        <Route
+  path="/almoxarifado"
+  element={
+    <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}>
+      <Almoxarifado />
+    </PrivateRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );
