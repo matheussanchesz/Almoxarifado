@@ -15,7 +15,7 @@
 
 .almoxarifado-conteudo {
   height: 100vh;
-  padding: 34px 36px 28px;
+  padding: 24px 30px 22px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -23,71 +23,73 @@
 
 .almoxarifado-cabecalho {
   flex-shrink: 0;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .almoxarifado-cabecalho h1 {
   margin: 0;
-  font-size: 38px;
-  line-height: 1.05;
-  font-weight: 900;
+  font-size: 32px;
   color: #111827;
-  letter-spacing: -0.04em;
+  font-weight: 900;
 }
 
 .almoxarifado-cabecalho p {
-  margin: 12px 0 0;
-  font-size: 17px;
+  margin: 8px 0 0;
   color: #667085;
+  font-size: 15px;
+  max-width: 720px;
 }
 
 .almoxarifado-resumo {
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 22px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .almoxarifado-resumo-card {
-  height: 104px;
-  border-radius: 18px;
+  height: 82px;
+  border-radius: 12px;
   border: 1px solid #e1e7ef;
   background: #ffffff;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 }
 
 .almoxarifado-resumo-card strong {
   display: block;
-  font-size: 34px;
+  font-size: 24px;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .almoxarifado-resumo-card span {
   display: block;
-  margin-top: 6px;
+  margin-top: 4px;
   color: #111827;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .almoxarifado-resumo-card small {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   color: #667085;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .almoxarifado-resumo-icone {
-  width: 58px;
-  height: 58px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 26px;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
 .almoxarifado-resumo-card.abertas {
@@ -150,35 +152,35 @@
   flex-shrink: 0;
   width: 100%;
   border: 1px solid #e1e7ef;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #ffffff;
-  padding: 18px 22px;
+  padding: 12px 14px;
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr auto;
-  gap: 18px;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 22px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .almoxarifado-filtros-topo label {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 12px;
-  font-size: 15px;
+  gap: 8px;
+  font-size: 13px;
   color: #111827;
-  font-weight: 600;
+  font-weight: 400;
   white-space: nowrap;
 }
 
 .almoxarifado-select {
   position: relative;
   min-width: 0;
-  height: 48px;
+  height: 40px;
   border: 1px solid #d9e0ea;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
   color: #111827;
@@ -191,35 +193,35 @@
   outline: none;
   appearance: none;
   background: transparent;
-  padding: 0 42px 0 18px;
-  font-size: 15px;
-  font-weight: 800;
+  padding: 0 34px 0 12px;
+  font-size: 13px;
+  font-weight: 500;
   color: #111827;
   cursor: pointer;
 }
 
 .almoxarifado-select svg {
   position: absolute;
-  right: 16px;
-  color: #111827;
+  right: 12px;
+  color: #64748b;
   pointer-events: none;
 }
 
 .almoxarifado-filtrar {
-  height: 48px;
-  min-width: 122px;
+  height: 40px;
+  min-width: 96px;
   border: 1px solid #b9c7e6;
   background: #ffffff;
-  border-radius: 12px;
-  padding: 0 18px;
+  border-radius: 9px;
+  padding: 0 12px;
   color: #0046c7;
-  font-size: 15px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .almoxarifado-kanban {
@@ -228,59 +230,69 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
   align-items: start;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 18px;
+  padding-bottom: 14px;
+}
+
+.almoxarifado-kanban::-webkit-scrollbar {
+  width: 7px;
+}
+
+.almoxarifado-kanban::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
 }
 
 .almoxarifado-coluna {
-  min-height: 520px;
+  min-height: 460px;
   height: auto;
   overflow: visible;
   border: 1px solid #dfe5ee;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #f8fafc;
   display: flex;
   flex-direction: column;
 }
+
 .almoxarifado-coluna:nth-child(1) {
-  background: linear-gradient(180deg, #fff7f7 0, #f8fafc 120px);
+  background: linear-gradient(180deg, #fff7f7 0, #f8fafc 100px);
 }
 
 .almoxarifado-coluna:nth-child(2) {
-  background: linear-gradient(180deg, #f7fbff 0, #f8fafc 120px);
+  background: linear-gradient(180deg, #f7fbff 0, #f8fafc 100px);
 }
 
 .almoxarifado-coluna:nth-child(3) {
-  background: linear-gradient(180deg, #fffaf0 0, #f8fafc 120px);
+  background: linear-gradient(180deg, #fffaf0 0, #f8fafc 100px);
 }
 
 .almoxarifado-coluna:nth-child(4) {
-  background: linear-gradient(180deg, #f0fdf4 0, #f8fafc 120px);
+  background: linear-gradient(180deg, #f0fdf4 0, #f8fafc 100px);
 }
 
 .almoxarifado-coluna-topo {
   flex-shrink: 0;
-  padding: 24px 22px 18px;
+  padding: 16px 16px 12px;
 }
 
 .almoxarifado-coluna-topo h2 {
   margin: 0;
-  font-size: 22px;
-  line-height: 1.18;
-  font-weight: 900;
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 600;
   color: #111827;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .almoxarifado-coluna-topo h2::before {
   content: "";
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -307,56 +319,54 @@
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 0 14px 14px;
+  gap: 10px;
+  padding: 0 10px 10px;
 }
-
-
 
 .almoxarifado-card {
   background: #ffffff;
   border: 1px solid #e1e7ef;
-  border-radius: 14px;
-  padding: 22px 18px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.05);
   cursor: pointer;
   transition: 0.2s ease;
 }
 
 .almoxarifado-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: #b9c7e6;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.09);
 }
 
 .almoxarifado-card-topo {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .almoxarifado-card-topo div {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
 .almoxarifado-card-topo strong {
-  font-size: 21px;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 600;
   color: #111827;
   white-space: nowrap;
 }
 
 .almoxarifado-card-topo h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.25;
-  font-weight: 900;
+  font-weight: 500;
   color: #111827;
   word-break: break-word;
 }
@@ -364,8 +374,8 @@
 .almoxarifado-menu-card {
   border: none;
   background: transparent;
-  color: #111827;
-  font-size: 24px;
+  color: #475569;
+  font-size: 20px;
   padding: 0;
   cursor: pointer;
   display: inline-flex;
@@ -375,11 +385,11 @@
   display: inline-flex;
   width: fit-content;
   border-radius: 999px;
-  padding: 7px 14px;
-  margin-bottom: 18px;
-  font-size: 15px;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .almoxarifado-prioridade.urgente {
@@ -404,36 +414,38 @@
 .almoxarifado-prazo,
 .almoxarifado-professor {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.45;
-  color: #111827;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #344054;
+  font-weight: 400;
 }
 
 .almoxarifado-prazo {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .almoxarifado-ver-mais {
   flex-shrink: 0;
-  height: 44px;
+  height: 36px;
   border: none;
   border-top: 1px solid #e1e7ef;
   background: rgba(255, 255, 255, 0.72);
   color: #0046c7;
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .almoxarifado-vazio {
   background: #ffffff;
   border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 10px;
+  padding: 18px;
   text-align: center;
   color: #667085;
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.35;
+  font-weight: 400;
 }
 
 .almoxarifado-modal-fundo {
@@ -450,11 +462,11 @@
 
 .almoxarifado-modal {
   width: 100%;
-  max-width: 720px;
+  max-width: 640px;
   max-height: 90vh;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 16px;
+  padding: 24px;
   overflow-y: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
 }
@@ -462,127 +474,135 @@
 .almoxarifado-modal-topo {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 24px;
-  margin-bottom: 20px;
+  padding-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .almoxarifado-modal-topo h2 {
-  margin: 8px 0 8px;
-  font-size: 26px;
-  color: #050505;
+  margin: 6px 0 6px;
+  font-size: 21px;
+  font-weight: 600;
+  color: #111827;
 }
 
 .almoxarifado-modal-topo p {
   margin: 0;
   color: #667085;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .almoxarifado-fechar {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 9px;
   background: #ffffff;
   color: #111827;
   display: grid;
   place-items: center;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .almoxarifado-modal-status {
   border: 1px solid #dbe4f0;
   background: #f8fafc;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 18px;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
 }
 
 .almoxarifado-modal-status span {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   color: #667085;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  font-weight: 400;
 }
 
 .almoxarifado-modal-status strong {
-  font-size: 19px;
+  font-size: 16px;
+  font-weight: 600;
   color: #003bb3;
 }
 
 .almoxarifado-modal-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .almoxarifado-info-card {
   border: 1px solid #e5e7eb;
   background: #f8fafc;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 12px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-start;
 }
 
 .almoxarifado-info-card svg {
   color: #003bb3;
-  font-size: 22px;
+  font-size: 18px;
   flex-shrink: 0;
 }
 
 .almoxarifado-info-card span {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   color: #667085;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
+  font-weight: 400;
 }
 
 .almoxarifado-info-card strong {
-  font-size: 15px;
+  font-size: 13px;
   color: #111827;
+  font-weight: 500;
 }
 
 .almoxarifado-modal-secao {
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 24px;
-  margin-bottom: 24px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .almoxarifado-modal-secao h3 {
-  margin: 0 0 12px;
-  font-size: 18px;
-  color: #050505;
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #111827;
+  font-weight: 600;
 }
 
 .almoxarifado-modal-secao p {
   margin: 0;
   color: #475467;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .almoxarifado-acoes {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .almoxarifado-acoes .acao {
   width: 100%;
-  min-height: 52px;
-  border-radius: 12px;
-  padding: 0 18px;
+  min-height: 44px;
+  border-radius: 10px;
+  padding: 0 14px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  font-weight: 800;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -635,7 +655,7 @@
   }
 
   .almoxarifado-coluna {
-    height: 520px;
+    min-height: 420px;
   }
 }
 
@@ -649,7 +669,7 @@
   }
 
   .almoxarifado-cabecalho h1 {
-    font-size: 30px;
+    font-size: 26px;
   }
 
   .almoxarifado-resumo {
@@ -669,11 +689,11 @@
   }
 
   .almoxarifado-coluna {
-    height: 520px;
+    min-height: 420px;
   }
 
   .almoxarifado-modal {
-    padding: 24px;
+    padding: 20px;
   }
 
   .almoxarifado-modal-grid {

@@ -20,6 +20,7 @@ import Compras from "../pages/Compras/Compras";
 import NovaCompra from "../pages/NovaCompra/NovaCompra";
 import DetalhesCompra from "../pages/DetalhesCompra/DetalhesCompra";
 import Notificacoes from "../pages/Notificacoes/Notificacoes";
+import Relatorios from "../pages/Relatorios/Relatorios";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -42,6 +43,15 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/relatorios"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife",
+              "Coordenador",]}>
+              <Relatorios />
             </PrivateRoute>
           }
         />

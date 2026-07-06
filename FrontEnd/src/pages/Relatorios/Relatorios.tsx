@@ -1,0 +1,332 @@
+import { useMemo, useState } from "react";
+import {
+  FiAlertTriangle,
+  FiBarChart2,
+  FiCheckCircle,
+  FiClock,
+  FiDownload,
+  FiFileText,
+  FiFilter,
+  FiPieChart,
+} from "react-icons/fi";
+
+import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import { listarDemandasLocais } from "../../services/localData";
+
+import "./Relatorios.css";
+
+type PeriodoRelatorio = "7 dias" | "30 dias" | "90 dias" | "Todos";
+
+function formatarData(data: string) {
+  return new Date(data).toLocaleDateString("pt-BR");
+}
+
+function Relatorios() {
+  const [periodo, setPeriodo] = useState<PeriodoRelatorio>("30 dias");
+
+  const demandas = useMemo(() => listarDemandasLocais(), []);
+
+  const demandasFiltradas = useMemo(() => {
+    if (periodo === "Todos") return demandas;
+
+    const dias = periodo === "7 dias" ? 7 : periodo === "30 dias" ? 30 : 90;
+
+    const limite = new Date();
+    limite.setDate(limite.getDate() - dias);
+
+    return demandas.filter(
+      (demanda) => new Date(demanda.dataHoraCriacao) >= limite,
+    );
+  }, [demandas, periodo]);
+
+  const totalDemandas = demandasFiltradas.length;
+
+  const abertas = demandasFiltradas.filter(
+    (demanda) => demanda.status === "Aberta",
+  ).length;
+
+  const emAndamento = demandasFiltradas.filter(
+    (demanda) => demanda.status === "Em Andamento",
+  ).length;
+
+  const concluidas = demandasFiltradas.filter(
+    (demanda) => demanda.status === "Concluída",
+  ).length;
+
+  const urgentes = demandasFiltradas.filter(
+    (demanda) => demanda.prioridade === "Urgente",
+  ).length;
+
+  const atrasadas = demandasFiltradas.filter((demanda) => {
+    const prazo = new Date(demanda.dataHoraNecessaria).getTime();
+    const agora = new Date().getTime();
+
+    return prazo < agora && demanda.status !== "Concluída";
+  }).length;
+
+  const taxaConclusao =
+    totalDemandas === 0 ? 0 : Math.round((concluidas / totalDemandas) * 100);
+
+  const demandasPorOficina = useMemo(() => {
+    const mapa = new Map<string, number>();
+
+    demandasFiltradas.forEach((demanda) => {
+      mapa.set(demanda.oficina, (mapa.get(demanda.oficina) || 0) + 1);
+    });
+
+    return Array.from(mapa.entries())
+      .map(([oficina, quantidade]) => ({ oficina, quantidade }))
+      .sort((a, b) => b.quantidade - a.quantidade);
+  }, [demandasFiltradas]);
+
+  const demandasPorPrioridade = useMemo(() => {
+    const prioridades = ["Urgente", "Alta", "Normal", "Baixa"];
+
+    return prioridades.map((prioridade) => ({
+      prioridade,
+      quantidade: demandasFiltradas.filter(
+        (demanda) => demanda.prioridade === prioridade,
+      ).length,
+    }));
+  }, [demandasFiltradas]);
+
+  function exportarRelatorio() {
+    const linhas = [
+      "Relatório de Demandas - SENAI Almoxarifado",
+      `Período: ${periodo}`,
+      `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
+      "",
+      `Total de demandas: ${totalDemandas}`,
+      `Abertas: ${abertas}`,
+      `Em andamento: ${emAndamento}`,
+      `Concluídas: ${concluidas}`,
+      `Urgentes: ${urgentes}`,
+      `Atrasadas: ${atrasadas}`,
+      `Taxa de conclusão: ${taxaConclusao}%`,
+      "",
+      "Demandas por oficina:",
+      ...demandasPorOficina.map(
+        (item) => `- ${item.oficina}: ${item.quantidade}`,
+      ),
+      "",
+      "Demandas:",
+      ...demandasFiltradas.map(
+        (demanda) =>
+          `- ${demanda.id} | ${demanda.titulo} | ${demanda.oficina} | ${demanda.status} | ${demanda.prioridade}`,
+      ),
+    ];
+
+    const arquivo = new Blob([linhas.join("\n")], {
+      type: "text/plain;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(arquivo);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `relatorio-demandas-${new Date()
+      .toISOString()
+      .slice(0, 10)}.txt`;
+
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="relatorios-layout">
+      <Sidebar />
+
+      <main className="relatorios-main">
+        <Header titulo="Relatórios" />
+
+        <section className="relatorios-conteudo">
+          <header className="relatorios-cabecalho">
+            <div>
+              <h1>Relatórios Gerenciais</h1>
+              <p>
+                Acompanhe indicadores operacionais, prioridades, atrasos e
+                desempenho do almoxarifado.
+              </p>
+            </div>
+
+            <div className="relatorios-acoes">
+              <label>
+                <FiFilter />
+                <select
+                  value={periodo}
+                  onChange={(evento) =>
+                    setPeriodo(evento.target.value as PeriodoRelatorio)
+                  }
+                >
+                  <option value="7 dias">Últimos 7 dias</option>
+                  <option value="30 dias">Últimos 30 dias</option>
+                  <option value="90 dias">Últimos 90 dias</option>
+                  <option value="Todos">Todos</option>
+                </select>
+              </label>
+
+              <button type="button" onClick={exportarRelatorio}>
+                <FiDownload />
+                Exportar
+              </button>
+            </div>
+          </header>
+
+          <section className="relatorios-indicadores">
+            <article>
+              <FiFileText />
+              <div>
+                <strong>{totalDemandas}</strong>
+                <span>Total de demandas</span>
+              </div>
+            </article>
+
+            <article className="andamento">
+              <FiClock />
+              <div>
+                <strong>{emAndamento}</strong>
+                <span>Em andamento</span>
+              </div>
+            </article>
+
+            <article className="concluidas">
+              <FiCheckCircle />
+              <div>
+                <strong>{concluidas}</strong>
+                <span>Concluídas</span>
+              </div>
+            </article>
+
+            <article className="atrasadas">
+              <FiAlertTriangle />
+              <div>
+                <strong>{atrasadas}</strong>
+                <span>Atrasadas</span>
+              </div>
+            </article>
+          </section>
+
+          <section className="relatorios-grid">
+            <article className="relatorios-card">
+              <div className="relatorios-card-topo">
+                <div>
+                  <h2>Demandas por oficina</h2>
+                  <p>Distribuição das solicitações por ambiente.</p>
+                </div>
+
+                <FiBarChart2 />
+              </div>
+
+              <div className="relatorios-barras">
+                {demandasPorOficina.map((item) => {
+                  const percentual =
+                    totalDemandas === 0
+                      ? 0
+                      : Math.round((item.quantidade / totalDemandas) * 100);
+
+                  return (
+                    <div key={item.oficina} className="relatorios-barra-item">
+                      <div>
+                        <strong>{item.oficina}</strong>
+                        <span>{item.quantidade} demanda(s)</span>
+                      </div>
+
+                      <div className="relatorios-barra">
+                        <span style={{ width: `${percentual}%` }} />
+                      </div>
+
+                      <small>{percentual}%</small>
+                    </div>
+                  );
+                })}
+
+                {demandasPorOficina.length === 0 && (
+                  <div className="relatorios-vazio">
+                    Nenhuma demanda encontrada no período.
+                  </div>
+                )}
+              </div>
+            </article>
+
+            <article className="relatorios-card">
+              <div className="relatorios-card-topo">
+                <div>
+                  <h2>Prioridades</h2>
+                  <p>Volume de demandas por criticidade.</p>
+                </div>
+
+                <FiPieChart />
+              </div>
+
+              <div className="relatorios-prioridades">
+                {demandasPorPrioridade.map((item) => (
+                  <div
+                    key={item.prioridade}
+                    className={`relatorios-prioridade ${item.prioridade.toLowerCase()}`}
+                  >
+                    <span>{item.prioridade}</span>
+                    <strong>{item.quantidade}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="relatorios-taxa">
+                <span>Taxa de conclusão</span>
+                <strong>{taxaConclusao}%</strong>
+                <div>
+                  <span style={{ width: `${taxaConclusao}%` }} />
+                </div>
+              </div>
+            </article>
+
+            <article className="relatorios-card relatorios-card-tabela">
+              <div className="relatorios-card-topo">
+                <div>
+                  <h2>Últimas demandas</h2>
+                  <p>Registros mais recentes considerados no relatório.</p>
+                </div>
+              </div>
+
+              <div className="relatorios-tabela-wrapper">
+                <table className="relatorios-tabela">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Título</th>
+                      <th>Oficina</th>
+                      <th>Status</th>
+                      <th>Prioridade</th>
+                      <th>Prazo</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {demandasFiltradas.slice(0, 8).map((demanda) => (
+                      <tr key={demanda.id}>
+                        <td>{demanda.id.slice(0, 6)}</td>
+                        <td>{demanda.titulo}</td>
+                        <td>{demanda.oficina}</td>
+                        <td>{demanda.status}</td>
+                        <td>{demanda.prioridade}</td>
+                        <td>{formatarData(demanda.dataHoraNecessaria)}</td>
+                      </tr>
+                    ))}
+
+                    {demandasFiltradas.length === 0 && (
+                      <tr>
+                        <td colSpan={6}>Nenhuma demanda encontrada.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default Relatorios;
