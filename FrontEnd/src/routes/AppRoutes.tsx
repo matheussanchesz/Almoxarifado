@@ -12,6 +12,7 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import Usuarios from "../pages/Usuarios/Usuarios";
 import NovaDemanda from "../pages/NovaDemanda/NovaDemanda";
 import Demandas from "../pages/Demandas/Demandas";
+import DetalhesDemanda from "../pages/DetalhesDemanda/DetalhesDemanda";
 import Almoxarifado from "../pages/Almoxarifado/Almoxarifado";
 import Checklists from "../pages/Checklists/Checklists";
 import ExecucaoChecklist from "../pages/ExecucaoChecklist/ExecucaoChecklist";
@@ -77,60 +78,81 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/demandas/detalhes/:id"
+          element={
+            <PrivateRoute
+              allowedProfiles={[
+                "Admin",
+                "Coordenador",
+                "Professor",
+                "Almoxarife",
+              ]}
+            >
+              <DetalhesDemanda />
+            </PrivateRoute>
+          }
+        />
 
         <Route
-  path="/almoxarifado"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}>
-      <Almoxarifado />
-    </PrivateRoute>
-  }
-/>
+          path="/almoxarifado"
+          element={
+            <PrivateRoute
+              allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}
+            >
+              <Almoxarifado />
+            </PrivateRoute>
+          }
+        />
 
-<Route
-  path="/checklists"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
-      <Checklists />
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/checklists"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
+              <Checklists />
+            </PrivateRoute>
+          }
+        />
 
-<Route
-  path="/checklists/execucao/:id"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
-      <ExecucaoChecklist />
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/checklists/execucao/:id"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
+              <ExecucaoChecklist />
+            </PrivateRoute>
+          }
+        />
 
-<Route
-  path="/compras"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}>
-      <Compras />
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/compras"
+          element={
+            <PrivateRoute
+              allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}
+            >
+              <Compras />
+            </PrivateRoute>
+          }
+        />
 
-<Route
-  path="/compras/nova"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
-      <NovaCompra />
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/compras/nova"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Almoxarife"]}>
+              <NovaCompra />
+            </PrivateRoute>
+          }
+        />
 
-<Route
-  path="/compras/detalhes/:id"
-  element={
-    <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}>
-      <DetalhesCompra />
-    </PrivateRoute>
-  }
-/>
+        <Route
+          path="/compras/detalhes/:id"
+          element={
+            <PrivateRoute
+              allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}
+            >
+              <DetalhesCompra />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

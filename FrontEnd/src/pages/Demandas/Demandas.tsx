@@ -4,7 +4,7 @@ import {
   FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
-  FiMoreHorizontal,
+  FiEye,
   FiPlus,
   FiSearch,
 } from "react-icons/fi";
@@ -35,11 +35,16 @@ function Demandas() {
   const [buscaDemanda, setBuscaDemanda] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("Todas");
 
+  const [filtroOficina, setFiltroOficina] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroPrioridade, setFiltroPrioridade] = useState("");
+
   const [demandas] = useState<Demanda[]>(() => {
     const demandasLocais = listarDemandasLocais();
 
     return demandasLocais.map((demanda) => ({
-      prioridade: demanda.prioridade === "Baixa" ? "Normal" : demanda.prioridade,
+      prioridade:
+        demanda.prioridade === "Baixa" ? "Normal" : demanda.prioridade,
       id: demanda.id,
       titulo: demanda.titulo,
       oficina: demanda.oficina,
@@ -49,10 +54,10 @@ function Demandas() {
         demanda.status === "Aberta"
           ? "Aguardando"
           : demanda.status === "Concluída"
-          ? "Concluída"
-          : demanda.status === "Cancelada"
-          ? "Cancelada"
-          : "Em Andamento",
+            ? "Concluída"
+            : demanda.status === "Cancelada"
+              ? "Cancelada"
+              : "Em Andamento",
     }));
   });
 
@@ -76,6 +81,11 @@ function Demandas() {
     },
   ];
 
+  const oficinasDisponiveis = [...new Set(demandas.map((d) => d.oficina))];
+  const prioridadesDisponiveis = [
+    ...new Set(demandas.map((d) => d.prioridade)),
+  ];
+
   const demandasFiltradas = useMemo(() => {
     return demandas.filter((demanda) => {
       const busca = buscaDemanda.toLowerCase();
@@ -93,10 +103,32 @@ function Demandas() {
 
       const correspondePerfil =
         usuario?.perfil !== "Professor" || demanda.solicitante === usuario.nome;
+      const correspondeOficina =
+        !filtroOficina || demanda.oficina === filtroOficina;
 
-      return correspondeBusca && correspondeStatus && correspondePerfil;
+      const correspondeFiltroStatus =
+        !filtroStatus || demanda.status === filtroStatus;
+
+      const correspondePrioridade =
+        !filtroPrioridade || demanda.prioridade === filtroPrioridade;
+      return (
+        correspondeBusca &&
+        correspondeStatus &&
+        correspondeFiltroStatus &&
+        correspondeOficina &&
+        correspondePrioridade &&
+        correspondePerfil
+      );
     });
-  }, [buscaDemanda, abaAtiva, demandas, usuario]);
+  }, [
+    buscaDemanda,
+    abaAtiva,
+    demandas,
+    usuario,
+    filtroOficina,
+    filtroStatus,
+    filtroPrioridade,
+  ]);
 
   return (
     <div className="demandas-layout">
@@ -124,15 +156,49 @@ function Demandas() {
               />
             </div>
 
-            <button type="button" className="demandas-select">
-              Todas as oficinas <FiChevronDown />
-            </button>
-            <button type="button" className="demandas-select">
-              Todos os status <FiChevronDown />
-            </button>
-            <button type="button" className="demandas-select">
-              Todas as prioridades <FiChevronDown />
-            </button>
+            <div className="demandas-select">
+              <select
+                value={filtroOficina}
+                onChange={(evento) => setFiltroOficina(evento.target.value)}
+              >
+                <option value="">Todas as oficinas</option>
+                {oficinasDisponiveis.map((oficina) => (
+                  <option key={oficina} value={oficina}>
+                    {oficina}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown />
+            </div>
+
+            <div className="demandas-select">
+              <select
+                value={filtroStatus}
+                onChange={(evento) => setFiltroStatus(evento.target.value)}
+              >
+                <option value="">Todos os status</option>
+                <option value="Aguardando">Aguardando</option>
+                <option value="Em Andamento">Em Andamento</option>
+                <option value="Concluída">Concluída</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+              <FiChevronDown />
+            </div>
+
+            <div className="demandas-select">
+              <select
+                value={filtroPrioridade}
+                onChange={(evento) => setFiltroPrioridade(evento.target.value)}
+              >
+                <option value="">Todas as prioridades</option>
+                {prioridadesDisponiveis.map((prioridade) => (
+                  <option key={prioridade} value={prioridade}>
+                    {prioridade}
+                  </option>
+                ))}
+              </select>
+              <FiChevronDown />
+            </div>
 
             {podeCriarDemanda && (
               <button
@@ -205,8 +271,15 @@ function Demandas() {
                         </span>
                       </td>
                       <td>
-                        <button type="button" className="demanda-acao">
-                          <FiMoreHorizontal />
+                        <button
+                          type="button"
+                          className="demanda-acao"
+                          title="Ver detalhes"
+                          onClick={() =>
+                            navigate(`/demandas/detalhes/${demanda.id}`)
+                          }
+                        >
+                          <FiEye />
                         </button>
                       </td>
                     </tr>
@@ -214,9 +287,7 @@ function Demandas() {
 
                   {demandasFiltradas.length === 0 && (
                     <tr>
-                      <td colSpan={8}>
-                        Nenhuma demanda encontrada.
-                      </td>
+                      <td colSpan={8}>Nenhuma demanda encontrada.</td>
                     </tr>
                   )}
                 </tbody>
