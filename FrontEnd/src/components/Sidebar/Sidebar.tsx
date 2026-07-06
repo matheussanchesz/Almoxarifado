@@ -149,8 +149,6 @@ export default function Sidebar() {
           <div className="sidebar-logo-row">
             <div className="sidebar-logo">
               <h1>SENAI</h1>
-              <span>AUTOMOTIVO</span>
-              <span>CAXIAS DO SUL</span>
             </div>
 
             <button

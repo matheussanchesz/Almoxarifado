@@ -12,7 +12,7 @@ import {
   salvarRascunhoChecklist,
   type StatusItemChecklist,
 } from "../../services/checklistsLocal";
-
+import Header from "../../components/Header/Header";
 import "./ExecucaoChecklist.css";
 
 type ItemExecucao = {
@@ -152,6 +152,7 @@ function ExecucaoChecklist() {
         <Sidebar />
 
         <main className="execucao-main">
+          <Header titulo="Execução do Checklist" />
           {notificacao && (
             <div className={`execucao-toast ${notificacao.tipo}`}>
               <strong>{notificacao.titulo}</strong>
@@ -181,6 +182,7 @@ function ExecucaoChecklist() {
       <Sidebar />
 
       <main className="execucao-main">
+        <Header titulo="Execução do Checklist" />
         {notificacao && (
           <div className={`execucao-toast ${notificacao.tipo}`}>
             <strong>{notificacao.titulo}</strong>

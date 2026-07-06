@@ -23,7 +23,7 @@ import {
   obterRascunhoChecklist,
   type ModeloChecklist,
 } from "../../services/checklistsLocal";
-
+import Header from "../../components/Header/Header";
 import "./Checklists.css";
 
 function formatarData(data: string) {
@@ -254,6 +254,8 @@ function Checklists() {
       <Sidebar />
 
       <main className="checklists-main">
+        <Header titulo="Checklists" />
+        <Header titulo="Checklists" />
         <section className="checklists-conteudo">
           <header className="checklists-cabecalho">
             <div>
