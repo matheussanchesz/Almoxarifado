@@ -1,0 +1,404 @@
+.compras-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.compras-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.compras-conteudo {
+  height: 100vh;
+  padding: 56px 44px 34px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.compras-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.compras-cabecalho h1 {
+  margin: 0;
+  font-size: 31px;
+  color: #111827;
+}
+
+.compras-cabecalho p {
+  margin: 10px 0 0;
+  color: #667085;
+  font-size: 16px;
+}
+
+.compras-botao-novo {
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: #0046c7;
+  color: #ffffff;
+  padding: 0 18px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compras-indicadores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.compras-indicadores div {
+  background: #ffffff;
+  border: 1px solid #e1e7ef;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.compras-indicadores strong {
+  display: block;
+  font-size: 26px;
+  color: #111827;
+}
+
+.compras-indicadores span {
+  color: #667085;
+  font-size: 14px;
+}
+
+.compras-indicadores .aguardando strong {
+  color: #b45309;
+}
+
+.compras-indicadores .cotacao strong {
+  color: #0046c7;
+}
+
+.compras-indicadores .recebido strong {
+  color: #15803d;
+}
+
+.compras-filtros {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.compras-busca {
+  height: 44px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #667085;
+}
+
+.compras-busca input,
+.compras-filtros select {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.compras-filtros select {
+  height: 44px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #ffffff;
+}
+
+.compras-card {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #e1e7ef;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.compras-tabela-wrapper {
+  height: 100%;
+  overflow: auto;
+}
+
+.compras-tabela {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.compras-tabela th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  color: #475467;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e1e7ef;
+}
+
+.compras-tabela td {
+  padding: 18px;
+  border-bottom: 1px solid #edf1f6;
+  color: #111827;
+  font-size: 14px;
+}
+
+.compras-urgencia {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.compras-urgencia.baixa {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compras-urgencia.média {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.compras-urgencia.alta {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.compras-status {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #0046c7;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.compras-acao {
+  height: 34px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0046c7;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compras-vazio {
+  text-align: center;
+  color: #667085;
+  padding: 28px;
+}
+
+.compras-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.compras-acao.editar {
+  color: #b45309;
+}
+
+.compras-acao.cancelar {
+  color: #dc2626;
+}
+
+.compras-status.aguardando-processamento {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.compras-status.em-cotacao {
+  background: #eef4ff;
+  color: #0046c7;
+}
+
+.compras-status.pedido-realizado {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.compras-status.recebido {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compras-status.cancelado {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.compras-tabela th,
+.compras-tabela td {
+  padding: 20px 22px;
+}
+
+.compras-tabela tr:hover td {
+  background: #f8fafc;
+}
+
+.compras-codigo,
+.compras-item {
+  display: block;
+  color: #111827;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.compras-data,
+.compras-especificacao,
+.compras-unidade {
+  display: block;
+  margin-top: 5px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.compras-especificacao {
+  max-width: 340px;
+}
+
+.compras-categoria {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #0046c7;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.compras-urgencia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.compras-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 128px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.compras-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.compras-acao {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0046c7;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compras-acao:hover {
+  background: #eef4ff;
+}
+
+.compras-acao.editar {
+  color: #b45309;
+}
+
+.compras-acao.cancelar {
+  color: #dc2626;
+}
+
+.compras-status.aguardando-processamento {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.compras-status.em-cotacao {
+  background: #eef4ff;
+  color: #0046c7;
+}
+
+.compras-status.pedido-realizado {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.compras-status.recebido {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.compras-status.cancelado {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+@media (max-width: 900px) {
+  .compras-conteudo {
+    padding: 82px 18px 24px;
+    overflow-y: auto;
+  }
+
+  .compras-cabecalho {
+    flex-direction: column;
+  }
+
+  .compras-botao-novo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .compras-indicadores,
+  .compras-filtros {
+    grid-template-columns: 1fr;
+  }
+}
