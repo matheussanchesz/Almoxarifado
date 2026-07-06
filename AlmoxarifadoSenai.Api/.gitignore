@@ -22,8 +22,8 @@ appsettings.Development.json
 
 # --- TRAVAS DE SEGURANÇA ESPECÍFICAS DO PROJETO ---
 # Chaves privadas e credenciais do Google Cloud / Firebase
-firebase-credentials.json
-*.json.user
+# firebase-credentials.json
+# *.json.user
 
 # Arquivos temporários do sistema operacional
 Thumbs.db

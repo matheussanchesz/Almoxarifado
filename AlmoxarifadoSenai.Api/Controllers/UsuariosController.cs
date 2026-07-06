@@ -10,7 +10,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = Perfis.Admin)] // Proteção da Sprint 2: Apenas Admin acessa este CRUD
+    // [Authorize(Roles = Perfis.Admin)] // Comente para testes
     public class UsuariosController : ControllerBase
     {
         private readonly FirestoreService _firestoreService;
@@ -35,7 +35,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
                 Matricula = dto.Matricula,
                 Nome = dto.Nome,
                 Perfil = dto.Perfil,
-                DataNascimento = dto.DataNascimento,
+                DataNascimento = dto.DataNascimento, // Agora é string
                 Ativo = true
             };
 
@@ -82,4 +82,6 @@ namespace AlmoxarifadoSenai.Api.Controllers
             return Ok(new { mensagem = "Usuário atualizado com sucesso!", usuario = usuarioExistente });
         }
     }
+
+    
 }

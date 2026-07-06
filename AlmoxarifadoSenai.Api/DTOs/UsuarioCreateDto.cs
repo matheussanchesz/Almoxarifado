@@ -12,9 +12,10 @@ namespace AlmoxarifadoSenai.Api.DTOs
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O perfil é obrigatório.")]
-        public string Perfil { get; set; } = string.Empty; // Admin, Coordenador, etc.
+        public string Perfil { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "A data de nascimento é obrigatória.")]
-        public DateTime DataNascimento { get; set; }
+        [RegularExpression(@"^\d{8}$", ErrorMessage = "Data deve ter 8 dígitos (DDMMYYYY)")]
+        public string DataNascimento { get; set; } = string.Empty;
     }
 }
