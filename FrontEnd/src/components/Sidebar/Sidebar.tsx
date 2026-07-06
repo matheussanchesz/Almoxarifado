@@ -122,8 +122,6 @@ export default function Sidebar() {
       <div>
         <div className="sidebar-logo">
           <h1>SENAI</h1>
-          <span>AUTOMOTIVO</span>
-          <span>CAXIAS DO SUL</span>
         </div>
 
         <nav className="sidebar-menu">
