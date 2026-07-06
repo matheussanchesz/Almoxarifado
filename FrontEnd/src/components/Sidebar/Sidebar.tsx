@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FiArchive,
   FiBarChart2,
@@ -7,11 +7,11 @@ import {
   FiClipboard,
   FiFileText,
   FiHome,
-  FiPlusCircle,
+  FiLogOut,
   FiShoppingCart,
   FiUsers,
 } from "react-icons/fi";
-import React from "react";
+import React, { useState } from "react";
 import "./Sidebar.css";
 
 type Perfil = "Admin" | "Coordenador" | "Professor" | "Almoxarife";
@@ -58,7 +58,7 @@ const itensMenu: ItemMenu[] = [
     icone: <FiBarChart2 />,
     titulo: "Relatórios",
     caminho: "/relatorios",
-    perfis: ["Admin", "Coordenador"],
+    perfis: ["Admin", "Coordenador","Professor", "Almoxarife" ],
   },
   {
     icone: <FiUsers />,
@@ -71,6 +71,8 @@ const itensMenu: ItemMenu[] = [
     titulo: "Notificações",
     caminho: "/notificacoes",
     perfis: ["Admin", "Coordenador", "Professor", "Almoxarife"],
+
+
   },
 ];
 
@@ -111,19 +113,26 @@ function gerarIniciais(nome: string) {
 }
 
 export default function Sidebar() {
+  const navigate = useNavigate();
   const usuario = obterUsuarioLogado();
+  const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
 
   const itensPermitidos = itensMenu.filter((item) =>
-    item.perfis.includes(usuario.perfil)
+    item.perfis.includes(usuario.perfil),
   );
+
+  function sairDaConta() {
+    localStorage.removeItem("@senai:user");
+    localStorage.removeItem("@senai:token");
+
+    navigate("/login");
+  }
 
   return (
     <aside className="sidebar">
       <div>
         <div className="sidebar-logo">
           <h1>SENAI</h1>
-          <span>AUTOMOTIVO</span>
-          <span>CAXIAS DO SUL</span>
         </div>
 
         <nav className="sidebar-menu">
@@ -142,15 +151,34 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="sidebar-user">
-        <div className="avatar">{gerarIniciais(usuario.nome)}</div>
+      <div className="sidebar-user-wrapper">
+        <button
+          type="button"
+          className="sidebar-user"
+          onClick={() => setMenuUsuarioAberto((estadoAtual) => !estadoAtual)}
+        >
+          <div className="avatar">{gerarIniciais(usuario.nome)}</div>
 
-        <div className="sidebar-user-info">
-          <strong>{usuario.nome}</strong>
-          <span>{usuario.perfil}</span>
-        </div>
+          <div className="sidebar-user-info">
+            <strong>{usuario.nome}</strong>
+            <span>{usuario.perfil}</span>
+          </div>
 
-        <FiChevronDown className="sidebar-user-arrow" />
+          <FiChevronDown
+            className={`sidebar-user-arrow ${
+              menuUsuarioAberto ? "aberto" : ""
+            }`}
+          />
+        </button>
+
+        {menuUsuarioAberto && (
+          <div className="sidebar-user-menu">
+            <button type="button" onClick={sairDaConta}>
+              <FiLogOut />
+              Sair da conta
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

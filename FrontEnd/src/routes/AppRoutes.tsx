@@ -19,6 +19,8 @@ import ExecucaoChecklist from "../pages/ExecucaoChecklist/ExecucaoChecklist";
 import Compras from "../pages/Compras/Compras";
 import NovaCompra from "../pages/NovaCompra/NovaCompra";
 import DetalhesCompra from "../pages/DetalhesCompra/DetalhesCompra";
+import Notificacoes from "../pages/Notificacoes/Notificacoes";
+import Relatorios from "../pages/Relatorios/Relatorios";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -44,6 +46,31 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/relatorios"
+          element={
+            <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife",
+              "Coordenador",]}>
+              <Relatorios />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/notificacoes"
+          element={
+            <PrivateRoute
+              allowedProfiles={[
+                "Admin",
+                "Professor",
+                "Almoxarife",
+                "Coordenador",
+              ]}
+            >
+              <Notificacoes />
+            </PrivateRoute>
+          }
+        />
 
         <Route
           path="/usuarios"
@@ -62,6 +89,8 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+
+
 
         <Route
           path="/demandas"

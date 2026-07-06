@@ -1,0 +1,370 @@
+.notificacoes-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.notificacoes-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.notificacoes-conteudo {
+  height: 100vh;
+  padding: 10px 42px 32px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notificacoes-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+
+.notificacoes-cabecalho h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.notificacoes-cabecalho p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 15px;
+}
+
+.notificacoes-botao-marcar {
+  height: 40px;
+  border: 1px solid #b9c7e6;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0046c7;
+  font-weight: 800;
+  padding: 0 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.notificacoes-botao-marcar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.notificacoes-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.notificacoes-resumo article {
+  border: 1px solid #e1e7ef;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notificacoes-resumo svg {
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #0046c7;
+}
+
+.notificacoes-resumo strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 900;
+  color: #111827;
+  line-height: 1;
+}
+
+.notificacoes-resumo span {
+  display: block;
+  margin-top: 4px;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.notificacoes-resumo .nao-lidas svg {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.notificacoes-resumo .urgentes svg {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.notificacoes-resumo .sistema svg {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.notificacoes-filtros {
+  display: grid;
+  grid-template-columns: 1fr 190px 190px auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.notificacoes-busca {
+  height: 40px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #667085;
+}
+
+.notificacoes-busca input,
+.notificacoes-filtros select {
+  width: 100%;
+  height: 40px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+  font-size: 13px;
+}
+
+.notificacoes-filtros select {
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #ffffff;
+}
+
+.notificacoes-filtros button {
+  height: 40px;
+  border: 1px solid #b9c7e6;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0046c7;
+  font-weight: 800;
+  padding: 0 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.notificacoes-lista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 5px;
+}
+
+.notificacoes-lista::-webkit-scrollbar {
+  width: 7px;
+}
+
+.notificacoes-lista::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
+.notificacao-card {
+  display: flex;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  transition: 0.2s;
+}
+
+.notificacao-card.nao-lida {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.notificacao-icone {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #0046c7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notificacao-icone svg {
+  font-size: 15px;
+}
+
+.notificacao-icone.alta {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.notificacao-icone.urgente {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.notificacao-corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificacao-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 2px;
+}
+
+.notificacao-topo span {
+  display: block;
+  color: #0046c7;
+  font-size: 10px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.notificacao-topo h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.notificacao-topo strong {
+  color: #667085;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.notificacao-corpo p {
+  margin: 3px 0 7px;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.32;
+}
+
+.notificacao-corpo footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.notificacao-tipo,
+.notificacao-prioridade,
+.notificacao-status {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.notificacao-tipo {
+  background: #eef4ff;
+  color: #0046c7;
+}
+
+.notificacao-prioridade.normal {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.notificacao-prioridade.alta {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.notificacao-prioridade.urgente {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.notificacao-status {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.notificacao-corpo footer button {
+  height: 24px;
+  border: 1px solid #b9c7e6;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0046c7;
+  padding: 0 9px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.notificacoes-vazio {
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #667085;
+  padding: 28px;
+  text-align: center;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .notificacoes-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .notificacoes-filtros {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .notificacoes-conteudo {
+    padding: 82px 18px 24px;
+    overflow-y: auto;
+  }
+
+  .notificacoes-cabecalho {
+    flex-direction: column;
+  }
+
+  .notificacoes-resumo,
+  .notificacoes-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .notificacao-card,
+  .notificacao-topo {
+    flex-direction: column;
+  }
+
+  .notificacao-topo strong {
+    white-space: normal;
+  }
+}
