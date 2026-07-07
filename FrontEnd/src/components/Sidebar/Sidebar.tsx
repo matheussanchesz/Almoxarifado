@@ -40,7 +40,7 @@ const itensMenu: ItemMenu[] = [
   },
   {
     icone: <FiArchive />,
-    titulo: "Fila Operacional",
+    titulo: "Almoxarifado",
     caminho: "/almoxarifado",
     perfis: ["Admin", "Coordenador", "Almoxarife"],
   },
