@@ -7,14 +7,31 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+LoadEnvFile(Path.Combine(builder.Environment.ContentRootPath, ".env"));
+ConfigureFirebaseCredentials(builder.Environment);
+
 builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
+        var allowedOrigins = builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>()
+            ?? Array.Empty<string>();
+
+        if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
+        {
+            allowedOrigins = new[]
+            {
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+            };
+        }
+
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -63,6 +80,11 @@ builder.Services.AddScoped<JwtService>();
 
 var chave = builder.Configuration["Jwt:Key"];
 
+if (string.IsNullOrWhiteSpace(chave))
+{
+    throw new InvalidOperationException("Configure a variavel Jwt__Key antes de iniciar a API.");
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -91,7 +113,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
 
@@ -119,3 +140,58 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 });
 
 app.Run();
+
+static void LoadEnvFile(string path)
+{
+    if (!File.Exists(path))
+    {
+        return;
+    }
+
+    foreach (var rawLine in File.ReadAllLines(path))
+    {
+        var line = rawLine.Trim();
+
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+        {
+            continue;
+        }
+
+        var separatorIndex = line.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = line[..separatorIndex].Trim();
+        var value = line[(separatorIndex + 1)..].Trim().Trim('"');
+
+        if (!string.IsNullOrWhiteSpace(key))
+        {
+            Environment.SetEnvironmentVariable(key, value);
+        }
+    }
+}
+
+static void ConfigureFirebaseCredentials(IWebHostEnvironment environment)
+{
+    var credentialsJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
+
+    if (!string.IsNullOrWhiteSpace(credentialsJson))
+    {
+        var credentialsPath = Path.Combine(Path.GetTempPath(), "firebase-credentials.json");
+        File.WriteAllText(credentialsPath, credentialsJson);
+        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
+        return;
+    }
+
+    var localCredentialsPath = Path.Combine(
+        environment.ContentRootPath,
+        "firebase-credentials.json"
+    );
+
+    if (File.Exists(localCredentialsPath))
+    {
+        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", localCredentialsPath);
+    }
+}

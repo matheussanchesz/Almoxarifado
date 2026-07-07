@@ -84,6 +84,26 @@ namespace AlmoxarifadoSenai.Api.Controllers
             return Ok(todasDemandas);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterDemanda(string id)
+        {
+            var demanda = await _firestoreService.ObterDemandaPorIdAsync(id);
+            if (demanda == null)
+            {
+                return NotFound($"Demanda com ID {id} não encontrada.");
+            }
+
+            var perfilLogado = User.FindFirst(ClaimTypes.Role)?.Value;
+            var matriculaLogada = User.FindFirst("Matricula")?.Value ?? string.Empty;
+
+            if (perfilLogado == Perfis.Professor && demanda.ProfessorMatricula != matriculaLogada)
+            {
+                return Forbid("Você só pode visualizar suas próprias demandas.");
+            }
+
+            return Ok(demanda);
+        }
+
         // 3. ATUALIZAR STATUS (Para o Almoxarife / Coordenador / Admin aceitar ou recusar)
         [HttpPut("{id}/status")]
         [Authorize(Roles = $"{Perfis.Almoxarife},{Perfis.Coordenador},{Perfis.Admin}")]

@@ -6,8 +6,6 @@ import {
   FiPlus,
   FiSearch,
   FiTrash2,
-  FiToggleLeft,
-  FiToggleRight,
   FiX,
 } from "react-icons/fi";
 

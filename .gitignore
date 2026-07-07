@@ -1,0 +1,11 @@
+node_modules/
+dist/
+publish-api/
+bin/
+obj/
+*.log
+*.user
+.env
+.env.*
+!*.env.example
+AlmoxarifadoSenai.Api/firebase-credentials.json

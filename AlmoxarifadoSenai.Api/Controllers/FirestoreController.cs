@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AlmoxarifadoSenai.Api.Services;
+using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlmoxarifadoSenai.Api.Controllers
@@ -19,9 +16,26 @@ namespace AlmoxarifadoSenai.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult Testar()
+        public async Task<IActionResult> Testar()
         {
-            return Ok("Firestore conectado!");
+            try
+            {
+                var snapshot = await _firestoreService
+                    .GetDatabase()
+                    .Collection("usuarios")
+                    .Limit(1)
+                    .GetSnapshotAsync();
+
+                return Ok(new
+                {
+                    mensagem = "Firestore autenticado com sucesso!",
+                    documentosTeste = snapshot.Count
+                });
+            }
+            catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unauthenticated)
+            {
+                return StatusCode(503, "Credenciais do Firebase invalidas. Gere uma nova chave da service account e atualize o .env.");
+            }
         }
     }
 }

@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   FiEdit2,
   FiMoreHorizontal,
-  FiPlus,
   FiSave,
   FiSlash,
   FiTrash2,

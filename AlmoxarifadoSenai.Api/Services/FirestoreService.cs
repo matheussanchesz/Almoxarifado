@@ -11,9 +11,16 @@ namespace AlmoxarifadoSenai.Api.Services
         private readonly FirestoreDb _db;
         private const string ColecaoUsuarios = "usuarios";
 
-        public FirestoreService()
+        public FirestoreService(IConfiguration configuration)
         {
-            _db = FirestoreDb.Create("almoxarifadosenai-d7cca");
+            var projectId = configuration["Firebase:ProjectId"];
+
+            if (string.IsNullOrWhiteSpace(projectId))
+            {
+                throw new InvalidOperationException("Configure a variavel Firebase__ProjectId antes de iniciar a API.");
+            }
+
+            _db = FirestoreDb.Create(projectId);
         }
 
         public FirestoreDb GetDatabase()
