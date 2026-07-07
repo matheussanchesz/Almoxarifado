@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FiAlertTriangle,
   FiBarChart2,
@@ -12,7 +12,7 @@ import {
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { listarDemandasLocais } from "../../services/localData";
+import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 
 import "./Relatorios.css";
 
@@ -22,10 +22,42 @@ function formatarData(data: string) {
   return new Date(data).toLocaleDateString("pt-BR");
 }
 
+function normalizarStatus(status: string) {
+  return status
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function Relatorios() {
   const [periodo, setPeriodo] = useState<PeriodoRelatorio>("30 dias");
+  const [demandas, setDemandas] = useState<DemandaApi[]>([]);
+  const [erro, setErro] = useState("");
 
-  const demandas = useMemo(() => listarDemandasLocais(), []);
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarDemandas() {
+      try {
+        const dados = await listarDemandasApi();
+
+        if (ativo) {
+          setDemandas(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar os relatorios da API.");
+        }
+      }
+    }
+
+    void carregarDemandas();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const demandasFiltradas = useMemo(() => {
     if (periodo === "Todos") return demandas;
@@ -43,15 +75,15 @@ function Relatorios() {
   const totalDemandas = demandasFiltradas.length;
 
   const abertas = demandasFiltradas.filter(
-    (demanda) => demanda.status === "Aberta",
+    (demanda) => normalizarStatus(demanda.status) === "aberta",
   ).length;
 
   const emAndamento = demandasFiltradas.filter(
-    (demanda) => demanda.status === "Em Andamento",
+    (demanda) => normalizarStatus(demanda.status) === "em andamento",
   ).length;
 
   const concluidas = demandasFiltradas.filter(
-    (demanda) => demanda.status === "Concluída",
+    (demanda) => normalizarStatus(demanda.status) === "concluida",
   ).length;
 
   const urgentes = demandasFiltradas.filter(
@@ -62,7 +94,7 @@ function Relatorios() {
     const prazo = new Date(demanda.dataHoraNecessaria).getTime();
     const agora = new Date().getTime();
 
-    return prazo < agora && demanda.status !== "Concluída";
+    return prazo < agora && normalizarStatus(demanda.status) !== "concluida";
   }).length;
 
   const taxaConclusao =
@@ -172,6 +204,8 @@ function Relatorios() {
               </button>
             </div>
           </header>
+
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
           <section className="relatorios-indicadores">
             <article>

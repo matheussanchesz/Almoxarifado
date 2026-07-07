@@ -36,6 +36,12 @@ namespace AlmoxarifadoSenai.Api.Services
         }
 
         // 2. Busca Usuário por Matrícula
+        public async Task DeletarUsuarioAsync(string matricula)
+        {
+            DocumentReference docRef = _db.Collection(ColecaoUsuarios).Document(matricula);
+            await docRef.DeleteAsync();
+        }
+
         public async Task<Usuario?> ObterUsuarioPorMatriculaAsync(string matricula)
         {
             Console.WriteLine($"🔍 Buscando usuário: '{matricula}'");

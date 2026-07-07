@@ -4,6 +4,7 @@ import { FiArrowLeft, FiSave } from "react-icons/fi";
 
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
+import { criarCompraApi } from "../../services/compras";
 
 import "./NovaCompra.css";
 
@@ -18,6 +19,7 @@ function NovaCompra() {
   const [justificativa, setJustificativa] = useState("");
 
   const [abrirModal, setAbrirModal] = useState(false);
+  const [salvando, setSalvando] = useState(false);
 
   const [toast, setToast] = useState<{
     tipo: "sucesso" | "erro";
@@ -39,18 +41,29 @@ function NovaCompra() {
       justificativa,
     };
 
-    console.log("POST /compras", dados);
+    setSalvando(true);
 
-    setToast({
-      tipo: "sucesso",
-      mensagem: "Solicitação enviada com sucesso.",
-    });
+    try {
+      await criarCompraApi(dados);
 
-    setAbrirModal(false);
+      setToast({
+        tipo: "sucesso",
+        mensagem: "Solicitacao enviada com sucesso.",
+      });
 
-    setTimeout(() => {
-      navigate("/compras");
-    }, 1200);
+      setAbrirModal(false);
+
+      setTimeout(() => {
+        navigate("/compras");
+      }, 1200);
+    } catch {
+      setToast({
+        tipo: "erro",
+        mensagem: "Nao foi possivel enviar a solicitacao para a API.",
+      });
+    } finally {
+      setSalvando(false);
+    }
   }
   return (
     <div className="nova-compra-layout">
@@ -220,7 +233,9 @@ function NovaCompra() {
               <div className="modal-botoes">
                 <button onClick={() => setAbrirModal(false)}>Cancelar</button>
 
-                <button onClick={confirmarEnvio}>Confirmar envio</button>
+                <button onClick={confirmarEnvio} disabled={salvando}>
+                  {salvando ? "Enviando..." : "Confirmar envio"}
+                </button>
               </div>
             </div>
           </div>

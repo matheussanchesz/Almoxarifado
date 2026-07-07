@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   FiCheck,
   FiClock,
@@ -20,7 +21,7 @@ import {
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import StatCard from "../../components/StatCard/StatCard";
-import { listarDemandasLocais } from "../../services/localData";
+import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 
 import "../../components/Sidebar/Sidebar.css";
 import "../../components/Header/Header.css";
@@ -43,24 +44,57 @@ function obterClassePrioridade(prioridade: string) {
 
 function obterClasseStatus(status: string) {
   if (status === "Em Andamento") return "progress";
-  if (status === "Concluída") return "done";
+  if (normalizar(status) === "concluida") return "done";
   if (status === "Cancelada") return "cancelled";
   return "waiting";
 }
 
+function normalizar(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export default function Dashboard() {
-  const demandas = listarDemandasLocais();
+  const [demandas, setDemandas] = useState<DemandaApi[]>([]);
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarDemandas() {
+      try {
+        const dados = await listarDemandasApi();
+
+        if (ativo) {
+          setDemandas(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar o dashboard da API.");
+        }
+      }
+    }
+
+    void carregarDemandas();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const totalDemandas = demandas.length;
   const abertas = demandas.filter((d) => d.status === "Aberta").length;
   const aguardandoAtendimento = demandas.filter(
-    (d) => d.status === "Aberta" || d.status === "Em Análise"
+    (d) => d.status === "Aberta" || normalizar(d.status) === "em analise"
   ).length;
   const emAndamento = demandas.filter((d) => d.status === "Em Andamento").length;
   const aguardandoMaterial = demandas.filter(
     (d) => d.status === "Aguardando Material"
   ).length;
-  const concluidas = demandas.filter((d) => d.status === "Concluída").length;
+  const concluidas = demandas.filter((d) => normalizar(d.status) === "concluida").length;
   const urgentes = demandas.filter((d) => d.prioridade === "Urgente").length;
 
   const prioridadeUrgente = demandas.filter(
@@ -131,6 +165,7 @@ export default function Dashboard() {
 
       <main className="dashboard-main">
         <Header />
+        {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
         <section className="stats-grid">
           <StatCard

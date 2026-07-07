@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiEye, FiSearch } from "react-icons/fi";
 
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { listarExecucoesChecklist } from "../../services/checklistsLocal";
+import {
+  listarExecucoesChecklistApi,
+  type ExecucaoChecklistApi,
+} from "../../services/checklists";
 
 import "./HistoricoChecklists.css";
 
@@ -13,18 +16,38 @@ function formatarData(data: string) {
 
 function HistoricoChecklists() {
   const navigate = useNavigate();
-
   const [busca, setBusca] = useState("");
-  const [oficina, setOficina] = useState("");
-  const [categoria, setCategoria] = useState("");
   const [almoxarife, setAlmoxarife] = useState("");
   const [dataInicial, setDataInicial] = useState("");
   const [dataFinal, setDataFinal] = useState("");
+  const [execucoes, setExecucoes] = useState<ExecucaoChecklistApi[]>([]);
+  const [erro, setErro] = useState("");
 
-  const execucoes = listarExecucoesChecklist();
+  useEffect(() => {
+    let ativo = true;
 
-  const oficinas = [...new Set(execucoes.map((e) => e.oficina))];
-  const categorias = [...new Set(execucoes.map((e) => e.categoria))];
+    async function carregarExecucoes() {
+      try {
+        const dados = await listarExecucoesChecklistApi();
+
+        if (ativo) {
+          setExecucoes(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar o historico da API.");
+        }
+      }
+    }
+
+    void carregarExecucoes();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   const almoxarifes = [...new Set(execucoes.map((e) => e.almoxarifeNome))];
 
   const totais = useMemo(() => {
@@ -45,12 +68,9 @@ function HistoricoChecklists() {
       const dataExecucao = new Date(execucao.dataExecucao);
 
       const correspondeBusca =
-        execucao.nomeModelo.toLowerCase().includes(termo) ||
-        execucao.oficina.toLowerCase().includes(termo) ||
+        execucao.checklistId.toLowerCase().includes(termo) ||
         execucao.almoxarifeNome.toLowerCase().includes(termo);
 
-      const correspondeOficina = !oficina || execucao.oficina === oficina;
-      const correspondeCategoria = !categoria || execucao.categoria === categoria;
       const correspondeAlmoxarife =
         !almoxarife || execucao.almoxarifeNome === almoxarife;
 
@@ -62,14 +82,12 @@ function HistoricoChecklists() {
 
       return (
         correspondeBusca &&
-        correspondeOficina &&
-        correspondeCategoria &&
         correspondeAlmoxarife &&
         correspondeDataInicial &&
         correspondeDataFinal
       );
     });
-  }, [busca, oficina, categoria, almoxarife, dataInicial, dataFinal, execucoes]);
+  }, [busca, almoxarife, dataInicial, dataFinal, execucoes]);
 
   return (
     <div className="historico-layout">
@@ -88,13 +106,15 @@ function HistoricoChecklists() {
             </button>
 
             <h1>Histórico de Checklists</h1>
-            <p>Consulte as inspeções realizadas nas oficinas do SENAI Automotivo.</p>
+            <p>Consulte as execuções salvas na API.</p>
           </header>
+
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
           <section className="historico-indicadores">
             <div>
               <strong>{totais.total}</strong>
-              <span>Execuções</span>
+              <span>Execucoes</span>
             </div>
 
             <div className="ok">
@@ -118,32 +138,11 @@ function HistoricoChecklists() {
               <FiSearch />
               <input
                 type="text"
-                placeholder="Buscar por checklist, oficina ou almoxarife..."
+                placeholder="Buscar por checklist ou almoxarife..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
-
-            <select value={oficina} onChange={(e) => setOficina(e.target.value)}>
-              <option value="">Todas as oficinas</option>
-              {oficinas.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-            >
-              <option value="">Todas as categorias</option>
-              {categorias.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
 
             <select
               value={almoxarife}
@@ -177,11 +176,10 @@ function HistoricoChecklists() {
                   <tr>
                     <th>Data</th>
                     <th>Checklist</th>
-                    <th>Oficina</th>
-                    <th>Categoria</th>
                     <th>Almoxarife</th>
+                    <th>Status</th>
                     <th>Itens</th>
-                    <th>Ações</th>
+                    <th>Acoes</th>
                   </tr>
                 </thead>
 
@@ -189,14 +187,13 @@ function HistoricoChecklists() {
                   {historicoFiltrado.map((execucao) => (
                     <tr key={execucao.id}>
                       <td>{formatarData(execucao.dataExecucao)}</td>
-                      <td>{execucao.nomeModelo}</td>
-                      <td>{execucao.oficina}</td>
+                      <td>{execucao.checklistId}</td>
+                      <td>{execucao.almoxarifeNome}</td>
                       <td>
                         <span className="historico-categoria">
-                          {execucao.categoria}
+                          {execucao.status}
                         </span>
                       </td>
-                      <td>{execucao.almoxarifeNome}</td>
                       <td>{execucao.itens.length}</td>
                       <td>
                         <button
@@ -215,8 +212,8 @@ function HistoricoChecklists() {
 
                   {historicoFiltrado.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="historico-vazio">
-                        Nenhuma execução encontrada.
+                      <td colSpan={6} className="historico-vazio">
+                        Nenhuma execucao encontrada.
                       </td>
                     </tr>
                   )}

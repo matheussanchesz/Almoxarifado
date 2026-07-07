@@ -10,7 +10,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize(Roles = Perfis.Admin)] // Comente para testes
+    [Authorize(Roles = Perfis.Admin + "," + Perfis.Coordenador)]
     public class UsuariosController : ControllerBase
     {
         private readonly FirestoreService _firestoreService;
@@ -80,6 +80,33 @@ namespace AlmoxarifadoSenai.Api.Controllers
 
             await _firestoreService.SalvarUsuarioAsync(usuarioExistente);
             return Ok(new { mensagem = "Usuário atualizado com sucesso!", usuario = usuarioExistente });
+        }
+        [HttpPatch("{matricula}/inativar")]
+        public async Task<IActionResult> InativarUsuario(string matricula)
+        {
+            var usuarioExistente = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
+            if (usuarioExistente == null)
+            {
+                return NotFound($"Usuario com matricula {matricula} nao encontrado para inativacao.");
+            }
+
+            usuarioExistente.Ativo = false;
+
+            await _firestoreService.SalvarUsuarioAsync(usuarioExistente);
+            return Ok(new { mensagem = "Usuario inativado com sucesso!", usuario = usuarioExistente });
+        }
+
+        [HttpDelete("{matricula}")]
+        public async Task<IActionResult> ExcluirUsuario(string matricula)
+        {
+            var usuarioExistente = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
+            if (usuarioExistente == null)
+            {
+                return NotFound($"Usuario com matricula {matricula} nao encontrado para exclusao.");
+            }
+
+            await _firestoreService.DeletarUsuarioAsync(matricula);
+            return NoContent();
         }
     }
 

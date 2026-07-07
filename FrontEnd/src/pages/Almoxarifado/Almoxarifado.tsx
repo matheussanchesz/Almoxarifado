@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FiChevronDown,
   FiFilter,
@@ -19,11 +19,11 @@ import {
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import {
-  alterarStatusDemandaLocal,
-  listarDemandasLocais,
-  type DemandaLocal,
+  alterarStatusDemandaApi,
+  listarDemandasApi,
+  type DemandaApi,
   type StatusDemanda,
-} from "../../services/localData";
+} from "../../services/demandas";
 
 import "./Almoxarifado.css";
 
@@ -65,11 +65,10 @@ function proximoStatus(status: StatusDemanda): StatusDemanda {
 }
 
 function Almoxarifado() {
-  const [demandas, setDemandas] = useState<DemandaLocal[]>(() =>
-    listarDemandasLocais(),
-  );
+  const [demandas, setDemandas] = useState<DemandaApi[]>([]);
+  const [erro, setErro] = useState("");
 
-  const [demandaAberta, setDemandaAberta] = useState<DemandaLocal | null>(null);
+  const [demandaAberta, setDemandaAberta] = useState<DemandaApi | null>(null);
 
   const [filtroPrioridade, setFiltroPrioridade] = useState("");
   const [filtroOficina, setFiltroOficina] = useState("");
@@ -78,6 +77,31 @@ function Almoxarifado() {
   const [colunasExpandidas, setColunasExpandidas] = useState<
     Record<string, boolean>
   >({});
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarDemandas() {
+      try {
+        const dados = await listarDemandasApi();
+
+        if (ativo) {
+          setDemandas(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar a fila pela API.");
+        }
+      }
+    }
+
+    void carregarDemandas();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const oficinasDisponiveis = useMemo(() => {
     return [...new Set(demandas.map((demanda) => demanda.oficina))];
@@ -113,18 +137,27 @@ function Almoxarifado() {
       });
   }, [demandas, filtroPrioridade, filtroOficina, ordenacao]);
 
-  function alterarStatus(id: string, novoStatus: StatusDemanda) {
-    alterarStatusDemandaLocal(id, novoStatus);
+  async function alterarStatus(id: string, novoStatus: StatusDemanda) {
+    try {
+      const demandaAtualizada = await alterarStatusDemandaApi(id, novoStatus);
 
-    setDemandas(listarDemandasLocais());
+      setDemandas((estadoAtual) =>
+        estadoAtual.map((demanda) =>
+          demanda.id === id ? demandaAtualizada : demanda,
+        ),
+      );
+    } catch {
+      setErro("Nao foi possivel alterar o status da demanda.");
+      return;
+    }
 
     setTimeout(() => {
       setDemandaAberta(null);
     }, 300);
   }
 
-  function avancarStatus(demanda: DemandaLocal) {
-    alterarStatus(demanda.id, proximoStatus(demanda.status));
+  function avancarStatus(demanda: DemandaApi) {
+    void alterarStatus(demanda.id, proximoStatus(demanda.status));
   }
 
   function alternarVerMais(status: StatusDemanda) {
@@ -147,6 +180,7 @@ function Almoxarifado() {
               <p>Gerencie e priorize as demandas do almoxarifado.</p>
             </div>
           </header>
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
           <section className="almoxarifado-resumo">
             <article className="almoxarifado-resumo-card abertas">
               <div className="almoxarifado-resumo-icone">
@@ -456,7 +490,7 @@ function Almoxarifado() {
                 <button
                   type="button"
                   className="acao aberta"
-                  onClick={() => alterarStatus(demandaAberta.id, "Aberta")}
+                  onClick={() => void alterarStatus(demandaAberta.id, "Aberta")}
                 >
                   <FiFileText />
                   Aberta
@@ -466,7 +500,7 @@ function Almoxarifado() {
                   type="button"
                   className="acao andamento"
                   onClick={() =>
-                    alterarStatus(demandaAberta.id, "Em Andamento")
+                    void alterarStatus(demandaAberta.id, "Em Andamento")
                   }
                 >
                   <FiPlayCircle />
@@ -477,7 +511,7 @@ function Almoxarifado() {
                   type="button"
                   className="acao material"
                   onClick={() =>
-                    alterarStatus(demandaAberta.id, "Aguardando Material")
+                    void alterarStatus(demandaAberta.id, "Aguardando Material")
                   }
                 >
                   <FiPackage />
@@ -487,7 +521,7 @@ function Almoxarifado() {
                 <button
                   type="button"
                   className="acao concluida"
-                  onClick={() => alterarStatus(demandaAberta.id, "Concluída")}
+                  onClick={() => void alterarStatus(demandaAberta.id, "Concluída")}
                 >
                   <FiCheckCircle />
                   Concluída
@@ -496,7 +530,7 @@ function Almoxarifado() {
                 <button
                   type="button"
                   className="acao cancelada"
-                  onClick={() => alterarStatus(demandaAberta.id, "Cancelada")}
+                  onClick={() => void alterarStatus(demandaAberta.id, "Cancelada")}
                 >
                   <FiSlash />
                   Cancelar demanda

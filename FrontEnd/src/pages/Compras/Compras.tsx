@@ -1,65 +1,55 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEdit2, FiEye, FiPlus, FiSearch, FiXCircle } from "react-icons/fi";
+import { FiEye, FiPlus, FiSearch } from "react-icons/fi";
 
-import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import {
+  listarComprasApi,
+  type SolicitacaoCompra,
+} from "../../services/compras";
 
 import "./Compras.css";
-
-type StatusCompra =
-  | "Aguardando Processamento"
-  | "Em Cotação"
-  | "Pedido Realizado"
-  | "Recebido"
-  | "Cancelado";
-
-type Compra = {
-  id: string;
-  data: string;
-  item: string;
-  especificacao: string;
-  categoria: "Insumo" | "Ferramenta" | "Peça de Reposição";
-  quantidade: number;
-  urgencia: "Baixa" | "Média" | "Alta";
-  status: StatusCompra;
-};
-
-const comprasMock: Compra[] = [
-  {
-    id: "COMP-001",
-    data: "2026-07-01",
-    item: "Torquímetro Digital",
-    especificacao: "Ferramenta de precisão para aperto controlado",
-    categoria: "Ferramenta",
-    quantidade: 2,
-    urgencia: "Alta",
-    status: "Aguardando Processamento",
-  },
-  {
-    id: "COMP-002",
-    data: "2026-07-02",
-    item: "Óleo lubrificante 5W30",
-    especificacao: "Insumo para atividades práticas de manutenção preventiva",
-    categoria: "Insumo",
-    quantidade: 4,
-    urgencia: "Média",
-    status: "Em Cotação",
-  },
-];
 
 function Compras() {
   const navigate = useNavigate();
 
+  const [compras, setCompras] = useState<SolicitacaoCompra[]>([]);
   const [busca, setBusca] = useState("");
   const [statusFiltro, setStatusFiltro] = useState("");
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarCompras() {
+      try {
+        const dados = await listarComprasApi();
+
+        if (ativo) {
+          setCompras(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar as solicitacoes da API.");
+        }
+      }
+    }
+
+    void carregarCompras();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const comprasFiltradas = useMemo(() => {
-    return comprasMock.filter((compra) => {
+    return compras.filter((compra) => {
       const termo = busca.toLowerCase();
 
       const correspondeBusca =
-        compra.item.toLowerCase().includes(termo) ||
+        compra.nomeItem.toLowerCase().includes(termo) ||
         compra.categoria.toLowerCase().includes(termo) ||
         compra.id.toLowerCase().includes(termo);
 
@@ -67,14 +57,12 @@ function Compras() {
 
       return correspondeBusca && correspondeStatus;
     });
-  }, [busca, statusFiltro]);
+  }, [busca, compras, statusFiltro]);
 
-  const total = comprasMock.length;
-  const aguardando = comprasMock.filter(
-    (c) => c.status === "Aguardando Processamento",
-  ).length;
-  const cotacao = comprasMock.filter((c) => c.status === "Em Cotação").length;
-  const recebidos = comprasMock.filter((c) => c.status === "Recebido").length;
+  const total = compras.length;
+  const aguardando = compras.filter((c) => c.status === "Aguardando").length;
+  const aprovadas = compras.filter((c) => c.status === "Aprovado").length;
+  const concluidas = compras.filter((c) => c.status === "Concluido" || c.status === "Concluído").length;
 
   return (
     <div className="compras-layout">
@@ -86,11 +74,8 @@ function Compras() {
         <section className="compras-conteudo">
           <header className="compras-cabecalho">
             <div>
-              <h1>Solicitações de Compra</h1>
-              <p>
-                Acompanhe solicitações de insumos, ferramentas e peças para o
-                SENAI Automotivo.
-              </p>
+              <h1>Solicitacoes de Compra</h1>
+              <p>Acompanhe solicitacoes reais registradas na API.</p>
             </div>
 
             <button
@@ -99,14 +84,16 @@ function Compras() {
               onClick={() => navigate("/compras/nova")}
             >
               <FiPlus />
-              Nova Solicitação
+              Nova Solicitacao
             </button>
           </header>
+
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
           <section className="compras-indicadores">
             <div>
               <strong>{total}</strong>
-              <span>Total de solicitações</span>
+              <span>Total de solicitacoes</span>
             </div>
 
             <div className="aguardando">
@@ -115,13 +102,13 @@ function Compras() {
             </div>
 
             <div className="cotacao">
-              <strong>{cotacao}</strong>
-              <span>Em cotação</span>
+              <strong>{aprovadas}</strong>
+              <span>Aprovadas</span>
             </div>
 
             <div className="recebido">
-              <strong>{recebidos}</strong>
-              <span>Recebidas</span>
+              <strong>{concluidas}</strong>
+              <span>Concluidas</span>
             </div>
           </section>
 
@@ -130,7 +117,7 @@ function Compras() {
               <FiSearch />
               <input
                 type="text"
-                placeholder="Buscar por item, categoria ou código..."
+                placeholder="Buscar por item, categoria ou codigo..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
               />
@@ -141,13 +128,11 @@ function Compras() {
               onChange={(e) => setStatusFiltro(e.target.value)}
             >
               <option value="">Todos os status</option>
-              <option value="Aguardando Processamento">
-                Aguardando Processamento
-              </option>
-              <option value="Em Cotação">Em Cotação</option>
-              <option value="Pedido Realizado">Pedido Realizado</option>
-              <option value="Recebido">Recebido</option>
-              <option value="Cancelado">Cancelado</option>
+              <option value="Aguardando">Aguardando</option>
+              <option value="Aprovado">Aprovado</option>
+              <option value="Rejeitado">Rejeitado</option>
+              <option value="Concluido">Concluido</option>
+              <option value="Concluído">Concluido</option>
             </select>
           </section>
 
@@ -156,13 +141,13 @@ function Compras() {
               <table className="compras-tabela">
                 <thead>
                   <tr>
-                    <th>Código</th>
+                    <th>Codigo</th>
                     <th>Item</th>
                     <th>Categoria</th>
                     <th>Qtd.</th>
-                    <th>Urgência</th>
+                    <th>Urgencia</th>
                     <th>Status</th>
-                    <th>Ações</th>
+                    <th>Acoes</th>
                   </tr>
                 </thead>
 
@@ -172,12 +157,12 @@ function Compras() {
                       <td>
                         <strong className="compras-codigo">{compra.id}</strong>
                         <span className="compras-data">
-                          {new Date(compra.data).toLocaleDateString("pt-BR")}
+                          {new Date(compra.dataSolicitacao).toLocaleDateString("pt-BR")}
                         </span>
                       </td>
 
                       <td>
-                        <strong className="compras-item">{compra.item}</strong>
+                        <strong className="compras-item">{compra.nomeItem}</strong>
                         <span className="compras-especificacao">
                           {compra.especificacao}
                         </span>
@@ -207,7 +192,8 @@ function Compras() {
                           className={`compras-status ${compra.status
                             .toLowerCase()
                             .replaceAll(" ", "-")
-                            .replace("ç", "c")}`}
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")}`}
                         >
                           {compra.status}
                         </span>
@@ -225,35 +211,6 @@ function Compras() {
                           >
                             <FiEye />
                           </button>
-
-                          {compra.status === "Aguardando Processamento" && (
-                            <button
-                              type="button"
-                              className="compras-acao editar"
-                              title="Editar"
-                              onClick={() =>
-                                navigate(`/compras/editar/${compra.id}`)
-                              }
-                            >
-                              <FiEdit2 />
-                            </button>
-                          )}
-
-                          {compra.status !== "Recebido" &&
-                            compra.status !== "Cancelado" && (
-                              <button
-                                type="button"
-                                className="compras-acao cancelar"
-                                title="Cancelar"
-                                onClick={() =>
-                                  confirm(
-                                    `Deseja cancelar a solicitação ${compra.id}?`,
-                                  )
-                                }
-                              >
-                                <FiXCircle />
-                              </button>
-                            )}
                         </div>
                       </td>
                     </tr>
@@ -262,7 +219,7 @@ function Compras() {
                   {comprasFiltradas.length === 0 && (
                     <tr>
                       <td colSpan={7} className="compras-vazio">
-                        Nenhuma solicitação encontrada.
+                        Nenhuma solicitacao encontrada.
                       </td>
                     </tr>
                   )}

@@ -1,263 +1,307 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    FiAlertTriangle,
-    FiBell,
-    FiCheckCircle,
-    FiClock,
-    FiFilter,
-    FiInfo,
-    FiSearch,
+  FiAlertTriangle,
+  FiBell,
+  FiCheckCircle,
+  FiClock,
+  FiFilter,
+  FiInfo,
+  FiSearch,
 } from "react-icons/fi";
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import {
-    listarNotificacoes,
-    marcarNotificacaoComoLida,
-    marcarTodasComoLidas,
-    type NotificacaoLocal,
-} from "../../services/notificacoesLocal";
+  listarNotificacoesApi,
+  marcarNotificacaoLidaApi,
+  marcarTodasNotificacoesLidasApi,
+  type NotificacaoApi,
+} from "../../services/notificacoes";
 
 import "./Notificacoes.css";
 
 function formatarData(data: string) {
-    return new Date(data).toLocaleString("pt-BR");
+  return new Date(data).toLocaleString("pt-BR");
+}
+
+function prioridadeVisual(notificacao: NotificacaoApi) {
+  if (notificacao.tipo.toLowerCase().includes("urgente")) return "Urgente";
+  if (notificacao.cor === "red") return "Urgente";
+  if (notificacao.cor === "yellow") return "Alta";
+  return "Normal";
 }
 
 function Notificacoes() {
-    const navigate = useNavigate();
-    const [notificacoes, setNotificacoes] = useState<NotificacaoLocal[]>(() =>
-        listarNotificacoes(),
-    );
+  const navigate = useNavigate();
+  const [notificacoes, setNotificacoes] = useState<NotificacaoApi[]>([]);
+  const [busca, setBusca] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [erro, setErro] = useState("");
 
-    const [busca, setBusca] = useState("");
-    const [filtroTipo, setFiltroTipo] = useState("");
-    const [filtroStatus, setFiltroStatus] = useState("");
-
-    function recarregarNotificacoes() {
-        setNotificacoes(listarNotificacoes());
+  async function recarregarNotificacoes() {
+    try {
+      const dados = await listarNotificacoesApi();
+      setNotificacoes(dados);
+      setErro("");
+    } catch {
+      setErro("Nao foi possivel carregar as notificacoes da API.");
     }
+  }
 
-    function marcarComoLida(id: string) {
-        marcarNotificacaoComoLida(id);
-        recarregarNotificacoes();
-    }
+  useEffect(() => {
+    let ativo = true;
 
-    function abrirOrigem(notificacao: NotificacaoLocal) {
-        marcarNotificacaoComoLida(notificacao.id);
-        recarregarNotificacoes();
+    async function carregarInicial() {
+      try {
+        const dados = await listarNotificacoesApi();
 
-        if (notificacao.rotaOrigem) {
-            navigate(notificacao.rotaOrigem);
+        if (ativo) {
+          setNotificacoes(dados);
+          setErro("");
         }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar as notificacoes da API.");
+        }
+      }
     }
 
-    function marcarTodas() {
-        marcarTodasComoLidas();
-        recarregarNotificacoes();
+    void carregarInicial();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  async function marcarComoLida(id: string) {
+    await marcarNotificacaoLidaApi(id);
+    await recarregarNotificacoes();
+  }
+
+  async function abrirOrigem(notificacao: NotificacaoApi) {
+    await marcarNotificacaoLidaApi(notificacao.id);
+    await recarregarNotificacoes();
+
+    if (notificacao.link) {
+      navigate(notificacao.link);
+    } else if (notificacao.demandaId) {
+      navigate(`/demandas/detalhes/${notificacao.demandaId}`);
     }
+  }
 
-    function limparFiltros() {
-        setBusca("");
-        setFiltroTipo("");
-        setFiltroStatus("");
-    }
+  async function marcarTodas() {
+    await marcarTodasNotificacoesLidasApi();
+    await recarregarNotificacoes();
+  }
 
-    const notificacoesFiltradas = useMemo(() => {
-        const termo = busca.toLowerCase();
+  function limparFiltros() {
+    setBusca("");
+    setFiltroTipo("");
+    setFiltroStatus("");
+  }
 
-        return notificacoes.filter((notificacao) => {
-            const correspondeBusca =
-                notificacao.titulo.toLowerCase().includes(termo) ||
-                notificacao.mensagem.toLowerCase().includes(termo) ||
-                notificacao.id.toLowerCase().includes(termo);
+  const notificacoesFiltradas = useMemo(() => {
+    const termo = busca.toLowerCase();
 
-            const correspondeTipo = !filtroTipo || notificacao.tipo === filtroTipo;
+    return notificacoes.filter((notificacao) => {
+      const status = notificacao.lida ? "Lida" : "Nao lida";
 
-            const correspondeStatus =
-                !filtroStatus || notificacao.status === filtroStatus;
+      const correspondeBusca =
+        notificacao.titulo.toLowerCase().includes(termo) ||
+        notificacao.mensagem.toLowerCase().includes(termo) ||
+        notificacao.id.toLowerCase().includes(termo);
 
-            return correspondeBusca && correspondeTipo && correspondeStatus;
-        });
-    }, [busca, filtroTipo, filtroStatus, notificacoes]);
+      const correspondeTipo = !filtroTipo || notificacao.tipo === filtroTipo;
+      const correspondeStatus = !filtroStatus || status === filtroStatus;
 
-    const total = notificacoes.length;
+      return correspondeBusca && correspondeTipo && correspondeStatus;
+    });
+  }, [busca, filtroTipo, filtroStatus, notificacoes]);
 
-    const naoLidas = notificacoes.filter(
-        (notificacao) => notificacao.status === "Não lida",
-    ).length;
+  const total = notificacoes.length;
+  const naoLidas = notificacoes.filter((notificacao) => !notificacao.lida).length;
+  const urgentes = notificacoes.filter(
+    (notificacao) => prioridadeVisual(notificacao) === "Urgente",
+  ).length;
+  const sistema = notificacoes.filter(
+    (notificacao) => notificacao.tipo === "Sistema",
+  ).length;
 
-    const urgentes = notificacoes.filter(
-        (notificacao) => notificacao.prioridade === "Urgente",
-    ).length;
+  return (
+    <div className="notificacoes-layout">
+      <Sidebar />
 
-    const sistema = notificacoes.filter(
-        (notificacao) => notificacao.tipo === "Sistema",
-    ).length;
+      <main className="notificacoes-main">
+        <Header titulo="Notificações" />
 
-    return (
-        <div className="notificacoes-layout">
-            <Sidebar />
+        <section className="notificacoes-conteudo">
+          <header className="notificacoes-cabecalho">
+            <div>
+              <p>Central de alertas reais da API.</p>
+            </div>
 
-            <main className="notificacoes-main">
-                <Header titulo="Notificações" />
+            <button
+              type="button"
+              className="notificacoes-botao-marcar"
+              onClick={() => void marcarTodas()}
+              disabled={naoLidas === 0}
+            >
+              Marcar todas como lidas
+            </button>
+          </header>
 
-                <section className="notificacoes-conteudo">
-                    <header className="notificacoes-cabecalho">
-                        <div>
-                            <p>Central de alertas do sistema do almoxarifado.</p>
-                        </div>
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
+          <section className="notificacoes-resumo">
+            <article>
+              <FiBell />
+              <div>
+                <strong>{total}</strong>
+                <span>Total</span>
+              </div>
+            </article>
+
+            <article className="nao-lidas">
+              <FiClock />
+              <div>
+                <strong>{naoLidas}</strong>
+                <span>Nao lidas</span>
+              </div>
+            </article>
+
+            <article className="urgentes">
+              <FiAlertTriangle />
+              <div>
+                <strong>{urgentes}</strong>
+                <span>Urgentes</span>
+              </div>
+            </article>
+
+            <article className="sistema">
+              <FiInfo />
+              <div>
+                <strong>{sistema}</strong>
+                <span>Sistema</span>
+              </div>
+            </article>
+          </section>
+
+          <section className="notificacoes-filtros">
+            <div className="notificacoes-busca">
+              <FiSearch />
+              <input
+                type="text"
+                placeholder="Buscar notificacao..."
+                value={busca}
+                onChange={(evento) => setBusca(evento.target.value)}
+              />
+            </div>
+
+            <select
+              value={filtroTipo}
+              onChange={(evento) => setFiltroTipo(evento.target.value)}
+            >
+              <option value="">Todos os tipos</option>
+              {[...new Set(notificacoes.map((n) => n.tipo))].map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filtroStatus}
+              onChange={(evento) => setFiltroStatus(evento.target.value)}
+            >
+              <option value="">Todos os status</option>
+              <option value="Nao lida">Nao lida</option>
+              <option value="Lida">Lida</option>
+            </select>
+
+            <button type="button" onClick={limparFiltros}>
+              <FiFilter />
+              Limpar
+            </button>
+          </section>
+
+          <section className="notificacoes-lista">
+            {notificacoesFiltradas.map((notificacao) => {
+              const prioridade = prioridadeVisual(notificacao);
+              const status = notificacao.lida ? "Lida" : "Nao lida";
+
+              return (
+                <article
+                  key={notificacao.id}
+                  className={`notificacao-card ${!notificacao.lida ? "nao-lida" : ""}`}
+                >
+                  <div className={`notificacao-icone ${prioridade.toLowerCase()}`}>
+                    {prioridade === "Urgente" ? (
+                      <FiAlertTriangle />
+                    ) : notificacao.lida ? (
+                      <FiCheckCircle />
+                    ) : (
+                      <FiBell />
+                    )}
+                  </div>
+
+                  <div className="notificacao-corpo">
+                    <div className="notificacao-topo">
+                      <div>
+                        <span>{notificacao.id}</span>
+                        <h2>{notificacao.titulo}</h2>
+                      </div>
+
+                      <strong>{formatarData(notificacao.dataCriacao)}</strong>
+                    </div>
+
+                    <p>{notificacao.mensagem}</p>
+
+                    <footer>
+                      <span className="notificacao-tipo">{notificacao.tipo}</span>
+
+                      <span
+                        className={`notificacao-prioridade ${prioridade.toLowerCase()}`}
+                      >
+                        {prioridade}
+                      </span>
+
+                      <span className="notificacao-status">{status}</span>
+
+                      {!notificacao.lida && (
                         <button
-                            type="button"
-                            className="notificacoes-botao-marcar"
-                            onClick={marcarTodas}
-                            disabled={naoLidas === 0}
+                          type="button"
+                          onClick={() => void marcarComoLida(notificacao.id)}
                         >
-                            Marcar todas como lidas
+                          Marcar como lida
                         </button>
-                    </header>
+                      )}
 
-                    <section className="notificacoes-resumo">
-                        <article>
-                            <FiBell />
-                            <div>
-                                <strong>{total}</strong>
-                                <span>Total</span>
-                            </div>
-                        </article>
-
-                        <article className="nao-lidas">
-                            <FiClock />
-                            <div>
-                                <strong>{naoLidas}</strong>
-                                <span>Não lidas</span>
-                            </div>
-                        </article>
-
-                        <article className="urgentes">
-                            <FiAlertTriangle />
-                            <div>
-                                <strong>{urgentes}</strong>
-                                <span>Urgentes</span>
-                            </div>
-                        </article>
-
-                        <article className="sistema">
-                            <FiInfo />
-                            <div>
-                                <strong>{sistema}</strong>
-                                <span>Sistema</span>
-                            </div>
-                        </article>
-                    </section>
-
-                    <section className="notificacoes-filtros">
-                        <div className="notificacoes-busca">
-                            <FiSearch />
-                            <input
-                                type="text"
-                                placeholder="Buscar notificação..."
-                                value={busca}
-                                onChange={(evento) => setBusca(evento.target.value)}
-                            />
-                        </div>
-
-                        <select
-                            value={filtroTipo}
-                            onChange={(evento) => setFiltroTipo(evento.target.value)}
+                      {(notificacao.link || notificacao.demandaId) && (
+                        <button
+                          type="button"
+                          onClick={() => void abrirOrigem(notificacao)}
                         >
-                            <option value="">Todos os tipos</option>
-                            <option value="Demanda">Demanda</option>
-                            <option value="Compra">Compra</option>
-                            <option value="Checklist">Checklist</option>
-                            <option value="Sistema">Sistema</option>
-                        </select>
-
-                        <select
-                            value={filtroStatus}
-                            onChange={(evento) => setFiltroStatus(evento.target.value)}
-                        >
-                            <option value="">Todos os status</option>
-                            <option value="Não lida">Não lida</option>
-                            <option value="Lida">Lida</option>
-                        </select>
-
-                        <button type="button" onClick={limparFiltros}>
-                            <FiFilter />
-                            Limpar
+                          Abrir origem
                         </button>
-                    </section>
+                      )}
+                    </footer>
+                  </div>
+                </article>
+              );
+            })}
 
-                    <section className="notificacoes-lista">
-                        {notificacoesFiltradas.map((notificacao) => (
-                            <article
-                                key={notificacao.id}
-                                className={`notificacao-card ${notificacao.status === "Não lida" ? "nao-lida" : ""
-                                    }`}
-                            >
-                                <div
-                                    className={`notificacao-icone ${notificacao.prioridade.toLowerCase()}`}
-                                >
-                                    {notificacao.prioridade === "Urgente" ? (
-                                        <FiAlertTriangle />
-                                    ) : notificacao.status === "Lida" ? (
-                                        <FiCheckCircle />
-                                    ) : (
-                                        <FiBell />
-                                    )}
-                                </div>
-
-                                <div className="notificacao-corpo">
-                                    <div className="notificacao-topo">
-                                        <div>
-                                            <span>{notificacao.id}</span>
-                                            <h2>{notificacao.titulo}</h2>
-                                        </div>
-
-                                        <strong>{formatarData(notificacao.data)}</strong>
-                                    </div>
-
-                                    <p>{notificacao.mensagem}</p>
-
-                                    <footer>
-                                        <span className="notificacao-tipo">{notificacao.tipo}</span>
-
-                                        <span
-                                            className={`notificacao-prioridade ${notificacao.prioridade.toLowerCase()}`}
-                                        >
-                                            {notificacao.prioridade}
-                                        </span>
-
-                                        <span className="notificacao-status">{notificacao.status}</span>
-
-                                        {notificacao.status === "Não lida" && (
-                                            <button type="button" onClick={() => marcarComoLida(notificacao.id)}>
-                                                Marcar como lida
-                                            </button>
-                                        )}
-
-                                        {notificacao.rotaOrigem && (
-                                            <button type="button" onClick={() => abrirOrigem(notificacao)}>
-                                                Abrir origem
-                                            </button>
-                                        )}
-                                    </footer>
-                                </div>
-                            </article>
-                        ))}
-
-                        {notificacoesFiltradas.length === 0 && (
-                            <div className="notificacoes-vazio">
-                                Nenhuma notificação encontrada.
-                            </div>
-                        )}
-                    </section>
-                </section>
-            </main>
-        </div>
-    );
+            {notificacoesFiltradas.length === 0 && (
+              <div className="notificacoes-vazio">
+                Nenhuma notificacao encontrada.
+              </div>
+            )}
+          </section>
+        </section>
+      </main>
+    </div>
+  );
 }
 
 export default Notificacoes;

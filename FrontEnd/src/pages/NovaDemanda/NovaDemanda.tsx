@@ -13,7 +13,7 @@ import {
 
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { getUsuarioLogado } from "../../services/auth";
-import { criarDemandaLocal } from "../../services/localData";
+import { criarDemandaApi } from "../../services/demandas";
 import Header from "../../components/Header/Header";
 import "./NovaDemanda.css";
 
@@ -35,6 +35,7 @@ function NovaDemanda() {
   const [prioridade, setPrioridade] = useState<Prioridade>("Normal");
   const [descricaoDemanda, setDescricaoDemanda] = useState("");
   const [anexos, setAnexos] = useState<File[]>([]);
+  const [salvando, setSalvando] = useState(false);
 
   const numeroDemanda = "—";
   const prazoResposta =
@@ -49,7 +50,7 @@ function NovaDemanda() {
     return new Date(dataSolicitada).toLocaleString("pt-BR");
   }, [dataSolicitada]);
 
-  function salvarDemanda(evento: React.FormEvent) {
+  async function salvarDemanda(evento: React.FormEvent) {
     evento.preventDefault();
 
     if (!usuario) {
@@ -69,18 +70,24 @@ function NovaDemanda() {
       return;
     }
 
-    criarDemandaLocal({
-      titulo: tituloDemanda,
-      descricao: `${descricaoDemanda}\n\nTipo de serviço: ${tipoServico}`,
-      oficina: oficinaLaboratorio,
-      prioridade,
-      dataHoraNecessaria: dataSolicitada,
-      professorNome: usuario.nome,
-      professorMatricula: usuario.matricula,
-    });
+    setSalvando(true);
 
-    alert("Demanda salva com sucesso!");
-    navigate("/demandas");
+    try {
+      await criarDemandaApi({
+        titulo: tituloDemanda,
+        descricao: `${descricaoDemanda}\n\nTipo de serviço: ${tipoServico}`,
+        oficina: oficinaLaboratorio,
+        prioridade,
+        dataHoraNecessaria: new Date(dataSolicitada).toISOString(),
+      });
+
+      alert("Demanda salva com sucesso!");
+      navigate("/demandas");
+    } catch {
+      alert("Nao foi possivel salvar a demanda na API.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   function adicionarAnexos(arquivos: FileList | null) {
@@ -340,8 +347,12 @@ function NovaDemanda() {
             >
               Cancelar
             </button>
-            <button type="submit" className="nova-demanda-salvar">
-              Salvar Demanda
+            <button
+              type="submit"
+              className="nova-demanda-salvar"
+              disabled={salvando}
+            >
+              {salvando ? "Salvando..." : "Salvar Demanda"}
             </button>
           </div>
         </form>

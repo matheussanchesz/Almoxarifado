@@ -66,6 +66,25 @@
   background: #0049b8;
 }
 
+.new-user-button:disabled,
+.user-actions button:disabled,
+.pagination button:disabled,
+.user-form-acoes button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.users-alert {
+  margin-bottom: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .users-card {
   flex: 1;
   min-height: 0;
@@ -133,6 +152,19 @@
   color: #111827;
   font-size: 13px;
   font-weight: 600;
+}
+
+.user-id {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #0046c7;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .user-avatar {
@@ -235,6 +267,11 @@
 
 .user-more-menu .danger {
   color: #dc2626;
+}
+
+.user-more-menu button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .users-footer {
@@ -350,6 +387,12 @@
   font-weight: 600;
 }
 
+.user-form small {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 400;
+}
+
 .user-form input,
 .user-form select {
   height: 40px;
@@ -366,6 +409,12 @@
 .user-form select:focus {
   border-color: #0057d9;
   box-shadow: 0 0 0 3px rgba(0, 87, 217, 0.1);
+}
+
+.user-form input:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
 }
 
 .user-form-acoes {
@@ -397,6 +446,47 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+html.dark .users-alert {
+  background: rgba(127, 29, 29, 0.24);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+html.dark .user-info strong,
+html.dark .user-modal-topo h2,
+html.dark .user-form label {
+  color: #f8fafc;
+}
+
+html.dark .user-id {
+  background: #0b2f75;
+  border-color: #1d4ed8;
+  color: #dbeafe;
+}
+
+html.dark .user-more-menu,
+html.dark .user-modal,
+html.dark .user-modal-topo button {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #e5e7eb;
+}
+
+html.dark .user-more-menu button,
+html.dark .user-form small,
+html.dark .user-modal-topo p {
+  color: #94a3b8;
+}
+
+html.dark .user-more-menu button:hover {
+  background: #1e293b;
+}
+
+html.dark .user-form input:disabled {
+  background: #1e293b;
+  color: #94a3b8;
 }
 
 @media (max-width: 900px) {

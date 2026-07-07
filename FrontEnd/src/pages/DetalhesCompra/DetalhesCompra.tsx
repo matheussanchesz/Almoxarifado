@@ -1,59 +1,15 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiClock, FiMail, FiPrinter } from "react-icons/fi";
 
-import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import {
+  obterCompraApi,
+  type SolicitacaoCompra,
+} from "../../services/compras";
 
 import "./DetalhesCompra.css";
-
-type StatusCompra =
-  | "Aguardando Processamento"
-  | "Em Cotação"
-  | "Pedido Realizado"
-  | "Recebido"
-  | "Cancelado";
-
-type CompraDetalhe = {
-  id: string;
-  data: string;
-  item: string;
-  especificacao: string;
-  categoria: "Insumo" | "Ferramenta" | "Peça de Reposição";
-  quantidade: number;
-  urgencia: "Baixa" | "Média" | "Alta";
-  status: StatusCompra;
-  solicitante: string;
-  justificativa: string;
-};
-
-const comprasMock: CompraDetalhe[] = [
-  {
-    id: "COMP-001",
-    data: "2026-07-01",
-    item: "Torquímetro Digital",
-    especificacao: "Ferramenta de precisão para aperto controlado.",
-    categoria: "Ferramenta",
-    quantidade: 2,
-    urgencia: "Alta",
-    status: "Aguardando Processamento",
-    solicitante: "Almoxarife Teste",
-    justificativa:
-      "Ferramentas atuais estão danificadas e comprometem a realização das aulas práticas de motores.",
-  },
-  {
-    id: "COMP-002",
-    data: "2026-07-02",
-    item: "Óleo lubrificante 5W30",
-    especificacao: "Insumo para atividades práticas de manutenção preventiva.",
-    categoria: "Insumo",
-    quantidade: 4,
-    urgencia: "Média",
-    status: "Em Cotação",
-    solicitante: "Almoxarife Teste",
-    justificativa:
-      "Reposição necessária para manter o fluxo de aulas práticas de revisão automotiva.",
-  },
-];
 
 function formatarData(data: string) {
   return new Date(data).toLocaleDateString("pt-BR");
@@ -62,10 +18,42 @@ function formatarData(data: string) {
 function DetalhesCompra() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [compra, setCompra] = useState<SolicitacaoCompra | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-  const compra = comprasMock.find((item) => item.id === id);
+  useEffect(() => {
+    let ativo = true;
 
-  if (!compra) {
+    async function carregarCompra() {
+      if (!id) return;
+
+      try {
+        const dados = await obterCompraApi(id);
+
+        if (ativo) {
+          setCompra(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Solicitacao nao encontrada ou indisponivel na API.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    void carregarCompra();
+
+    return () => {
+      ativo = false;
+    };
+  }, [id]);
+
+  if (carregando || !compra) {
     return (
       <div className="detalhes-compra-layout">
         <Sidebar />
@@ -83,7 +71,7 @@ function DetalhesCompra() {
               Voltar
             </button>
 
-            <h1>Solicitação não encontrada</h1>
+            <h1>{carregando ? "Carregando solicitacao..." : erro}</h1>
           </section>
         </main>
       </div>
@@ -111,10 +99,10 @@ function DetalhesCompra() {
             <div className="detalhes-compra-titulo">
               <div>
                 <span className="detalhes-compra-codigo">{compra.id}</span>
-                <h1>{compra.item}</h1>
+                <h1>{compra.nomeItem}</h1>
                 <p>
-                  {compra.categoria} • {compra.quantidade} un. •{" "}
-                  {formatarData(compra.data)}
+                  {compra.categoria} - {compra.quantidade} un. -{" "}
+                  {formatarData(compra.dataSolicitacao)}
                 </p>
               </div>
 
@@ -139,24 +127,24 @@ function DetalhesCompra() {
             </div>
 
             <div>
-              <span>Urgência</span>
+              <span>Urgencia</span>
               <strong>{compra.urgencia}</strong>
             </div>
 
             <div>
               <span>Solicitante</span>
-              <strong>{compra.solicitante}</strong>
+              <strong>{compra.almoxarifeNome}</strong>
             </div>
 
             <div>
-              <span>Data da solicitação</span>
-              <strong>{formatarData(compra.data)}</strong>
+              <span>Data da solicitacao</span>
+              <strong>{formatarData(compra.dataSolicitacao)}</strong>
             </div>
           </section>
 
           <section className="detalhes-compra-grid">
             <article className="detalhes-compra-card">
-              <h2>Dados da Solicitação</h2>
+              <h2>Dados da Solicitacao</h2>
 
               <div className="detalhes-compra-info">
                 <span>Categoria</span>
@@ -165,7 +153,7 @@ function DetalhesCompra() {
 
               <div className="detalhes-compra-info">
                 <span>Item</span>
-                <strong>{compra.item}</strong>
+                <strong>{compra.nomeItem}</strong>
               </div>
 
               <div className="detalhes-compra-info">
@@ -174,25 +162,25 @@ function DetalhesCompra() {
               </div>
 
               <div className="detalhes-compra-info">
-                <span>Especificação Técnica</span>
+                <span>Especificacao tecnica</span>
                 <p>{compra.especificacao}</p>
               </div>
 
               <div className="detalhes-compra-info">
-                <span>Justificativa Operacional</span>
+                <span>Justificativa operacional</span>
                 <p>{compra.justificativa}</p>
               </div>
             </article>
 
             <aside className="detalhes-compra-card">
-              <h2>Histórico</h2>
+              <h2>Historico</h2>
 
               <div className="detalhes-compra-timeline">
                 <div>
                   <FiClock />
                   <section>
-                    <strong>Solicitação criada</strong>
-                    <span>{formatarData(compra.data)}</span>
+                    <strong>Solicitacao criada</strong>
+                    <span>{formatarData(compra.dataSolicitacao)}</span>
                   </section>
                 </div>
 
@@ -208,7 +196,7 @@ function DetalhesCompra() {
                   <FiMail />
                   <section>
                     <strong>E-mail institucional</strong>
-                    <span>Aguardando integração com backend</span>
+                    <span>Aguardando integracao com backend</span>
                   </section>
                 </div>
               </div>

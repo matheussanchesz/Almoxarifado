@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   FiArchive,
@@ -13,7 +14,7 @@ import {
   FiUsers,
   FiX,
 } from "react-icons/fi";
-import React, { useEffect, useState } from "react";
+
 import "./Sidebar.css";
 
 type Perfil = "Admin" | "Coordenador" | "Professor" | "Almoxarife";
@@ -54,7 +55,7 @@ const itensMenu: ItemMenu[] = [
     icone: <FiClipboard />,
     titulo: "Checklists",
     caminho: "/checklists",
-    perfis: ["Admin", "Coordenador", "Almoxarife"],
+    perfis: ["Admin", "Almoxarife"],
   },
   {
     icone: <FiBarChart2 />,
@@ -112,7 +113,7 @@ export default function Sidebar() {
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
 
   const itensPermitidos = itensMenu.filter((item) =>
-    item.perfis.includes(usuario.perfil)
+    item.perfis.includes(usuario.perfil),
   );
 
   useEffect(() => {

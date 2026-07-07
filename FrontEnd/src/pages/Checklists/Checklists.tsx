@@ -1,147 +1,101 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FiCopy,
-  FiEdit2,
-  FiPlus,
-  FiSearch,
-  FiTrash2,
-  FiX,
-} from "react-icons/fi";
+import { FiCopy, FiEdit2, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi";
 
-import Sidebar from "../../components/Sidebar/Sidebar";
-import {
-  alternarStatusModeloChecklist,
-  criarModeloChecklist,
-  duplicarModeloChecklist,
-  editarModeloChecklist,
-  excluirModeloChecklist,
-  listarExecucoesChecklist,
-  listarModelosChecklist,
-  obterRascunhoChecklist,
-  type ModeloChecklist,
-} from "../../services/checklistsLocal";
 import Header from "../../components/Header/Header";
-import "./Checklists.css";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import { getUsuarioLogado } from "../../services/auth";
+import {
+  criarChecklistApi,
+  duplicarChecklistApi,
+  editarChecklistApi,
+  excluirChecklistApi,
+  listarChecklistsApi,
+  type ChecklistApi,
+} from "../../services/checklists";
 
-function formatarData(data: string) {
-  return new Date(data).toLocaleString("pt-BR");
-}
+import "./Checklists.css";
 
 function Checklists() {
   const navigate = useNavigate();
+  const usuario = getUsuarioLogado();
+  const podeExcluir = usuario?.perfil === "Admin";
 
-  const [modelos, setModelos] = useState<ModeloChecklist[]>(() =>
-    listarModelosChecklist()
-  );
-
+  const [modelos, setModelos] = useState<ChecklistApi[]>([]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
-  const [modeloEditando, setModeloEditando] = useState<ModeloChecklist | null>(
-    null
-  );
-
+  const [modeloEditando, setModeloEditando] = useState<ChecklistApi | null>(null);
   const [nome, setNome] = useState("");
   const [oficina, setOficina] = useState("");
   const [categoria, setCategoria] = useState("");
   const [itemAtual, setItemAtual] = useState("");
   const [itens, setItens] = useState<string[]>([]);
+  const [erro, setErro] = useState("");
 
-  const execucoes = listarExecucoesChecklist();
-
-  function obterInfoModelo(modelo: ModeloChecklist) {
-    const rascunho = obterRascunhoChecklist(modelo.id);
-
-    const execucoesDoModelo = execucoes
-      .filter((execucao) => execucao.modeloId === modelo.id)
-      .sort(
-        (a, b) =>
-          new Date(b.dataExecucao).getTime() -
-          new Date(a.dataExecucao).getTime()
-      );
-
-    const ultimaExecucao = execucoesDoModelo[0];
-
-    if (rascunho) {
-      return {
-        status: "Rascunho",
-        classe: "rascunho",
-        botao: "Continuar execução",
-        ultimaExecucao: ultimaExecucao
-          ? formatarData(ultimaExecucao.dataExecucao)
-          : "—",
-        ultimoAlmoxarife: rascunho.almoxarifeNome,
-      };
+  async function recarregarModelos() {
+    try {
+      const dados = await listarChecklistsApi(false);
+      setModelos(dados);
+      setErro("");
+    } catch {
+      setErro("Nao foi possivel carregar os checklists da API.");
     }
-
-    if (ultimaExecucao) {
-      return {
-        status: "Executado",
-        classe: "executado",
-        botao: "Executar novamente",
-        ultimaExecucao: formatarData(ultimaExecucao.dataExecucao),
-        ultimoAlmoxarife: ultimaExecucao.almoxarifeNome,
-      };
-    }
-
-    return {
-      status: "Nunca executado",
-      classe: "nunca",
-      botao: "Executar",
-      ultimaExecucao: "Nunca",
-      ultimoAlmoxarife: "—",
-    };
   }
 
-  const modelosComInfo = useMemo(() => {
-    return modelos.map((modelo) => ({
-      ...modelo,
-      info: obterInfoModelo(modelo),
-    }));
-  }, [modelos, execucoes]);
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarModelos() {
+      try {
+        const dados = await listarChecklistsApi(false);
+
+        if (ativo) {
+          setModelos(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar os checklists da API.");
+        }
+      }
+    }
+
+    void carregarModelos();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const indicadores = useMemo(() => {
     return {
       total: modelos.length,
-      executados: modelosComInfo.filter((m) => m.info.status === "Executado")
-        .length,
-      rascunhos: modelosComInfo.filter((m) => m.info.status === "Rascunho")
-        .length,
+      executados: 0,
+      rascunhos: 0,
       inativos: modelos.filter((modelo) => !modelo.ativo).length,
     };
-  }, [modelos, modelosComInfo]);
+  }, [modelos]);
 
   const modelosFiltrados = useMemo(() => {
     const termo = busca.toLowerCase();
 
-    return modelosComInfo
+    return modelos
       .filter((modelo) => {
         const correspondeBusca =
           modelo.nome.toLowerCase().includes(termo) ||
           modelo.oficina.toLowerCase().includes(termo) ||
-          modelo.categoria.toLowerCase().includes(termo);
+          modelo.descricao.toLowerCase().includes(termo);
 
-        let correspondeStatus = true;
-
-        if (filtroStatus === "Inativo") {
-          correspondeStatus = !modelo.ativo;
-        } else if (filtroStatus !== "") {
-          correspondeStatus = modelo.info.status === filtroStatus;
-        }
+        const correspondeStatus =
+          !filtroStatus ||
+          (filtroStatus === "Inativo" ? !modelo.ativo : modelo.ativo);
 
         return correspondeBusca && correspondeStatus;
       })
-      .sort((a, b) => {
-        // Ativos primeiro, inativos por último
-        if (a.ativo === b.ativo) return 0;
-        return a.ativo ? -1 : 1;
-      });
-  }, [busca, filtroStatus, modelosComInfo]);
-
-  function recarregarModelos() {
-    setModelos(listarModelosChecklist());
-  }
+      .sort((a, b) => Number(b.ativo) - Number(a.ativo));
+  }, [busca, filtroStatus, modelos]);
 
   function limparFormulario() {
     setNome("");
@@ -157,12 +111,12 @@ function Checklists() {
     setModalAberto(true);
   }
 
-  function abrirEdicao(modelo: ModeloChecklist) {
+  function abrirEdicao(modelo: ChecklistApi) {
     setModeloEditando(modelo);
     setNome(modelo.nome);
     setOficina(modelo.oficina);
-    setCategoria(modelo.categoria);
-    setItens(modelo.itens);
+    setCategoria(modelo.itens[0]?.categoria ?? "");
+    setItens(modelo.itens.map((item) => item.descricao));
     setItemAtual("");
     setModalAberto(true);
   }
@@ -181,11 +135,11 @@ function Checklists() {
 
   function removerItem(index: number) {
     setItens((itensAtuais) =>
-      itensAtuais.filter((_, indice) => indice !== index)
+      itensAtuais.filter((_, indice) => indice !== index),
     );
   }
 
-  function salvarChecklist(evento: React.FormEvent) {
+  async function salvarChecklist(evento: FormEvent) {
     evento.preventDefault();
 
     if (!nome || !oficina || !categoria || itens.length === 0) {
@@ -193,58 +147,58 @@ function Checklists() {
       return;
     }
 
-    if (modeloEditando) {
-      editarModeloChecklist(modeloEditando.id, {
-        nome,
-        oficina,
-        categoria,
-        itens,
-      });
-    } else {
-      criarModeloChecklist({
-        nome,
-        oficina,
-        categoria,
-        itens,
-      });
+    try {
+      if (modeloEditando) {
+        await editarChecklistApi(modeloEditando.id, {
+          nome,
+          descricao: categoria,
+          oficina,
+          ativo: modeloEditando.ativo,
+          itens: itens.map((item, index) => ({
+            id: modeloEditando.itens[index]?.id ?? "",
+            descricao: item,
+            categoria,
+          })),
+        });
+      } else {
+        await criarChecklistApi({
+          nome,
+          descricao: categoria,
+          oficina,
+          itens: itens.map((item) => ({ descricao: item, categoria })),
+        });
+      }
+
+      limparFormulario();
+      setModalAberto(false);
+      await recarregarModelos();
+    } catch {
+      setErro("Nao foi possivel salvar o checklist na API.");
     }
-
-    limparFormulario();
-    setModalAberto(false);
-    recarregarModelos();
   }
 
-  function duplicarModelo(id: string) {
-    duplicarModeloChecklist(id);
-    recarregarModelos();
+  async function duplicarModelo(id: string) {
+    await duplicarChecklistApi(id);
+    await recarregarModelos();
   }
 
-  function alterarStatus(id: string) {
-    const modelo = modelos.find((item) => item.id === id);
+  async function excluirModelo(id: string) {
+    const confirmar = window.confirm("Deseja excluir este checklist?");
+    if (!confirmar) return;
 
-    if (!modelo) return;
-
-    const mensagem = modelo.ativo
-      ? "Deseja inativar este modelo? Ele não poderá mais ser executado, mas o histórico será preservado."
-      : "Deseja reativar este modelo para permitir novas execuções?";
-
-    const confirmou = confirm(mensagem);
-
-    if (!confirmou) return;
-
-    alternarStatusModeloChecklist(id);
-    recarregarModelos();
+    await excluirChecklistApi(id);
+    await recarregarModelos();
   }
 
-  function removerModelo(id: string) {
-    const confirmou = confirm(
-      "Deseja realmente excluir este modelo de checklist?"
-    );
-
-    if (!confirmou) return;
-
-    excluirModeloChecklist(id);
-    recarregarModelos();
+  async function alternarStatus(modelo: ChecklistApi) {
+    await editarChecklistApi(modelo.id, {
+      nome: modelo.nome,
+      descricao: modelo.descricao,
+      oficina: modelo.oficina,
+      ativo: !modelo.ativo,
+      itens: modelo.itens,
+    });
+    await recarregarModelos();
   }
 
   return (
@@ -253,15 +207,12 @@ function Checklists() {
 
       <main className="checklists-main">
         <Header titulo="Checklists" />
-        <Header titulo="Checklists" />
+
         <section className="checklists-conteudo">
           <header className="checklists-cabecalho">
             <div>
               <h1>Modelos de Checklists</h1>
-              <p>
-                Gerencie os modelos de inspeção das oficinas do SENAI
-                Automotivo.
-              </p>
+              <p>Modelos reais cadastrados na API.</p>
             </div>
 
             <div className="checklists-acoes-cabecalho">
@@ -270,7 +221,7 @@ function Checklists() {
                 className="checklists-botao-historico"
                 onClick={() => navigate("/checklists/historico")}
               >
-                Histórico de Execuções
+                Historico de Execucoes
               </button>
 
               <button
@@ -279,31 +230,30 @@ function Checklists() {
                 onClick={abrirNovoChecklist}
               >
                 <FiPlus />
-                Novo Checklist
+                Novo checklist
               </button>
             </div>
           </header>
 
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+
           <section className="checklists-indicadores">
-            <div>
+            <article>
               <strong>{indicadores.total}</strong>
-              <span>Modelos cadastrados</span>
-            </div>
-
-            <div className="executado">
+              <span>Total</span>
+            </article>
+            <article>
               <strong>{indicadores.executados}</strong>
-              <span>Já executados</span>
-            </div>
-
-            <div className="rascunho">
+              <span>Executados</span>
+            </article>
+            <article>
               <strong>{indicadores.rascunhos}</strong>
-              <span>Com rascunho</span>
-            </div>
-
-            <div className="nunca">
+              <span>Rascunhos</span>
+            </article>
+            <article>
               <strong>{indicadores.inativos}</strong>
-              <span>Modelos inativos</span>
-            </div>
+              <span>Inativos</span>
+            </article>
           </section>
 
           <section className="checklists-filtros">
@@ -311,7 +261,7 @@ function Checklists() {
               <FiSearch />
               <input
                 type="text"
-                placeholder="Buscar por modelo, oficina ou categoria..."
+                placeholder="Buscar checklist..."
                 value={busca}
                 onChange={(evento) => setBusca(evento.target.value)}
               />
@@ -322,317 +272,140 @@ function Checklists() {
               onChange={(evento) => setFiltroStatus(evento.target.value)}
             >
               <option value="">Todos</option>
-              <option value="Executado">Executados</option>
-              <option value="Rascunho">Rascunhos</option>
-              <option value="Nunca executado">Nunca executados</option>
-              <option value="Inativo">Modelos inativos</option>
+              <option value="Ativo">Ativos</option>
+              <option value="Inativo">Inativos</option>
             </select>
           </section>
 
-          <div className="checklists-card">
-            <div className="checklists-tabela-wrapper">
-              <table className="checklists-tabela">
-                <thead>
-                  <tr>
-                    <th>Modelo</th>
-                    <th>Oficina</th>
-                    <th>Categoria</th>
-                    <th>Situação</th>
-                    <th>Última execução</th>
-                    <th>Último almoxarife</th>
-                    <th>Execução</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
+          <section className="checklists-lista">
+            {modelosFiltrados.map((modelo) => (
+              <article
+                key={modelo.id}
+                className={`checklists-card ${!modelo.ativo ? "inativo" : ""}`}
+              >
+                <div className="checklists-card-topo">
+                  <div>
+                    <h2>{modelo.nome}</h2>
+                    <p>{modelo.oficina}</p>
+                  </div>
+                  <span>{modelo.ativo ? "Ativo" : "Inativo"}</span>
+                </div>
 
-                <tbody>
-                  {modelosFiltrados.map((modelo) => (
-                    <tr
-                      key={modelo.id}
-                      className={!modelo.ativo ? "modelo-inativo" : ""}
+                <p>{modelo.descricao || "Sem descricao."}</p>
+                <small>{modelo.itens.length} item(ns)</small>
+
+                <footer>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/checklists/execucao/${modelo.id}`)}
+                  >
+                    Executar
+                  </button>
+                  <button type="button" onClick={() => abrirEdicao(modelo)}>
+                    <FiEdit2 />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void duplicarModelo(modelo.id)}
+                  >
+                    <FiCopy />
+                  </button>
+                  <button type="button" onClick={() => void alternarStatus(modelo)}>
+                    {modelo.ativo ? "Inativar" : "Ativar"}
+                  </button>
+                  {podeExcluir && (
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() => void excluirModelo(modelo.id)}
                     >
-                      <td>
-                        <strong className="checklists-modelo-nome">
-                          {modelo.nome}
-                        </strong>
-                        <span className="checklists-modelo-descricao">
-                          {modelo.itens.length} itens cadastrados
-                        </span>
-                      </td>
-
-                      <td>{modelo.oficina}</td>
-
-                      <td>
-                        <span className="checklists-categoria">
-                          {modelo.categoria}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`checklists-situacao-modelo ${
-                            modelo.ativo ? "ativo" : "inativo"
-                          }`}
-                        >
-                          {modelo.ativo ? "Ativo" : "Inativo"}
-                        </span>
-                      </td>
-
-                      <td>{modelo.info.ultimaExecucao}</td>
-                      <td>{modelo.info.ultimoAlmoxarife}</td>
-
-                      <td>
-                        <span
-                          className={`checklists-status-inteligente ${modelo.info.classe}`}
-                        >
-                          {modelo.info.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="checklists-acoes">
-                          {modelo.ativo ? (
-                            <button
-                              type="button"
-                              className="checklists-executar"
-                              onClick={() =>
-                                navigate(`/checklists/execucao/${modelo.id}`)
-                              }
-                            >
-                              {modelo.info.botao}
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="checklists-executar inativo"
-                              disabled
-                            >
-                              Modelo inativo
-                            </button>
-                          )}
-
-                          <button
-                            type="button"
-                            className="checklists-acao"
-                            title="Editar"
-                            onClick={() => abrirEdicao(modelo)}
-                          >
-                            <FiEdit2 />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="checklists-acao"
-                            title="Duplicar"
-                            onClick={() => duplicarModelo(modelo.id)}
-                          >
-                            <FiCopy />
-                          </button>
-
-                          <button
-                            type="button"
-                            className={`checklists-acao-status ${
-                              modelo.ativo ? "inativar" : "ativar"
-                            }`}
-                            title={
-                              modelo.ativo
-                                ? "Inativar modelo"
-                                : "Reativar modelo"
-                            }
-                            onClick={() => alterarStatus(modelo.id)}
-                          >
-                            {modelo.ativo ? "Inativar" : "Reativar"}
-                          </button>
-
-                          <button
-                            type="button"
-                            className="checklists-acao perigo"
-                            title="Excluir"
-                            onClick={() => removerModelo(modelo.id)}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {modelosFiltrados.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="checklists-vazio">
-                        Nenhum modelo encontrado.
-                      </td>
-                    </tr>
+                      <FiTrash2 />
+                    </button>
                   )}
-                </tbody>
-              </table>
-            </div>
+                </footer>
+              </article>
+            ))}
 
-            <footer className="checklists-rodape">
-              <p>
-                Mostrando {modelosFiltrados.length} de {modelos.length} modelos
-              </p>
-            </footer>
-          </div>
+            {modelosFiltrados.length === 0 && (
+              <div className="checklists-vazio">Nenhum checklist encontrado.</div>
+            )}
+          </section>
         </section>
       </main>
 
       {modalAberto && (
-        <div className="checklists-modal-fundo">
-          <form className="checklists-modal" onSubmit={salvarChecklist}>
-            <header className="checklists-modal-header">
+        <div className="checklists-modal-fundo" onClick={() => setModalAberto(false)}>
+          <aside
+            className="checklists-modal"
+            onClick={(evento) => evento.stopPropagation()}
+          >
+            <header>
               <div>
-                <h2>
-                  {modeloEditando ? "Editar Checklist" : "Novo Checklist"}
-                </h2>
-                <p>
-                  Monte um modelo de conferência para oficinas, ferramentas,
-                  equipamentos e veículos do SENAI Automotivo.
-                </p>
+                <h2>{modeloEditando ? "Editar checklist" : "Novo checklist"}</h2>
+                <p>Salve o modelo diretamente no Firestore.</p>
               </div>
-
-              <button
-                type="button"
-                className="checklists-modal-fechar"
-                onClick={() => {
-                  limparFormulario();
-                  setModalAberto(false);
-                }}
-              >
-                ×
+              <button type="button" onClick={() => setModalAberto(false)}>
+                <FiX />
               </button>
             </header>
 
-            <div className="checklists-modal-grid">
+            <form onSubmit={salvarChecklist}>
               <label>
-                Nome do modelo
+                Nome
                 <input
-                  type="text"
-                  placeholder="Ex.: Checklist - Chassi e Suspensão"
                   value={nome}
                   onChange={(evento) => setNome(evento.target.value)}
+                  required
                 />
               </label>
-
               <label>
-                Oficina automotiva
-                <select
+                Oficina
+                <input
                   value={oficina}
                   onChange={(evento) => setOficina(evento.target.value)}
-                >
-                  <option value="">Selecione</option>
-                  <option value="Motores Ciclo Otto">Motores Ciclo Otto</option>
-                  <option value="Motores Ciclo Diesel">
-                    Motores Ciclo Diesel
-                  </option>
-                  <option value="Elétrica e Eletrônica Automotiva">
-                    Elétrica e Eletrônica Automotiva
-                  </option>
-                  <option value="Chassi e Suspensão">Chassi e Suspensão</option>
-                  <option value="Freios">Freios</option>
-                  <option value="Transmissão">Transmissão</option>
-                  <option value="Diagnóstico Automotivo">
-                    Diagnóstico Automotivo
-                  </option>
-                  <option value="Pneumática">Pneumática</option>
-                </select>
-              </label>
-            </div>
-
-            <section className="checklists-categorias">
-              <strong>Categoria do checklist</strong>
-
-              <div className="checklists-categorias-grid">
-                {[
-                  "Ferramentas",
-                  "Equipamentos",
-                  "Veículos",
-                  "Segurança",
-                  "Organização",
-                ].map((opcao) => (
-                  <button
-                    key={opcao}
-                    type="button"
-                    className={categoria === opcao ? "ativo" : ""}
-                    onClick={() => setCategoria(opcao)}
-                  >
-                    {opcao}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="checklists-itens-bloco">
-              <div className="checklists-itens-topo">
-                <div>
-                  <h3>Itens do Checklist</h3>
-                  <p>Adicione cada item que o almoxarife deverá conferir.</p>
-                </div>
-
-                <span>{itens.length} itens</span>
-              </div>
-
-              <div className="checklists-adicionar-item">
-                <input
-                  type="text"
-                  placeholder="Ex.: Conferir torquímetros"
-                  value={itemAtual}
-                  onChange={(evento) => setItemAtual(evento.target.value)}
-                  onKeyDown={(evento) => {
-                    if (evento.key === "Enter") {
-                      evento.preventDefault();
-                      adicionarItem();
-                    }
-                  }}
+                  required
                 />
+              </label>
+              <label>
+                Categoria
+                <input
+                  value={categoria}
+                  onChange={(evento) => setCategoria(evento.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Novo item
+                <div className="checklists-item-input">
+                  <input
+                    value={itemAtual}
+                    onChange={(evento) => setItemAtual(evento.target.value)}
+                  />
+                  <button type="button" onClick={adicionarItem}>
+                    Adicionar
+                  </button>
+                </div>
+              </label>
 
-                <button type="button" onClick={adicionarItem}>
-                  <FiPlus />
-                  Adicionar
-                </button>
-              </div>
-
-              <div className="checklists-lista-itens">
+              <ul className="checklists-itens">
                 {itens.map((item, index) => (
-                  <div className="checklists-item" key={`${item}-${index}`}>
-                    <span>
-                      <strong>{index + 1}.</strong> {item}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() => removerItem(index)}
-                      title="Remover item"
-                    >
+                  <li key={`${item}-${index}`}>
+                    {item}
+                    <button type="button" onClick={() => removerItem(index)}>
                       <FiX />
                     </button>
-                  </div>
+                  </li>
                 ))}
+              </ul>
 
-                {itens.length === 0 && (
-                  <p className="checklists-sem-itens">
-                    Nenhum item adicionado ainda.
-                  </p>
-                )}
+              <div className="checklists-modal-acoes">
+                <button type="button" onClick={() => setModalAberto(false)}>
+                  Cancelar
+                </button>
+                <button type="submit">Salvar</button>
               </div>
-            </section>
-
-            <div className="checklists-modal-acoes">
-              <button
-                type="button"
-                className="checklists-cancelar"
-                onClick={() => {
-                  limparFormulario();
-                  setModalAberto(false);
-                }}
-              >
-                Cancelar
-              </button>
-
-              <button type="submit" className="checklists-salvar">
-                {modeloEditando ? "Salvar Alterações" : "Salvar Checklist"}
-              </button>
-            </div>
-          </form>
+            </form>
+          </aside>
         </div>
       )}
     </div>

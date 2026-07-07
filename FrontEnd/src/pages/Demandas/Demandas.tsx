@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiChevronDown,
@@ -9,57 +9,98 @@ import {
   FiSearch,
 } from "react-icons/fi";
 
-import { getUsuarioLogado } from "../../services/auth";
-import { listarDemandasLocais } from "../../services/localData";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import { getUsuarioLogado } from "../../services/auth";
+import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 
 import "./Demandas.css";
 
-type Demanda = {
+type DemandaTabela = {
   prioridade: "Urgente" | "Alta" | "Normal";
   id: string;
   titulo: string;
   oficina: string;
   solicitante: string;
   prazo: string;
-  status: "Aguardando" | "Em Andamento" | "Concluída" | "Cancelada";
+  status: "Aguardando" | "Em Andamento" | "Concluida" | "Cancelada";
 };
+
+function normalizar(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function mapearStatus(status: string): DemandaTabela["status"] {
+  const statusNormalizado = normalizar(status);
+
+  if (status === "Aberta" || statusNormalizado === "em analise") {
+    return "Aguardando";
+  }
+
+  if (statusNormalizado === "concluida") {
+    return "Concluida";
+  }
+
+  if (status === "Cancelada") {
+    return "Cancelada";
+  }
+
+  return "Em Andamento";
+}
+
+function mapearDemanda(demanda: DemandaApi): DemandaTabela {
+  return {
+    prioridade:
+      demanda.prioridade === "Baixa" ? "Normal" : demanda.prioridade,
+    id: demanda.id,
+    titulo: demanda.titulo,
+    oficina: demanda.oficina,
+    solicitante: demanda.professorNome,
+    prazo: new Date(demanda.dataHoraNecessaria).toLocaleString("pt-BR"),
+    status: mapearStatus(demanda.status),
+  };
+}
 
 function Demandas() {
   const navigate = useNavigate();
-
   const usuario = getUsuarioLogado();
   const podeCriarDemanda = usuario?.perfil === "Professor";
 
   const [buscaDemanda, setBuscaDemanda] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("Todas");
-
   const [filtroOficina, setFiltroOficina] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroPrioridade, setFiltroPrioridade] = useState("");
+  const [demandas, setDemandas] = useState<DemandaTabela[]>([]);
+  const [erro, setErro] = useState("");
 
-  const [demandas] = useState<Demanda[]>(() => {
-    const demandasLocais = listarDemandasLocais();
+  useEffect(() => {
+    let ativo = true;
 
-    return demandasLocais.map((demanda) => ({
-      prioridade:
-        demanda.prioridade === "Baixa" ? "Normal" : demanda.prioridade,
-      id: demanda.id,
-      titulo: demanda.titulo,
-      oficina: demanda.oficina,
-      solicitante: demanda.professorNome,
-      prazo: new Date(demanda.dataHoraNecessaria).toLocaleString("pt-BR"),
-      status:
-        demanda.status === "Aberta"
-          ? "Aguardando"
-          : demanda.status === "Concluída"
-            ? "Concluída"
-            : demanda.status === "Cancelada"
-              ? "Cancelada"
-              : "Em Andamento",
-    }));
-  });
+    async function carregarDemandas() {
+      try {
+        const dados = await listarDemandasApi();
+
+        if (ativo) {
+          setDemandas(dados.map(mapearDemanda));
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar as demandas da API.");
+        }
+      }
+    }
+
+    void carregarDemandas();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const abasStatus = [
     { titulo: "Todas", quantidade: demandas.length },
@@ -72,8 +113,8 @@ function Demandas() {
       quantidade: demandas.filter((d) => d.status === "Em Andamento").length,
     },
     {
-      titulo: "Concluídas",
-      quantidade: demandas.filter((d) => d.status === "Concluída").length,
+      titulo: "Concluidas",
+      quantidade: demandas.filter((d) => d.status === "Concluida").length,
     },
     {
       titulo: "Canceladas",
@@ -98,19 +139,18 @@ function Demandas() {
       const correspondeStatus =
         abaAtiva === "Todas" ||
         demanda.status === abaAtiva ||
-        (abaAtiva === "Concluídas" && demanda.status === "Concluída") ||
+        (abaAtiva === "Concluidas" && demanda.status === "Concluida") ||
         (abaAtiva === "Canceladas" && demanda.status === "Cancelada");
 
       const correspondePerfil =
         usuario?.perfil !== "Professor" || demanda.solicitante === usuario.nome;
       const correspondeOficina =
         !filtroOficina || demanda.oficina === filtroOficina;
-
       const correspondeFiltroStatus =
         !filtroStatus || demanda.status === filtroStatus;
-
       const correspondePrioridade =
         !filtroPrioridade || demanda.prioridade === filtroPrioridade;
+
       return (
         correspondeBusca &&
         correspondeStatus &&
@@ -141,9 +181,11 @@ function Demandas() {
           <div className="demandas-cabecalho">
             <div>
               <h1>Demandas</h1>
-              <p>Lista de solicitações de demandas feitas</p>
+              <p>Lista de solicitacoes carregadas da API.</p>
             </div>
           </div>
+
+          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
 
           <div className="demandas-filtros">
             <div className="demandas-busca">
@@ -179,7 +221,7 @@ function Demandas() {
                 <option value="">Todos os status</option>
                 <option value="Aguardando">Aguardando</option>
                 <option value="Em Andamento">Em Andamento</option>
-                <option value="Concluída">Concluída</option>
+                <option value="Concluida">Concluida</option>
                 <option value="Cancelada">Cancelada</option>
               </select>
               <FiChevronDown />
@@ -233,12 +275,12 @@ function Demandas() {
                   <tr>
                     <th>Prioridade</th>
                     <th>ID</th>
-                    <th>Título</th>
-                    <th>Oficina / Laboratório</th>
+                    <th>Titulo</th>
+                    <th>Oficina / Laboratorio</th>
                     <th>Solicitante</th>
                     <th>Prazo</th>
                     <th>Status</th>
-                    <th>Ações</th>
+                    <th>Acoes</th>
                   </tr>
                 </thead>
 

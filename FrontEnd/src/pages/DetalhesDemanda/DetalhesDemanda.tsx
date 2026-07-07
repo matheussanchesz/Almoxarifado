@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   FiArrowLeft,
@@ -10,7 +10,7 @@ import {
 
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
-import { listarDemandasLocais } from "../../services/localData";
+import { obterDemandaApi, type DemandaApi } from "../../services/demandas";
 
 import "./DetalhesDemanda.css";
 
@@ -21,12 +21,42 @@ function formatarData(data: string) {
 function DetalhesDemanda() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [demanda, setDemanda] = useState<DemandaApi | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-  const demanda = useMemo(() => {
-    return listarDemandasLocais().find((item) => item.id === id);
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarDemanda() {
+      if (!id) return;
+
+      try {
+        const dados = await obterDemandaApi(id);
+
+        if (ativo) {
+          setDemanda(dados);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Demanda nao encontrada ou indisponivel na API.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    void carregarDemanda();
+
+    return () => {
+      ativo = false;
+    };
   }, [id]);
 
-  if (!demanda) {
+  if (carregando || !demanda) {
     return (
       <div className="detalhes-demanda-layout">
         <Sidebar />
@@ -44,7 +74,7 @@ function DetalhesDemanda() {
               Voltar
             </button>
 
-            <h1>Demanda não encontrada</h1>
+            <h1>{carregando ? "Carregando demanda..." : erro}</h1>
           </section>
         </main>
       </div>
@@ -113,11 +143,11 @@ function DetalhesDemanda() {
             <article className="detalhes-demanda-card">
               <h2>
                 <FiFileText />
-                Dados da Solicitação
+                Dados da Solicitacao
               </h2>
 
               <div className="detalhes-demanda-info">
-                <span>Oficina / Laboratório</span>
+                <span>Oficina / Laboratorio</span>
                 <strong>{demanda.oficina}</strong>
               </div>
 
@@ -127,12 +157,12 @@ function DetalhesDemanda() {
               </div>
 
               <div className="detalhes-demanda-info">
-                <span>Matrícula</span>
+                <span>Matricula</span>
                 <strong>{demanda.professorMatricula}</strong>
               </div>
 
               <div className="detalhes-demanda-info">
-                <span>Data de criação</span>
+                <span>Data de criacao</span>
                 <strong>{formatarData(demanda.dataHoraCriacao)}</strong>
               </div>
             </article>
@@ -140,11 +170,11 @@ function DetalhesDemanda() {
             <article className="detalhes-demanda-card">
               <h2>
                 <FiFileText />
-                Descrição / Recursos necessários
+                Descricao / Recursos necessarios
               </h2>
 
               <p className="detalhes-demanda-descricao">
-                {demanda.descricao || "Nenhuma descrição informada."}
+                {demanda.descricao || "Nenhuma descricao informada."}
               </p>
             </article>
 
@@ -155,14 +185,14 @@ function DetalhesDemanda() {
               </h2>
 
               <div className="detalhes-demanda-anexos-vazio">
-                Nenhum anexo disponível nesta visualização.
+                Nenhum anexo disponivel nesta visualizacao.
               </div>
             </article>
 
             <aside className="detalhes-demanda-card detalhes-demanda-timeline">
               <h2>
                 <FiClock />
-                Histórico
+                Historico
               </h2>
 
               <div className="detalhes-demanda-evento">

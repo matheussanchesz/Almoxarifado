@@ -52,7 +52,9 @@ function AppRoutes() {
         <Route
           path="/relatorios"
           element={
-            <PrivateRoute allowedProfiles={["Admin", "Coordenador", "Almoxarife"]}>
+            <PrivateRoute
+              allowedProfiles={["Admin", "Coordenador", "Professor", "Almoxarife"]}
+            >
               <Relatorios />
             </PrivateRoute>
           }

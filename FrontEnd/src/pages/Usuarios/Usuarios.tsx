@@ -1,66 +1,70 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import {
   FiEdit2,
   FiMoreHorizontal,
+  FiPlus,
   FiSave,
   FiSlash,
   FiTrash2,
   FiX,
 } from "react-icons/fi";
 
-import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import { getUsuarioLogado } from "../../services/auth";
+import { api } from "../../services/api";
 
 import "./Usuarios.css";
 
-type StatusUsuario = "Ativo" | "Inativo";
 type PerfilUsuario = "Admin" | "Coordenador" | "Almoxarife" | "Professor";
 
 type Usuario = {
-  id: string;
+  matricula: string;
   nome: string;
-  email: string;
   perfil: PerfilUsuario;
-  status: StatusUsuario;
+  dataNascimento: string;
+  ativo: boolean;
 };
 
-const usuariosMock: Usuario[] = [
-  {
-    id: "USR-001",
-    nome: "João Pedro",
-    email: "joao.pedro@senai.br",
-    perfil: "Coordenador",
-    status: "Ativo",
-  },
-  {
-    id: "USR-002",
-    nome: "Evellyn Maia",
-    email: "evellyn.maia@senai.br",
-    perfil: "Almoxarife",
-    status: "Ativo",
-  },
-  {
-    id: "USR-003",
-    nome: "Lucas Silva",
-    email: "lucas.silva@senai.br",
-    perfil: "Professor",
-    status: "Ativo",
-  },
-  {
-    id: "USR-004",
-    nome: "Mariano Costa",
-    email: "mariano.costa@senai.br",
-    perfil: "Professor",
-    status: "Ativo",
-  },
-  {
-    id: "USR-005",
-    nome: "Carlos Eduardo",
-    email: "carlos.eduardo@senai.br",
-    perfil: "Professor",
-    status: "Inativo",
-  },
-];
+type UsuarioApiResponse = {
+  matricula?: string;
+  Matricula?: string;
+  nome?: string;
+  Nome?: string;
+  perfil?: PerfilUsuario;
+  Perfil?: PerfilUsuario;
+  dataNascimento?: string;
+  DataNascimento?: string;
+  ativo?: boolean;
+  Ativo?: boolean;
+};
+
+type UsuarioForm = {
+  matricula: string;
+  nome: string;
+  perfil: PerfilUsuario;
+  dataNascimento: string;
+  ativo: boolean;
+};
+
+const formularioVazio: UsuarioForm = {
+  matricula: "",
+  nome: "",
+  perfil: "Professor",
+  dataNascimento: "",
+  ativo: true,
+};
+
+function mapearUsuario(usuario: UsuarioApiResponse): Usuario {
+  return {
+    matricula: usuario.matricula ?? usuario.Matricula ?? "",
+    nome: usuario.nome ?? usuario.Nome ?? "",
+    perfil: usuario.perfil ?? usuario.Perfil ?? "Professor",
+    dataNascimento: usuario.dataNascimento ?? usuario.DataNascimento ?? "",
+    ativo: usuario.ativo ?? usuario.Ativo ?? true,
+  };
+}
 
 function gerarIniciais(nome: string) {
   return nome
@@ -72,71 +76,184 @@ function gerarIniciais(nome: string) {
     .toUpperCase();
 }
 
+function formatarDataNascimento(data: string) {
+  if (!/^\d{8}$/.test(data)) return data || "-";
+
+  return `${data.slice(0, 2)}/${data.slice(2, 4)}/${data.slice(4)}`;
+}
+
 export default function Usuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosMock);
-  const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
+  const usuarioLogado = getUsuarioLogado();
+
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
+  const [modoModal, setModoModal] = useState<"criar" | "editar" | null>(null);
+  const [matriculaOriginal, setMatriculaOriginal] = useState("");
+  const [formulario, setFormulario] = useState<UsuarioForm>(formularioVazio);
+
+  const carregarUsuarios = useCallback(async () => {
+    setCarregando(true);
+    setErro("");
+
+    try {
+      const response = await api.get<UsuarioApiResponse[]>("/usuarios");
+      const usuariosReais = response.data.map(mapearUsuario);
+      setUsuarios(usuariosReais);
+    } catch {
+      setErro("Nao foi possivel carregar os usuarios reais da API.");
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarInicial() {
+      try {
+        const response = await api.get<UsuarioApiResponse[]>("/usuarios");
+        const usuariosReais = response.data.map(mapearUsuario);
+
+        if (ativo) {
+          setUsuarios(usuariosReais);
+          setErro("");
+        }
+      } catch {
+        if (ativo) {
+          setErro("Nao foi possivel carregar os usuarios reais da API.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    void carregarInicial();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  const usuariosOrdenados = useMemo(() => {
+    return [...usuarios].sort((a, b) => a.nome.localeCompare(b.nome));
+  }, [usuarios]);
+
+  function abrirCadastro() {
+    setModoModal("criar");
+    setMatriculaOriginal("");
+    setFormulario(formularioVazio);
+    setMenuAberto(null);
+    setErro("");
+  }
 
   function abrirEdicao(usuario: Usuario) {
-    setUsuarioEditando(usuario);
+    setModoModal("editar");
+    setMatriculaOriginal(usuario.matricula);
+    setFormulario({
+      matricula: usuario.matricula,
+      nome: usuario.nome,
+      perfil: usuario.perfil,
+      dataNascimento: usuario.dataNascimento,
+      ativo: usuario.ativo,
+    });
     setMenuAberto(null);
+    setErro("");
   }
 
-  function fecharEdicao() {
-    setUsuarioEditando(null);
+  function fecharModal() {
+    setModoModal(null);
+    setMatriculaOriginal("");
+    setFormulario(formularioVazio);
+    setSalvando(false);
   }
 
-  function salvarEdicao(evento: React.FormEvent<HTMLFormElement>) {
+  function alterarCampo<K extends keyof UsuarioForm>(
+    campo: K,
+    valor: UsuarioForm[K],
+  ) {
+    setFormulario((estadoAtual) => ({
+      ...estadoAtual,
+      [campo]: valor,
+    }));
+  }
+
+  async function salvarFormulario(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
-    if (!usuarioEditando) return;
+    const dados = {
+      matricula: formulario.matricula.trim(),
+      nome: formulario.nome.trim(),
+      perfil: formulario.perfil,
+      dataNascimento: formulario.dataNascimento.trim(),
+    };
 
-    setUsuarios((estadoAtual) =>
-      estadoAtual.map((usuario) =>
-        usuario.id === usuarioEditando.id ? usuarioEditando : usuario,
-      ),
-    );
+    setSalvando(true);
+    setErro("");
 
-    setUsuarioEditando(null);
+    try {
+      if (modoModal === "criar") {
+        await api.post("/usuarios", dados);
+      } else if (modoModal === "editar") {
+        await api.put(`/usuarios/${encodeURIComponent(matriculaOriginal)}`, {
+          nome: dados.nome,
+          perfil: dados.perfil,
+          dataNascimento: dados.dataNascimento,
+          ativo: formulario.ativo,
+        });
+      }
 
-    /*
-      Futuramente, trocar por API:
-      await api.put(`/usuarios/${usuarioEditando.id}`, usuarioEditando);
-    */
+      await carregarUsuarios();
+      fecharModal();
+    } catch {
+      setErro("Nao foi possivel salvar o usuario. Confira os dados e tente novamente.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
-  function inativarUsuario(id: string) {
-    setUsuarios((estadoAtual) =>
-      estadoAtual.map((usuario) =>
-        usuario.id === id ? { ...usuario, status: "Inativo" } : usuario,
-      ),
-    );
+  async function inativarUsuario(usuario: Usuario) {
+    if (usuarioLogado?.matricula === usuario.matricula) {
+      window.alert("Voce nao pode inativar o proprio usuario logado.");
+      return;
+    }
 
     setMenuAberto(null);
+    setErro("");
 
-    /*
-      Futuramente, trocar por API:
-      await api.patch(`/usuarios/${id}/inativar`);
-    */
+    try {
+      await api.patch(`/usuarios/${encodeURIComponent(usuario.matricula)}/inativar`);
+      await carregarUsuarios();
+    } catch {
+      setErro("Nao foi possivel inativar o usuario.");
+    }
   }
 
-  function excluirUsuario(id: string) {
+  async function excluirUsuario(usuario: Usuario) {
+    if (usuarioLogado?.matricula === usuario.matricula) {
+      window.alert("Voce nao pode excluir o proprio usuario logado.");
+      return;
+    }
+
     const confirmar = window.confirm(
-      "Tem certeza que deseja excluir este usuário?",
+      `Tem certeza que deseja excluir ${usuario.nome}? Esta acao remove o usuario do Firestore.`,
     );
 
     if (!confirmar) return;
 
-    setUsuarios((estadoAtual) =>
-      estadoAtual.filter((usuario) => usuario.id !== id),
-    );
-
     setMenuAberto(null);
+    setErro("");
 
-    /*
-      Futuramente, trocar por API:
-      await api.delete(`/usuarios/${id}`);
-    */
+    try {
+      await api.delete(`/usuarios/${encodeURIComponent(usuario.matricula)}`);
+      await carregarUsuarios();
+    } catch {
+      setErro("Nao foi possivel excluir o usuario.");
+    }
   }
 
   return (
@@ -144,17 +261,22 @@ export default function Usuarios() {
       <Sidebar />
 
       <main className="users-main">
-        <Header />
+        <Header titulo="Usuários" />
 
         <section className="users-conteudo">
           <header className="users-header">
             <div>
               <h1>Usuários</h1>
-              <p>Gerencie perfis, permissões e status dos usuários.</p>
+              <p>Gerencie os usuarios reais cadastrados no Firestore.</p>
             </div>
 
-
+            <button type="button" className="new-user-button" onClick={abrirCadastro}>
+              <FiPlus />
+              Novo usuario
+            </button>
           </header>
+
+          {erro && <div className="users-alert">{erro}</div>}
 
           <section className="users-card">
             <div className="users-table-wrapper">
@@ -162,95 +284,114 @@ export default function Usuarios() {
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>E-mail</th>
+                    <th>Matricula</th>
                     <th>Perfil</th>
+                    <th>Nascimento</th>
                     <th>Status</th>
-                    <th>Ações</th>
+                    <th>Acoes</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {usuarios.map((usuario) => (
-                    <tr key={usuario.id}>
-                      <td>
-                        <div className="user-info">
-                          <div className="user-avatar">
-                            {gerarIniciais(usuario.nome)}
-                          </div>
-
-                          <strong>{usuario.nome}</strong>
-                        </div>
-                      </td>
-
-                      <td>{usuario.email}</td>
-                      <td>{usuario.perfil}</td>
-
-                      <td>
-                        <span
-                          className={`user-status ${
-                            usuario.status === "Ativo" ? "active" : "inactive"
-                          }`}
-                        >
-                          {usuario.status}
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="user-actions">
-                          <button
-                            type="button"
-                            title="Editar usuário"
-                            onClick={() => abrirEdicao(usuario)}
-                          >
-                            <FiEdit2 />
-                          </button>
-
-                          <div className="user-more-wrapper">
-                            <button
-                              type="button"
-                              title="Mais ações"
-                              onClick={() =>
-                                setMenuAberto((estadoAtual) =>
-                                  estadoAtual === usuario.id
-                                    ? null
-                                    : usuario.id,
-                                )
-                              }
-                            >
-                              <FiMoreHorizontal />
-                            </button>
-
-                            {menuAberto === usuario.id && (
-                              <div className="user-more-menu">
-                                <button
-                                  type="button"
-                                  onClick={() => inativarUsuario(usuario.id)}
-                                  disabled={usuario.status === "Inativo"}
-                                >
-                                  <FiSlash />
-                                  Inativar
-                                </button>
-
-                                <button
-                                  type="button"
-                                  className="danger"
-                                  onClick={() => excluirUsuario(usuario.id)}
-                                >
-                                  <FiTrash2 />
-                                  Excluir
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                  {carregando && (
+                    <tr>
+                      <td colSpan={6} className="users-empty">
+                        Carregando usuarios reais...
                       </td>
                     </tr>
-                  ))}
+                  )}
 
-                  {usuarios.length === 0 && (
+                  {!carregando &&
+                    usuariosOrdenados.map((usuario) => (
+                      <tr key={usuario.matricula}>
+                        <td>
+                          <div className="user-info">
+                            <div className="user-avatar">
+                              {gerarIniciais(usuario.nome)}
+                            </div>
+
+                            <strong>{usuario.nome}</strong>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span className="user-id">{usuario.matricula}</span>
+                        </td>
+                        <td>{usuario.perfil}</td>
+                        <td>{formatarDataNascimento(usuario.dataNascimento)}</td>
+
+                        <td>
+                          <span
+                            className={`user-status ${
+                              usuario.ativo ? "active" : "inactive"
+                            }`}
+                          >
+                            {usuario.ativo ? "Ativo" : "Inativo"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="user-actions">
+                            <button
+                              type="button"
+                              title="Editar usuario"
+                              onClick={() => abrirEdicao(usuario)}
+                            >
+                              <FiEdit2 />
+                            </button>
+
+                            <div className="user-more-wrapper">
+                              <button
+                                type="button"
+                                title="Mais acoes"
+                                onClick={() =>
+                                  setMenuAberto((estadoAtual) =>
+                                    estadoAtual === usuario.matricula
+                                      ? null
+                                      : usuario.matricula,
+                                  )
+                                }
+                              >
+                                <FiMoreHorizontal />
+                              </button>
+
+                              {menuAberto === usuario.matricula && (
+                                <div className="user-more-menu">
+                                  <button
+                                    type="button"
+                                    onClick={() => inativarUsuario(usuario)}
+                                    disabled={
+                                      !usuario.ativo ||
+                                      usuarioLogado?.matricula === usuario.matricula
+                                    }
+                                  >
+                                    <FiSlash />
+                                    Inativar
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    className="danger"
+                                    onClick={() => excluirUsuario(usuario)}
+                                    disabled={
+                                      usuarioLogado?.matricula === usuario.matricula
+                                    }
+                                  >
+                                    <FiTrash2 />
+                                    Excluir
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+
+                  {!carregando && usuariosOrdenados.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="users-empty">
-                        Nenhum usuário cadastrado.
+                      <td colSpan={6} className="users-empty">
+                        Nenhum usuario cadastrado no Firestore.
                       </td>
                     </tr>
                   )}
@@ -260,79 +401,95 @@ export default function Usuarios() {
 
             <div className="users-footer">
               <span>
-                Exibindo {usuarios.length > 0 ? 1 : 0} a {usuarios.length} de{" "}
-                {usuarios.length} usuários
+                Exibindo {usuariosOrdenados.length > 0 ? 1 : 0} a{" "}
+                {usuariosOrdenados.length} de {usuariosOrdenados.length} usuarios
               </span>
 
               <div className="pagination">
-                <button type="button">&lt;</button>
+                <button type="button" disabled>
+                  &lt;
+                </button>
                 <button type="button" className="active">
                   1
                 </button>
-                <button type="button">&gt;</button>
+                <button type="button" disabled>
+                  &gt;
+                </button>
               </div>
             </div>
           </section>
         </section>
       </main>
 
-      {usuarioEditando && (
-        <div className="user-modal-fundo" onClick={fecharEdicao}>
+      {modoModal && (
+        <div className="user-modal-fundo" onClick={fecharModal}>
           <aside
             className="user-modal"
             onClick={(evento) => evento.stopPropagation()}
           >
             <header className="user-modal-topo">
               <div>
-                <h2>Editar usuário</h2>
-                <p>Atualize as informações principais do usuário.</p>
+                <h2>{modoModal === "criar" ? "Novo usuario" : "Editar usuario"}</h2>
+                <p>
+                  {modoModal === "criar"
+                    ? "Cadastre um usuario real no Firestore."
+                    : "Atualize as informacoes do usuario no Firestore."}
+                </p>
               </div>
 
-              <button type="button" onClick={fecharEdicao}>
+              <button type="button" onClick={fecharModal}>
                 <FiX />
               </button>
             </header>
 
-            <form className="user-form" onSubmit={salvarEdicao}>
+            <form className="user-form" onSubmit={salvarFormulario}>
               <label>
-                Nome
+                Matricula
                 <input
                   type="text"
-                  value={usuarioEditando.nome}
-                  onChange={(evento) =>
-                    setUsuarioEditando({
-                      ...usuarioEditando,
-                      nome: evento.target.value,
-                    })
-                  }
+                  value={formulario.matricula}
+                  onChange={(evento) => alterarCampo("matricula", evento.target.value)}
+                  disabled={modoModal === "editar"}
                   required
                 />
               </label>
 
               <label>
-                E-mail
+                Nome
                 <input
-                  type="email"
-                  value={usuarioEditando.email}
+                  type="text"
+                  value={formulario.nome}
+                  onChange={(evento) => alterarCampo("nome", evento.target.value)}
+                  required
+                />
+              </label>
+
+              <label>
+                Data de nascimento
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{8}"
+                  maxLength={8}
+                  placeholder="DDMMAAAA"
+                  value={formulario.dataNascimento}
                   onChange={(evento) =>
-                    setUsuarioEditando({
-                      ...usuarioEditando,
-                      email: evento.target.value,
-                    })
+                    alterarCampo(
+                      "dataNascimento",
+                      evento.target.value.replace(/\D/g, ""),
+                    )
                   }
                   required
                 />
+                <small>Use 8 digitos, por exemplo 01012000.</small>
               </label>
 
               <label>
                 Perfil
                 <select
-                  value={usuarioEditando.perfil}
+                  value={formulario.perfil}
                   onChange={(evento) =>
-                    setUsuarioEditando({
-                      ...usuarioEditando,
-                      perfil: evento.target.value as PerfilUsuario,
-                    })
+                    alterarCampo("perfil", evento.target.value as PerfilUsuario)
                   }
                 >
                   <option value="Admin">Admin</option>
@@ -342,30 +499,29 @@ export default function Usuarios() {
                 </select>
               </label>
 
-              <label>
-                Status
-                <select
-                  value={usuarioEditando.status}
-                  onChange={(evento) =>
-                    setUsuarioEditando({
-                      ...usuarioEditando,
-                      status: evento.target.value as StatusUsuario,
-                    })
-                  }
-                >
-                  <option value="Ativo">Ativo</option>
-                  <option value="Inativo">Inativo</option>
-                </select>
-              </label>
+              {modoModal === "editar" && (
+                <label>
+                  Status
+                  <select
+                    value={formulario.ativo ? "Ativo" : "Inativo"}
+                    onChange={(evento) =>
+                      alterarCampo("ativo", evento.target.value === "Ativo")
+                    }
+                  >
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                  </select>
+                </label>
+              )}
 
               <div className="user-form-acoes">
-                <button type="button" className="cancelar" onClick={fecharEdicao}>
+                <button type="button" className="cancelar" onClick={fecharModal}>
                   Cancelar
                 </button>
 
-                <button type="submit" className="salvar">
+                <button type="submit" className="salvar" disabled={salvando}>
                   <FiSave />
-                  Salvar alterações
+                  {salvando ? "Salvando..." : "Salvar"}
                 </button>
               </div>
             </form>

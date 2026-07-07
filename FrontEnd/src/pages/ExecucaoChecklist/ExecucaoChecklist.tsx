@@ -1,19 +1,19 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiArrowLeft, FiCamera, FiCheck, FiSave } from "react-icons/fi";
+import { FiArrowLeft, FiCamera, FiCheck } from "react-icons/fi";
 
+import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { getUsuarioLogado } from "../../services/auth";
 import {
-  listarModelosChecklist,
-  obterRascunhoChecklist,
-  removerRascunhoChecklist,
-  salvarExecucaoChecklist,
-  salvarRascunhoChecklist,
-  type StatusItemChecklist,
-} from "../../services/checklistsLocal";
-import Header from "../../components/Header/Header";
+  executarChecklistApi,
+  obterChecklistApi,
+  type ChecklistApi,
+} from "../../services/checklists";
+
 import "./ExecucaoChecklist.css";
+
+type StatusItemChecklist = "Pendente" | "Conforme" | "Faltante" | "Danificado";
 
 type ItemExecucao = {
   id: string;
@@ -28,46 +28,61 @@ function ExecucaoChecklist() {
   const { id } = useParams();
   const usuario = getUsuarioLogado();
 
+  const [modelo, setModelo] = useState<ChecklistApi | null>(null);
+  const [itens, setItens] = useState<ItemExecucao[]>([]);
   const [notificacao, setNotificacao] = useState<{
     tipo: "sucesso" | "erro" | "aviso";
     titulo: string;
     mensagem: string;
   } | null>(null);
 
-  const modelo = useMemo(() => {
-    return listarModelosChecklist().find((item) => item.id === id);
-  }, [id]);
+  useEffect(() => {
+    let ativo = true;
 
-  const [itens, setItens] = useState<ItemExecucao[]>(() => {
-    if (!modelo) return [];
+    async function carregarModelo() {
+      if (!id) return;
 
-    const rascunho = obterRascunhoChecklist(modelo.id);
+      try {
+        const dados = await obterChecklistApi(id);
 
-    if (rascunho) {
-      return rascunho.itens;
+        if (ativo) {
+          setModelo(dados);
+          setItens(
+            dados.itens.map((item) => ({
+              id: item.id,
+              descricao: item.descricao,
+              status: "Pendente",
+              observacao: "",
+            })),
+          );
+        }
+      } catch {
+        if (ativo) {
+          setModelo(null);
+        }
+      }
     }
 
-    return modelo.itens.map((item, index) => ({
-      id: `${modelo.id}-${index}`,
-      descricao: item,
-      status: "Pendente",
-      observacao: "",
-    }));
-  });
+    void carregarModelo();
+
+    return () => {
+      ativo = false;
+    };
+  }, [id]);
 
   function alterarStatus(itemId: string, status: StatusItemChecklist) {
     setItens((estadoAtual) =>
       estadoAtual.map((item) =>
-        item.id === itemId ? { ...item, status } : item
-      )
+        item.id === itemId ? { ...item, status } : item,
+      ),
     );
   }
 
   function alterarObservacao(itemId: string, observacao: string) {
     setItens((estadoAtual) =>
       estadoAtual.map((item) =>
-        item.id === itemId ? { ...item, observacao } : item
-      )
+        item.id === itemId ? { ...item, observacao } : item,
+      ),
     );
   }
 
@@ -79,8 +94,8 @@ function ExecucaoChecklist() {
     leitor.onload = () => {
       setItens((estadoAtual) =>
         estadoAtual.map((item) =>
-          item.id === itemId ? { ...item, foto: String(leitor.result) } : item
-        )
+          item.id === itemId ? { ...item, foto: String(leitor.result) } : item,
+        ),
       );
     };
 
@@ -90,7 +105,7 @@ function ExecucaoChecklist() {
   function mostrarNotificacao(
     tipo: "sucesso" | "erro" | "aviso",
     titulo: string,
-    mensagem: string
+    mensagem: string,
   ) {
     setNotificacao({ tipo, titulo, mensagem });
 
@@ -99,52 +114,40 @@ function ExecucaoChecklist() {
     }, 3500);
   }
 
-  function salvarRascunho() {
-    if (!modelo) return;
+  async function finalizarChecklist() {
+    const possuiPendente = itens.some((item) => item.status === "Pendente");
 
-    salvarRascunhoChecklist({
-      modeloId: modelo.id,
-      nomeModelo: modelo.nome,
-      oficina: modelo.oficina,
-      categoria: modelo.categoria,
-      almoxarifeNome: usuario?.nome || "Almoxarife",
-      itens,
-    });
+    if (possuiPendente) {
+      alert("Marque todos os itens antes de finalizar.");
+      return;
+    }
 
-    mostrarNotificacao(
-      "sucesso",
-      "Rascunho salvo",
-      "O preenchimento do checklist foi salvo localmente."
-    );
+    if (!modelo) {
+      alert("Modelo de checklist nao encontrado.");
+      return;
+    }
+
+    try {
+      await executarChecklistApi({
+        checklistId: modelo.id,
+        itens: itens.map((item) => ({
+          itemId: item.id,
+          status: item.status,
+          observacao: item.observacao,
+          fotoUrl: item.foto ?? "",
+        })),
+      });
+
+      alert("Checklist finalizado com sucesso!");
+      navigate("/checklists");
+    } catch {
+      mostrarNotificacao(
+        "erro",
+        "Erro ao finalizar",
+        "Nao foi possivel salvar a execucao na API.",
+      );
+    }
   }
-
-  function finalizarChecklist() {
-  const possuiPendente = itens.some((item) => item.status === "Pendente");
-
-  if (possuiPendente) {
-    alert("Marque todos os itens antes de finalizar.");
-    return;
-  }
-
-  if (!modelo) {
-    alert("Modelo de checklist não encontrado.");
-    return;
-  }
-
-  salvarExecucaoChecklist({
-    modeloId: modelo.id,
-    nomeModelo: modelo.nome,
-    oficina: modelo.oficina,
-    categoria: modelo.categoria,
-    almoxarifeNome: usuario?.nome || "Almoxarife",
-    itens,
-  });
-
-  removerRascunhoChecklist(modelo.id);
-
-  alert("Checklist finalizado com sucesso!");
-  navigate("/checklists");
-}
 
   if (!modelo) {
     return (
@@ -153,16 +156,8 @@ function ExecucaoChecklist() {
 
         <main className="execucao-main">
           <Header titulo="Execução do Checklist" />
-          {notificacao && (
-            <div className={`execucao-toast ${notificacao.tipo}`}>
-              <strong>{notificacao.titulo}</strong>
-              <span>{notificacao.mensagem}</span>
-            </div>
-          )}
-
           <section className="execucao-conteudo">
-            <h1>Checklist não encontrado.</h1>
-
+            <h1>Checklist nao encontrado.</h1>
             <button type="button" onClick={() => navigate("/checklists")}>
               Voltar
             </button>
@@ -203,12 +198,8 @@ function ExecucaoChecklist() {
 
             <div className="execucao-titulo">
               <h1>{modelo.nome}</h1>
-
-              <p>
-                {modelo.oficina} • {modelo.categoria}
-              </p>
-
-              <span>Almoxarife: {usuario?.nome ?? "Usuário"}</span>
+              <p>{modelo.oficina}</p>
+              <span>Almoxarife: {usuario?.nome ?? "Usuario"}</span>
             </div>
           </header>
 
@@ -241,7 +232,7 @@ function ExecucaoChecklist() {
                   <tr>
                     <th>Item</th>
                     <th>Status</th>
-                    <th>Observação</th>
+                    <th>Observacao</th>
                     <th>Foto</th>
                   </tr>
                 </thead>
@@ -266,13 +257,13 @@ function ExecucaoChecklist() {
                                 onClick={() =>
                                   alterarStatus(
                                     item.id,
-                                    status as StatusItemChecklist
+                                    status as StatusItemChecklist,
                                   )
                                 }
                               >
                                 {status}
                               </button>
-                            )
+                            ),
                           )}
                         </div>
                       </td>
@@ -280,7 +271,7 @@ function ExecucaoChecklist() {
                       <td>
                         <input
                           type="text"
-                          placeholder="Observação..."
+                          placeholder="Observacao..."
                           value={item.observacao}
                           onChange={(e) =>
                             alterarObservacao(item.id, e.target.value)
@@ -291,7 +282,6 @@ function ExecucaoChecklist() {
                       <td>
                         <label className="execucao-foto">
                           <FiCamera />
-
                           <input
                             type="file"
                             accept="image/*"
@@ -301,9 +291,7 @@ function ExecucaoChecklist() {
                           />
                         </label>
 
-                        {item.foto && (
-                          <span className="execucao-foto-ok">OK</span>
-                        )}
+                        {item.foto && <span className="execucao-foto-ok">OK</span>}
                       </td>
                     </tr>
                   ))}
@@ -314,17 +302,8 @@ function ExecucaoChecklist() {
             <footer className="execucao-rodape">
               <button
                 type="button"
-                className="execucao-salvar"
-                onClick={salvarRascunho}
-              >
-                <FiSave />
-                Salvar Rascunho
-              </button>
-
-              <button
-                type="button"
                 className="execucao-finalizar"
-                onClick={finalizarChecklist}
+                onClick={() => void finalizarChecklist()}
               >
                 <FiCheck />
                 Finalizar Checklist
