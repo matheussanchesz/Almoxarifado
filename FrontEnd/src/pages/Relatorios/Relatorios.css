@@ -421,3 +421,37 @@
   }
 }
 
+@media print {
+  .sidebar,
+  .sidebar-mobile-toggle,
+  .relatorios-acoes {
+    display: none !important;
+  }
+
+  .relatorios-layout,
+  .relatorios-main,
+  .relatorios-conteudo {
+    display: block;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .relatorios-cabecalho,
+  .relatorios-grid,
+  .relatorios-indicadores {
+    display: block;
+  }
+
+  .relatorios-indicadores article,
+  .relatorios-card {
+    break-inside: avoid;
+    margin-bottom: 12px;
+  }
+
+  .relatorios-tabela {
+    min-width: 0;
+  }
+}
+

@@ -8,6 +8,7 @@ import {
   FiFileText,
   FiFilter,
   FiPieChart,
+  FiPrinter,
 } from "react-icons/fi";
 
 import Header from "../../components/Header/Header";
@@ -17,6 +18,7 @@ import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 import "./Relatorios.css";
 
 type PeriodoRelatorio = "7 dias" | "30 dias" | "90 dias" | "Todos";
+type FormatoExportacao = "csv" | "txt" | "imprimir";
 
 function formatarData(data: string) {
   return new Date(data).toLocaleDateString("pt-BR");
@@ -29,8 +31,25 @@ function normalizarStatus(status: string) {
     .toLowerCase();
 }
 
+function baixarArquivo(conteudo: string, nomeArquivo: string, tipo: string) {
+  const arquivo = new Blob([conteudo], { type: tipo });
+  const url = URL.createObjectURL(arquivo);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = nomeArquivo;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function valorCsv(valor: string | number) {
+  return `"${String(valor).replace(/"/g, '""')}"`;
+}
+
 function Relatorios() {
   const [periodo, setPeriodo] = useState<PeriodoRelatorio>("30 dias");
+  const [formatoExportacao, setFormatoExportacao] =
+    useState<FormatoExportacao>("csv");
   const [demandas, setDemandas] = useState<DemandaApi[]>([]);
   const [erro, setErro] = useState("");
 
@@ -123,7 +142,7 @@ function Relatorios() {
     }));
   }, [demandasFiltradas]);
 
-  function exportarRelatorio() {
+  function exportarTxt() {
     const linhas = [
       "Relatório de Demandas - SENAI Almoxarifado",
       `Período: ${periodo}`,
@@ -149,20 +168,58 @@ function Relatorios() {
       ),
     ];
 
-    const arquivo = new Blob([linhas.join("\n")], {
-      type: "text/plain;charset=utf-8",
-    });
+    baixarArquivo(
+      linhas.join("\n"),
+      `relatorio-demandas-${new Date().toISOString().slice(0, 10)}.txt`,
+      "text/plain;charset=utf-8",
+    );
+  }
 
-    const url = URL.createObjectURL(arquivo);
-    const link = document.createElement("a");
+  function exportarCsv() {
+    const resumo = [
+      ["Periodo", periodo],
+      ["Gerado em", new Date().toLocaleString("pt-BR")],
+      ["Total de demandas", totalDemandas],
+      ["Abertas", abertas],
+      ["Em andamento", emAndamento],
+      ["Concluidas", concluidas],
+      ["Urgentes", urgentes],
+      ["Atrasadas", atrasadas],
+      ["Taxa de conclusao", `${taxaConclusao}%`],
+    ].map((linha) => linha.map(valorCsv).join(";"));
 
-    link.href = url;
-    link.download = `relatorio-demandas-${new Date()
-      .toISOString()
-      .slice(0, 10)}.txt`;
+    const demandasCsv = [
+      ["ID", "Titulo", "Oficina", "Status", "Prioridade", "Prazo", "Criacao"],
+      ...demandasFiltradas.map((demanda) => [
+        demanda.id,
+        demanda.titulo,
+        demanda.oficina,
+        demanda.status,
+        demanda.prioridade,
+        formatarData(demanda.dataHoraNecessaria),
+        formatarData(demanda.dataHoraCriacao),
+      ]),
+    ].map((linha) => linha.map(valorCsv).join(";"));
 
-    link.click();
-    URL.revokeObjectURL(url);
+    baixarArquivo(
+      [...resumo, "", ...demandasCsv].join("\n"),
+      `relatorio-demandas-${new Date().toISOString().slice(0, 10)}.csv`,
+      "text/csv;charset=utf-8",
+    );
+  }
+
+  function exportarRelatorio() {
+    if (formatoExportacao === "txt") {
+      exportarTxt();
+      return;
+    }
+
+    if (formatoExportacao === "csv") {
+      exportarCsv();
+      return;
+    }
+
+    window.print();
   }
 
   return (
@@ -198,9 +255,29 @@ function Relatorios() {
                 </select>
               </label>
 
+              <label>
+                {formatoExportacao === "imprimir" ? <FiPrinter /> : <FiDownload />}
+                <select
+                  value={formatoExportacao}
+                  onChange={(evento) =>
+                    setFormatoExportacao(
+                      evento.target.value as FormatoExportacao,
+                    )
+                  }
+                >
+                  <option value="csv">CSV</option>
+                  <option value="txt">TXT</option>
+                  <option value="imprimir">Imprimir</option>
+                </select>
+              </label>
+
               <button type="button" onClick={exportarRelatorio}>
-                <FiDownload />
-                Exportar
+                {formatoExportacao === "imprimir" ? (
+                  <FiPrinter />
+                ) : (
+                  <FiDownload />
+                )}
+                {formatoExportacao === "imprimir" ? "Imprimir" : "Exportar"}
               </button>
             </div>
           </header>
