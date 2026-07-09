@@ -42,7 +42,7 @@ function DetalhesCompra() {
         }
       } catch {
         if (ativo) {
-          setErro("Solicitacao nao encontrada ou indisponivel na API.");
+          setErro("Solicitacao nao encontrada ou indisponivel no momento.");
         }
       } finally {
         if (ativo) {

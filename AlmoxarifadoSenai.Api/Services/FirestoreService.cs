@@ -488,8 +488,7 @@ namespace AlmoxarifadoSenai.Api.Services
         public async Task<List<Notificacao>> ObterNotificacoesPorUsuarioAsync(string matricula, bool? lida = null, int limite = 50)
         {
             var query = _db.Collection("notificacoes")
-                            .WhereEqualTo("UsuarioMatricula", matricula)
-                            .OrderByDescending("DataCriacao");
+                            .WhereEqualTo("UsuarioMatricula", matricula);
 
             if (lida.HasValue)
             {
@@ -507,7 +506,10 @@ namespace AlmoxarifadoSenai.Api.Services
                     lista.Add(doc.ConvertTo<Notificacao>());
                 }
             }
-            return lista;
+            return lista
+                .OrderByDescending(n => n.DataCriacao)
+                .Take(limite)
+                .ToList();
         }
 
         public async Task<Notificacao?> ObterNotificacaoPorIdAsync(string id)

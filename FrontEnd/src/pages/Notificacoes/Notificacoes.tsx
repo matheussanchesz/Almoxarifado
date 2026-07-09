@@ -39,6 +39,8 @@ function Notificacoes() {
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(true);
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState(false);
 
   async function recarregarNotificacoes() {
     try {
@@ -46,7 +48,7 @@ function Notificacoes() {
       setNotificacoes(dados);
       setErro("");
     } catch {
-      setErro("Nao foi possivel carregar as notificacoes da API.");
+      setErro("Nao foi possivel carregar suas notificacoes agora.");
     }
   }
 
@@ -63,7 +65,11 @@ function Notificacoes() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar as notificacoes da API.");
+          setErro("Nao foi possivel carregar suas notificacoes agora.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
         }
       }
     }
@@ -76,24 +82,45 @@ function Notificacoes() {
   }, []);
 
   async function marcarComoLida(id: string) {
-    await marcarNotificacaoLidaApi(id);
-    await recarregarNotificacoes();
+    try {
+      setAcaoEmAndamento(true);
+      await marcarNotificacaoLidaApi(id);
+      await recarregarNotificacoes();
+    } catch {
+      setErro("Nao foi possivel atualizar a notificacao.");
+    } finally {
+      setAcaoEmAndamento(false);
+    }
   }
 
   async function abrirOrigem(notificacao: NotificacaoApi) {
-    await marcarNotificacaoLidaApi(notificacao.id);
-    await recarregarNotificacoes();
+    try {
+      setAcaoEmAndamento(true);
+      await marcarNotificacaoLidaApi(notificacao.id);
+      await recarregarNotificacoes();
 
-    if (notificacao.link) {
-      navigate(notificacao.link);
-    } else if (notificacao.demandaId) {
-      navigate(`/demandas/detalhes/${notificacao.demandaId}`);
+      if (notificacao.link) {
+        navigate(notificacao.link);
+      } else if (notificacao.demandaId) {
+        navigate(`/demandas/detalhes/${notificacao.demandaId}`);
+      }
+    } catch {
+      setErro("Nao foi possivel abrir a origem da notificacao.");
+    } finally {
+      setAcaoEmAndamento(false);
     }
   }
 
   async function marcarTodas() {
-    await marcarTodasNotificacoesLidasApi();
-    await recarregarNotificacoes();
+    try {
+      setAcaoEmAndamento(true);
+      await marcarTodasNotificacoesLidasApi();
+      await recarregarNotificacoes();
+    } catch {
+      setErro("Nao foi possivel atualizar as notificacoes.");
+    } finally {
+      setAcaoEmAndamento(false);
+    }
   }
 
   function limparFiltros() {
@@ -139,20 +166,20 @@ function Notificacoes() {
         <section className="notificacoes-conteudo">
           <header className="notificacoes-cabecalho">
             <div>
-              <p>Central de alertas reais da API.</p>
+              <p>Central de alertas e atualizacoes do sistema.</p>
             </div>
 
             <button
               type="button"
               className="notificacoes-botao-marcar"
               onClick={() => void marcarTodas()}
-              disabled={naoLidas === 0}
+              disabled={naoLidas === 0 || acaoEmAndamento}
             >
               Marcar todas como lidas
             </button>
           </header>
 
-          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+          {erro && <div className="notificacoes-alerta">{erro}</div>}
 
           <section className="notificacoes-resumo">
             <article>
@@ -273,6 +300,7 @@ function Notificacoes() {
                         <button
                           type="button"
                           onClick={() => void marcarComoLida(notificacao.id)}
+                          disabled={acaoEmAndamento}
                         >
                           Marcar como lida
                         </button>
@@ -282,6 +310,7 @@ function Notificacoes() {
                         <button
                           type="button"
                           onClick={() => void abrirOrigem(notificacao)}
+                          disabled={acaoEmAndamento}
                         >
                           Abrir origem
                         </button>
@@ -292,7 +321,13 @@ function Notificacoes() {
               );
             })}
 
-            {notificacoesFiltradas.length === 0 && (
+            {carregando && (
+              <div className="notificacoes-vazio">
+                Carregando notificacoes...
+              </div>
+            )}
+
+            {!carregando && notificacoesFiltradas.length === 0 && (
               <div className="notificacoes-vazio">
                 Nenhuma notificacao encontrada.
               </div>

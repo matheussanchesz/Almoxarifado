@@ -48,7 +48,7 @@ function Compras() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar as solicitacoes da API.");
+          setErro("Nao foi possivel carregar as solicitacoes no momento.");
         }
       }
     }
@@ -108,7 +108,7 @@ function Compras() {
           <header className="compras-cabecalho">
             <div>
               <h1>Solicitacoes de Compra</h1>
-              <p>Acompanhe solicitacoes reais registradas na API.</p>
+              <p>Acompanhe as solicitacoes registradas no sistema.</p>
             </div>
 
             {podeCriar && (

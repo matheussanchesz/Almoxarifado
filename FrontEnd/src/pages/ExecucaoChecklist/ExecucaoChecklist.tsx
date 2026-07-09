@@ -144,7 +144,7 @@ function ExecucaoChecklist() {
       mostrarNotificacao(
         "erro",
         "Erro ao finalizar",
-        "Nao foi possivel salvar a execucao na API.",
+        "Nao foi possivel salvar a execucao. Tente novamente.",
       );
     }
   }

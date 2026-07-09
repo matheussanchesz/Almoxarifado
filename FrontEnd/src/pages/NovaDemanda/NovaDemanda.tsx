@@ -91,7 +91,7 @@ function NovaDemanda() {
       alert("Demanda salva com sucesso!");
       navigate("/demandas");
     } catch {
-      alert("Nao foi possivel salvar a demanda na API.");
+      alert("Nao foi possivel salvar a demanda. Tente novamente.");
     } finally {
       setSalvando(false);
     }

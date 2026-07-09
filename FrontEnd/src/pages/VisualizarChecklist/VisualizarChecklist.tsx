@@ -53,7 +53,7 @@ function VisualizarChecklist() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar a execucao da API.");
+          setErro("Nao foi possivel carregar a execucao no momento.");
         }
       } finally {
         if (ativo) {

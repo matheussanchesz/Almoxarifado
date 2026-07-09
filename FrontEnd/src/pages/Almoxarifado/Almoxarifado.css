@@ -40,6 +40,18 @@
   max-width: 720px;
 }
 
+.almoxarifado-alerta {
+  flex-shrink: 0;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 11px 13px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .almoxarifado-resumo {
   flex-shrink: 0;
   display: grid;
@@ -766,6 +778,33 @@ html.dark .almoxarifado-atalhos button {
   background: #0f172a;
   border-color: #334155;
   color: #93c5fd;
+}
+
+html.dark .almoxarifado-alerta {
+  background: rgba(154, 52, 18, 0.18);
+  border-color: rgba(251, 146, 60, 0.35);
+  color: #fdba74;
+}
+
+html.dark .almoxarifado-coluna:nth-child(n) {
+  background: #0f172a;
+}
+
+html.dark .almoxarifado-resumo-card {
+  background: #111827;
+}
+
+html.dark .almoxarifado-resumo-card span,
+html.dark .almoxarifado-coluna-topo h2,
+html.dark .almoxarifado-card-topo strong,
+html.dark .almoxarifado-card-topo h3 {
+  color: #f8fafc;
+}
+
+html.dark .almoxarifado-resumo-card small,
+html.dark .almoxarifado-prazo,
+html.dark .almoxarifado-professor {
+  color: #cbd5e1;
 }
 
 @media (max-width: 760px) {

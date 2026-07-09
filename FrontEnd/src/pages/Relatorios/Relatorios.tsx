@@ -47,7 +47,7 @@ function Relatorios() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os relatorios da API.");
+          setErro("Nao foi possivel carregar os relatorios no momento.");
         }
       }
     }

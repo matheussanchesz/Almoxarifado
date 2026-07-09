@@ -71,6 +71,7 @@ function Almoxarifado() {
   const usuario = getUsuarioLogado();
   const [demandas, setDemandas] = useState<DemandaApi[]>([]);
   const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(true);
 
   const [demandaAberta, setDemandaAberta] = useState<DemandaApi | null>(null);
 
@@ -95,7 +96,11 @@ function Almoxarifado() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar a fila pela API.");
+          setErro("Nao foi possivel carregar a fila no momento.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
         }
       }
     }
@@ -151,7 +156,7 @@ function Almoxarifado() {
         ),
       );
     } catch {
-      setErro("Nao foi possivel alterar o status da demanda.");
+      setErro("Nao foi possivel atualizar a demanda. Tente novamente.");
       return;
     }
 
@@ -176,7 +181,7 @@ function Almoxarifado() {
       <Sidebar />
 
       <main className="almoxarifado-main">
-        <Header titulo="Fila de Demandas" />
+        <Header titulo="Almoxarifado" />
         <section className="almoxarifado-conteudo">
           <header className="almoxarifado-cabecalho">
             <div>
@@ -209,7 +214,7 @@ function Almoxarifado() {
             </div>
           </section>
 
-          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+          {erro && <div className="almoxarifado-alerta">{erro}</div>}
           <section className="almoxarifado-resumo">
             <article className="almoxarifado-resumo-card abertas">
               <div className="almoxarifado-resumo-icone">
@@ -364,6 +369,12 @@ function Almoxarifado() {
                   </header>
 
                   <div className="almoxarifado-cards">
+                    {carregando && (
+                      <div className="almoxarifado-vazio">
+                        Carregando demandas...
+                      </div>
+                    )}
+
                     {demandasVisiveis.map((demanda) => (
                       <article
                         className="almoxarifado-card"
@@ -408,7 +419,7 @@ function Almoxarifado() {
                       </article>
                     ))}
 
-                    {demandasDaColuna.length === 0 && (
+                    {!carregando && demandasDaColuna.length === 0 && (
                       <div className="almoxarifado-vazio">
                         Nenhuma demanda neste status.
                       </div>

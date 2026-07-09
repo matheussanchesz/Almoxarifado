@@ -36,7 +36,7 @@ function HistoricoChecklists() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar o historico da API.");
+          setErro("Nao foi possivel carregar o historico no momento.");
         }
       }
     }
@@ -106,7 +106,7 @@ function HistoricoChecklists() {
             </button>
 
             <h1>Histórico de Checklists</h1>
-            <p>Consulte as execuções salvas na API.</p>
+            <p>Consulte as execucoes registradas no sistema.</p>
           </header>
 
           {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}

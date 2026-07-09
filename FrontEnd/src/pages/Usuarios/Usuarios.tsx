@@ -108,7 +108,7 @@ export default function Usuarios() {
       const usuariosReais = response.data.map(mapearUsuario);
       setUsuarios(usuariosReais);
     } catch {
-      setErro("Nao foi possivel carregar os usuarios reais da API.");
+      setErro("Nao foi possivel carregar os usuarios no momento.");
     } finally {
       setCarregando(false);
     }
@@ -128,7 +128,7 @@ export default function Usuarios() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os usuarios reais da API.");
+          setErro("Nao foi possivel carregar os usuarios no momento.");
         }
       } finally {
         if (ativo) {
@@ -245,7 +245,7 @@ export default function Usuarios() {
     }
 
     const confirmar = window.confirm(
-      `Tem certeza que deseja excluir ${usuario.nome}? Esta acao remove o usuario do Firestore.`,
+      `Tem certeza que deseja excluir ${usuario.nome}? Esta acao remove o usuario do sistema.`,
     );
 
     if (!confirmar) return;
@@ -272,7 +272,7 @@ export default function Usuarios() {
           <header className="users-header">
             <div>
               <h1>Usuários</h1>
-              <p>Gerencie os usuarios reais cadastrados no Firestore.</p>
+              <p>Gerencie os usuarios cadastrados no sistema.</p>
             </div>
 
             <button type="button" className="new-user-button" onClick={abrirCadastro}>
@@ -301,7 +301,7 @@ export default function Usuarios() {
                   {carregando && (
                     <tr>
                       <td colSpan={6} className="users-empty">
-                        Carregando usuarios reais...
+                        Carregando usuarios...
                       </td>
                     </tr>
                   )}
@@ -396,7 +396,7 @@ export default function Usuarios() {
                   {!carregando && usuariosOrdenados.length === 0 && (
                     <tr>
                       <td colSpan={6} className="users-empty">
-                        Nenhum usuario cadastrado no Firestore.
+                        Nenhum usuario cadastrado.
                       </td>
                     </tr>
                   )}
@@ -437,8 +437,8 @@ export default function Usuarios() {
                 <h2>{modoModal === "criar" ? "Novo usuario" : "Editar usuario"}</h2>
                 <p>
                   {modoModal === "criar"
-                    ? "Cadastre um usuario real no Firestore."
-                    : "Atualize as informacoes do usuario no Firestore."}
+                    ? "Cadastre um usuario no sistema."
+                    : "Atualize as informacoes do usuario."}
                 </p>
               </div>
 

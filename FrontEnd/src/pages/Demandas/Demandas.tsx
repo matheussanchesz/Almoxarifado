@@ -90,7 +90,7 @@ function Demandas() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar as demandas da API.");
+          setErro("Nao foi possivel carregar as demandas no momento.");
         }
       }
     }
@@ -181,11 +181,11 @@ function Demandas() {
           <div className="demandas-cabecalho">
             <div>
               <h1>Demandas</h1>
-              <p>Lista de solicitacoes carregadas da API.</p>
+              <p>Acompanhe as solicitacoes registradas no sistema.</p>
             </div>
           </div>
 
-          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+          {erro && <div className="demandas-alerta">{erro}</div>}
 
           <div className="demandas-filtros">
             <div className="demandas-busca">

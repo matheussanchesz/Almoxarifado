@@ -51,7 +51,7 @@ function DetalhesDemanda() {
         }
       } catch {
         if (ativo) {
-          setErro("Demanda nao encontrada ou indisponivel na API.");
+          setErro("Demanda nao encontrada ou indisponivel no momento.");
         }
       } finally {
         if (ativo) {

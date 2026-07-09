@@ -59,7 +59,7 @@ function NovaCompra() {
     } catch {
       setToast({
         tipo: "erro",
-        mensagem: "Nao foi possivel enviar a solicitacao para a API.",
+        mensagem: "Nao foi possivel enviar a solicitacao. Tente novamente.",
       });
     } finally {
       setSalvando(false);

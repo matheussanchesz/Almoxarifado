@@ -68,11 +68,19 @@ html.dark .relatorios-main {
 }
 
 html.dark :is(
+  .panel,
+  .stat-card,
   .dashboard-card,
+  .demandas-tabela-card,
   .users-card,
   .users-table-wrap,
   .demandas-card,
+  .notificacao-card,
+  .notificacoes-resumo article,
+  .notificacoes-filtros,
+  .notificacoes-busca,
   .almoxarifado-card,
+  .almoxarifado-resumo-card,
   .almoxarifado-modal,
   .almoxarifado-filtros-topo,
   .checklists-card,
@@ -103,9 +111,6 @@ html.dark :is(input, textarea)::placeholder {
 }
 
 html.dark :is(
-  h1,
-  h2,
-  h3,
   .header-title h2,
   .compras-codigo,
   .compras-item,
@@ -119,9 +124,22 @@ html.dark :is(
   .detalhes-demanda-resumo strong,
   .detalhes-demanda-info strong,
   .detalhes-demanda-evento strong,
+  .dashboard-main .panel h3,
+  .dashboard-main .stat-card h3,
+  .dashboard-main .stat-card strong,
+  .dashboard-main th,
+  .dashboard-main td,
+  .demandas-cabecalho h1,
+  .demandas-tabela th,
+  .demandas-tabela td,
+  .notificacoes-cabecalho h1,
+  .notificacoes-resumo strong,
+  .notificacao-topo h2,
   .almoxarifado-cabecalho h1,
+  .almoxarifado-resumo-card span,
   .almoxarifado-card-topo h3,
   .almoxarifado-card-topo strong,
+  .almoxarifado-coluna-topo h2,
   .almoxarifado-modal-topo h2,
   .almoxarifado-modal-secao h3,
   .almoxarifado-info-card strong
@@ -130,9 +148,15 @@ html.dark :is(
 }
 
 html.dark :is(
-  p,
-  small,
-  label,
+  .dashboard-main .stat-card p,
+  .dashboard-main .donut-center span,
+  .dashboard-main .legend-row span,
+  .demandas-cabecalho p,
+  .demandas-rodape-tabela p,
+  .notificacoes-cabecalho p,
+  .notificacoes-resumo span,
+  .notificacao-corpo p,
+  .notificacao-topo strong,
   .compras-data,
   .compras-especificacao,
   .compras-unidade,
@@ -147,6 +171,8 @@ html.dark :is(
   .detalhes-demanda-descricao,
   .detalhes-demanda-evento p,
   .almoxarifado-cabecalho p,
+  .almoxarifado-filtros-topo label,
+  .almoxarifado-resumo-card small,
   .almoxarifado-prazo,
   .almoxarifado-professor,
   .almoxarifado-modal-topo p,
@@ -157,6 +183,14 @@ html.dark :is(
 }
 
 html.dark :is(
+  .demandas-busca,
+  .demandas-select,
+  .demandas-abas button,
+  .demandas-paginacao button,
+  .notificacoes-vazio,
+  .notificacoes-filtros button,
+  .notificacoes-botao-marcar,
+  .notificacao-corpo footer button,
   .compras-tabela th,
   .compras-tabela tr:hover td,
   .detalhes-demanda-anexos-vazio,
@@ -167,4 +201,52 @@ html.dark :is(
 ) {
   background: #0f172a;
   border-color: #334155;
+}
+
+html.dark .dashboard-main .recharts-cartesian-grid line {
+  stroke: #253044;
+}
+
+html.dark .dashboard-main .recharts-text {
+  fill: #cbd5e1;
+}
+
+html.dark :is(.panel, .stat-card, .demandas-tabela-card) {
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+}
+
+html.dark :is(th, td) {
+  border-color: #253044;
+}
+
+html.dark .login-pagina {
+  background: #0b1120;
+}
+
+html.dark .login-logo h1 {
+  color: #60a5fa;
+}
+
+html.dark .login-card {
+  background: #111827;
+  border-color: #253044;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .login-card h2,
+html.dark .campo-grupo label {
+  color: #f8fafc;
+}
+
+html.dark .login-card > span {
+  color: #cbd5e1;
+}
+
+html.dark .campo-input {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html.dark .campo-input input {
+  color: #f8fafc;
 }

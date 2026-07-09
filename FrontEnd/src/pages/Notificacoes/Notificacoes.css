@@ -42,6 +42,17 @@
   font-size: 15px;
 }
 
+.notificacoes-alerta {
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 11px 13px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .notificacoes-botao-marcar {
   height: 40px;
   border: 1px solid #b9c7e6;
@@ -324,6 +335,11 @@
   cursor: pointer;
 }
 
+.notificacao-corpo footer button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .notificacoes-vazio {
   border: 1px dashed #cbd5e1;
   border-radius: 14px;
@@ -332,6 +348,50 @@
   padding: 28px;
   text-align: center;
   font-weight: 700;
+}
+
+html.dark .notificacoes-alerta {
+  background: rgba(154, 52, 18, 0.18);
+  border-color: rgba(251, 146, 60, 0.35);
+  color: #fdba74;
+}
+
+html.dark .notificacoes-resumo article,
+html.dark .notificacao-card,
+html.dark .notificacoes-filtros,
+html.dark .notificacoes-busca {
+  background: #111827;
+  border-color: #253044;
+}
+
+html.dark .notificacao-card.nao-lida {
+  background: #0f172a;
+  border-color: #2563eb;
+}
+
+html.dark .notificacoes-filtros select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark .notificacoes-botao-marcar,
+html.dark .notificacoes-filtros button,
+html.dark .notificacao-corpo footer button {
+  background: #0f172a;
+  border-color: #334155;
+  color: #93c5fd;
+}
+
+html.dark .notificacao-topo h2,
+html.dark .notificacoes-resumo strong {
+  color: #f8fafc;
+}
+
+html.dark .notificacao-corpo p,
+html.dark .notificacao-topo strong,
+html.dark .notificacoes-resumo span {
+  color: #cbd5e1;
 }
 
 @media (max-width: 1100px) {

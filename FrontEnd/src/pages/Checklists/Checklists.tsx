@@ -40,7 +40,7 @@ function Checklists() {
       setModelos(dados);
       setErro("");
     } catch {
-      setErro("Nao foi possivel carregar os checklists da API.");
+      setErro("Nao foi possivel carregar os checklists no momento.");
     }
   }
 
@@ -57,7 +57,7 @@ function Checklists() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os checklists da API.");
+          setErro("Nao foi possivel carregar os checklists no momento.");
         }
       }
     }
@@ -173,7 +173,7 @@ function Checklists() {
       setModalAberto(false);
       await recarregarModelos();
     } catch {
-      setErro("Nao foi possivel salvar o checklist na API.");
+      setErro("Nao foi possivel salvar o checklist. Confira os dados e tente novamente.");
     }
   }
 
@@ -212,7 +212,7 @@ function Checklists() {
           <header className="checklists-cabecalho">
             <div>
               <h1>Modelos de Checklists</h1>
-              <p>Modelos reais cadastrados na API.</p>
+              <p>Modelos cadastrados para execucao operacional.</p>
             </div>
 
             <div className="checklists-acoes-cabecalho">
@@ -342,7 +342,7 @@ function Checklists() {
             <header>
               <div>
                 <h2>{modeloEditando ? "Editar checklist" : "Novo checklist"}</h2>
-                <p>Salve o modelo diretamente no Firestore.</p>
+                <p>Salve o modelo para uso nas execucoes.</p>
               </div>
               <button type="button" onClick={() => setModalAberto(false)}>
                 <FiX />

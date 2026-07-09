@@ -73,7 +73,7 @@ export default function Dashboard() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar o dashboard da API.");
+          setErro("Nao foi possivel carregar os indicadores no momento.");
         }
       }
     }
@@ -165,7 +165,12 @@ export default function Dashboard() {
 
       <main className="dashboard-main">
         <Header />
-        {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+        {erro && (
+          <div className="dashboard-alert">
+            Nao foi possivel atualizar os indicadores agora. Tente novamente em
+            alguns instantes.
+          </div>
+        )}
 
         <section className="stats-grid">
           <StatCard
