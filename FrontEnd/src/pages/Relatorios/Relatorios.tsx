@@ -165,12 +165,56 @@ function Relatorios() {
     URL.revokeObjectURL(url);
   }
 
+  function exportarCsv() {
+    const escaparCsv = (valor: string | number) =>
+      `"${String(valor).replaceAll('"', '""')}"`;
+
+    const cabecalho = [
+      "ID",
+      "Titulo",
+      "Oficina",
+      "Solicitante",
+      "Status",
+      "Prioridade",
+      "Criada em",
+      "Prazo",
+    ];
+
+    const linhas = demandasFiltradas.map((demanda) => [
+      demanda.id,
+      demanda.titulo,
+      demanda.oficina,
+      demanda.professorNome,
+      demanda.status,
+      demanda.prioridade,
+      formatarData(demanda.dataHoraCriacao),
+      formatarData(demanda.dataHoraNecessaria),
+    ]);
+
+    const conteudo = [cabecalho, ...linhas]
+      .map((linha) => linha.map(escaparCsv).join(";"))
+      .join("\n");
+
+    const arquivo = new Blob([`\uFEFF${conteudo}`], {
+      type: "text/csv;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(arquivo);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `demandas-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="relatorios-layout">
       <Sidebar />
 
       <main className="relatorios-main">
-        <Header titulo="Relatórios" />
+        <Header titulo="" />
 
         <section className="relatorios-conteudo">
           <header className="relatorios-cabecalho">
@@ -201,6 +245,11 @@ function Relatorios() {
               <button type="button" onClick={exportarRelatorio}>
                 <FiDownload />
                 Exportar
+              </button>
+
+              <button type="button" onClick={exportarCsv}>
+                <FiDownload />
+                CSV
               </button>
             </div>
           </header>

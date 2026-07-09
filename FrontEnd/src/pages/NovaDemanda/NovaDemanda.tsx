@@ -114,7 +114,7 @@ function NovaDemanda() {
       <Sidebar />
 
       <main className="nova-demanda-main">
-        <Header titulo="Nova Demanda" />
+        <Header titulo="" />
         <header className="nova-demanda-topo">
           <h1>Nova Demanda</h1>
           <div className="nova-demanda-breadcrumb">

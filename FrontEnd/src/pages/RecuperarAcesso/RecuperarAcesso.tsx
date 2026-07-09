@@ -2,34 +2,38 @@ import { useState } from "react";
 import { FaEnvelope } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+import { recuperarAcesso } from "../../services/auth";
 import "../../styles/authFlow.css";
 
 function RecuperarAcesso() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [identificador, setIdentificador] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  async function enviarEmail(evento: React.FormEvent) {
+  async function enviarRecuperacao(evento: React.FormEvent) {
     evento.preventDefault();
 
     setErro("");
 
-    if (!email) {
-      setErro("Digite seu e-mail.");
+    if (!identificador.trim()) {
+      setErro("Informe seu e-mail ou matricula.");
       return;
     }
 
     try {
       setCarregando(true);
+      const resposta = await recuperarAcesso(identificador.trim());
 
-      // Depois conectar com a API.
-      // await api.post("/Auth/recuperar-acesso", { email });
-
-      navigate("/email-enviado");
+      navigate("/email-enviado", {
+        state: {
+          mensagem: resposta.mensagem,
+          email: resposta.email,
+        },
+      });
     } catch {
-      setErro("E-mail não cadastrado.");
+      setErro("Nao encontramos um usuario ativo com esses dados.");
     } finally {
       setCarregando(false);
     }
@@ -37,7 +41,7 @@ function RecuperarAcesso() {
 
   return (
     <main className="auth-pagina">
-      <form className="auth-card" onSubmit={enviarEmail}>
+      <form className="auth-card" onSubmit={enviarRecuperacao}>
         <header className="auth-logo">
           <h1>SENAI</h1>
           <p>AUTOMOTIVO</p>
@@ -48,24 +52,24 @@ function RecuperarAcesso() {
           <FaEnvelope />
         </div>
 
-        <h2>Esqueci minha senha</h2>
+        <h2>Recuperar acesso</h2>
 
         <span className="auth-subtitulo">
-          Informe seu e-mail cadastrado para receber as instruções de recuperação.
+          Informe seu e-mail ou matricula para localizar seu cadastro.
         </span>
 
         <div className="auth-form">
           <div className="auth-grupo">
-            <label>E-mail</label>
+            <label>E-mail ou matricula</label>
 
             <div className="auth-input">
               <FaEnvelope />
 
               <input
-                type="email"
-                placeholder="Digite seu e-mail"
-                value={email}
-                onChange={(evento) => setEmail(evento.target.value)}
+                type="text"
+                placeholder="Digite seu e-mail ou matricula"
+                value={identificador}
+                onChange={(evento) => setIdentificador(evento.target.value)}
               />
             </div>
           </div>
@@ -73,7 +77,7 @@ function RecuperarAcesso() {
           {erro && <p className="auth-mensagem-erro">{erro}</p>}
 
           <button type="submit" className="auth-botao" disabled={carregando}>
-            {carregando ? "Enviando..." : "Enviar"}
+            {carregando ? "Consultando..." : "Continuar"}
           </button>
         </div>
 

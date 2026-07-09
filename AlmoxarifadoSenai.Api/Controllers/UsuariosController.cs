@@ -4,7 +4,6 @@ using AlmoxarifadoSenai.Api.Models;
 using AlmoxarifadoSenai.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace AlmoxarifadoSenai.Api.Controllers
 {
@@ -13,6 +12,14 @@ namespace AlmoxarifadoSenai.Api.Controllers
     [Authorize(Roles = Perfis.Admin + "," + Perfis.Coordenador)]
     public class UsuariosController : ControllerBase
     {
+        private static readonly HashSet<string> PerfisPermitidos = new()
+        {
+            Perfis.Admin,
+            Perfis.Coordenador,
+            Perfis.Almoxarifado,
+            Perfis.Professor
+        };
+
         private readonly FirestoreService _firestoreService;
 
         public UsuariosController(FirestoreService firestoreService)
@@ -20,30 +27,37 @@ namespace AlmoxarifadoSenai.Api.Controllers
             _firestoreService = firestoreService;
         }
 
-        // 1. CADASTRO USUÁRIO
         [HttpPost]
         public async Task<IActionResult> CriarUsuario([FromBody] UsuarioCreateDto dto)
         {
+            if (!PerfisPermitidos.Contains(dto.Perfil))
+            {
+                return BadRequest("Perfil invalido.");
+            }
+
             var usuarioExistente = await _firestoreService.ObterUsuarioPorMatriculaAsync(dto.Matricula);
             if (usuarioExistente != null)
             {
-                return BadRequest($"Já existe um usuário cadastrado com a matrícula {dto.Matricula}.");
+                return BadRequest($"Ja existe um usuario cadastrado com a matricula {dto.Matricula}.");
             }
 
             var novoUsuario = new Usuario
             {
-                Matricula = dto.Matricula,
-                Nome = dto.Nome,
+                Matricula = dto.Matricula.Trim(),
+                Nome = dto.Nome.Trim(),
                 Perfil = dto.Perfil,
-                DataNascimento = dto.DataNascimento, // Agora é string
-                Ativo = true
+                DataNascimento = dto.DataNascimento.Trim(),
+                Ativo = true,
+                Email = dto.Email.Trim(),
+                Telefone = dto.Telefone.Trim(),
+                Setor = dto.Setor.Trim(),
+                PrimeiroAcesso = string.IsNullOrWhiteSpace(dto.Email)
             };
 
             await _firestoreService.SalvarUsuarioAsync(novoUsuario);
-            return Ok(new { mensagem = "Usuário cadastrado com sucesso!", usuario = novoUsuario });
+            return Ok(new { mensagem = "Usuario cadastrado com sucesso.", usuario = novoUsuario });
         }
 
-        // 2. LISTAR TODOS
         [HttpGet]
         public async Task<IActionResult> ListarTodos()
         {
@@ -51,36 +65,45 @@ namespace AlmoxarifadoSenai.Api.Controllers
             return Ok(usuarios);
         }
 
-        // 3. BUSCAR POR MATRÍCULA
         [HttpGet("{matricula}")]
         public async Task<IActionResult> ObterPorMatricula(string matricula)
         {
             var usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
             if (usuario == null)
             {
-                return NotFound($"Usuário com matrícula {matricula} não foi encontrado.");
+                return NotFound($"Usuario com matricula {matricula} nao foi encontrado.");
             }
+
             return Ok(usuario);
         }
 
-        // 4. EDITAR / INATIVAR
         [HttpPut("{matricula}")]
         public async Task<IActionResult> AtualizarUsuario(string matricula, [FromBody] UsuarioUpdateDto dto)
         {
+            if (!PerfisPermitidos.Contains(dto.Perfil))
+            {
+                return BadRequest("Perfil invalido.");
+            }
+
             var usuarioExistente = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
             if (usuarioExistente == null)
             {
-                return NotFound($"Usuário com matrícula {matricula} não encontrado para edição.");
+                return NotFound($"Usuario com matricula {matricula} nao encontrado para edicao.");
             }
 
-            usuarioExistente.Nome = dto.Nome;
+            usuarioExistente.Nome = dto.Nome.Trim();
             usuarioExistente.Perfil = dto.Perfil;
-            usuarioExistente.DataNascimento = dto.DataNascimento;
+            usuarioExistente.DataNascimento = dto.DataNascimento.Trim();
             usuarioExistente.Ativo = dto.Ativo;
+            usuarioExistente.Email = dto.Email.Trim();
+            usuarioExistente.Telefone = dto.Telefone.Trim();
+            usuarioExistente.Setor = dto.Setor.Trim();
+            usuarioExistente.PrimeiroAcesso = string.IsNullOrWhiteSpace(dto.Email);
 
             await _firestoreService.SalvarUsuarioAsync(usuarioExistente);
-            return Ok(new { mensagem = "Usuário atualizado com sucesso!", usuario = usuarioExistente });
+            return Ok(new { mensagem = "Usuario atualizado com sucesso.", usuario = usuarioExistente });
         }
+
         [HttpPatch("{matricula}/inativar")]
         public async Task<IActionResult> InativarUsuario(string matricula)
         {
@@ -93,7 +116,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
             usuarioExistente.Ativo = false;
 
             await _firestoreService.SalvarUsuarioAsync(usuarioExistente);
-            return Ok(new { mensagem = "Usuario inativado com sucesso!", usuario = usuarioExistente });
+            return Ok(new { mensagem = "Usuario inativado com sucesso.", usuario = usuarioExistente });
         }
 
         [HttpDelete("{matricula}")]
@@ -109,6 +132,4 @@ namespace AlmoxarifadoSenai.Api.Controllers
             return NoContent();
         }
     }
-
-    
 }

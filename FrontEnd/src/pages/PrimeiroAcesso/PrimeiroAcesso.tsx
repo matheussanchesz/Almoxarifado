@@ -1,44 +1,52 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaLock, FaUser, FaKey } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaEnvelope, FaIdBadge, FaPhone, FaUser } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import { completarCadastro } from "../../services/auth";
 import "../../styles/authFlow.css";
+
+type PrimeiroAcessoState = {
+  matricula?: string;
+  dataNascimento?: string;
+};
 
 function PrimeiroAcesso() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = (location.state ?? {}) as PrimeiroAcessoState;
 
-  const [matricula, setMatricula] = useState("");
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [mostrarNovaSenha, setMostrarNovaSenha] = useState(false);
-  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+  const [matricula, setMatricula] = useState(state.matricula ?? "");
+  const [dataNascimento, setDataNascimento] = useState(state.dataNascimento ?? "");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [setor, setSetor] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  async function cadastrarSenha(evento: React.FormEvent) {
+  async function salvarCadastro(evento: React.FormEvent) {
     evento.preventDefault();
 
     setErro("");
 
-    if (!matricula || !novaSenha || !confirmarSenha) {
-      setErro("Preencha todos os campos.");
-      return;
-    }
-
-    if (novaSenha !== confirmarSenha) {
-      setErro("As senhas não conferem.");
+    if (!matricula || !dataNascimento || !email) {
+      setErro("Preencha matricula, senha/data de nascimento e e-mail.");
       return;
     }
 
     try {
       setCarregando(true);
 
-      // Depois conectar com a API.
-      // await api.post("/Auth/primeiro-acesso", { matricula, novaSenha });
+      await completarCadastro(
+        matricula.trim(),
+        dataNascimento.trim(),
+        email.trim(),
+        telefone.trim(),
+        setor.trim(),
+      );
 
-      navigate("/login");
+      navigate("/dashboard");
     } catch {
-      setErro("Não foi possível cadastrar a senha.");
+      setErro("Nao foi possivel concluir o cadastro. Confira os dados e tente novamente.");
     } finally {
       setCarregando(false);
     }
@@ -46,7 +54,7 @@ function PrimeiroAcesso() {
 
   return (
     <main className="auth-pagina">
-      <form className="auth-card" onSubmit={cadastrarSenha}>
+      <form className="auth-card" onSubmit={salvarCadastro}>
         <header className="auth-logo">
           <h1>SENAI</h1>
           <p>AUTOMOTIVO</p>
@@ -54,25 +62,23 @@ function PrimeiroAcesso() {
         </header>
 
         <div className="auth-icone">
-          <FaKey />
+          <FaIdBadge />
         </div>
 
-        <h2>Primeiro acesso</h2>
+        <h2>Complete seu cadastro</h2>
 
         <span className="auth-subtitulo">
-          Cadastre sua senha para continuar
+          Informe seus dados de contato para ativar o acesso ao sistema.
         </span>
 
         <div className="auth-form">
           <div className="auth-grupo">
-            <label>Matrícula</label>
-
+            <label>Matricula</label>
             <div className="auth-input">
               <FaUser />
-
               <input
                 type="text"
-                placeholder="Digite sua matrícula"
+                placeholder="Digite sua matricula"
                 value={matricula}
                 onChange={(evento) => setMatricula(evento.target.value)}
               />
@@ -80,55 +86,64 @@ function PrimeiroAcesso() {
           </div>
 
           <div className="auth-grupo">
-            <label>Nova senha</label>
-
+            <label>Senha / data de nascimento</label>
             <div className="auth-input">
-              <FaLock />
-
+              <FaIdBadge />
               <input
-                type={mostrarNovaSenha ? "text" : "password"}
-                placeholder="Digite sua nova senha"
-                value={novaSenha}
-                onChange={(evento) => setNovaSenha(evento.target.value)}
+                type="password"
+                placeholder="DDMMAAAA"
+                value={dataNascimento}
+                onChange={(evento) =>
+                  setDataNascimento(evento.target.value.replace(/\D/g, ""))
+                }
+                maxLength={8}
               />
-
-              <button
-                type="button"
-                className="auth-botao-olho"
-                onClick={() => setMostrarNovaSenha(!mostrarNovaSenha)}
-              >
-                {mostrarNovaSenha ? <FaEyeSlash /> : <FaEye />}
-              </button>
             </div>
           </div>
 
           <div className="auth-grupo">
-            <label>Confirmar senha</label>
-
+            <label>E-mail</label>
             <div className="auth-input">
-              <FaLock />
-
+              <FaEnvelope />
               <input
-                type={mostrarConfirmarSenha ? "text" : "password"}
-                placeholder="Confirme sua nova senha"
-                value={confirmarSenha}
-                onChange={(evento) => setConfirmarSenha(evento.target.value)}
+                type="email"
+                placeholder="seu.email@exemplo.com"
+                value={email}
+                onChange={(evento) => setEmail(evento.target.value)}
               />
+            </div>
+          </div>
 
-              <button
-                type="button"
-                className="auth-botao-olho"
-                onClick={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
-              >
-                {mostrarConfirmarSenha ? <FaEyeSlash /> : <FaEye />}
-              </button>
+          <div className="auth-grupo">
+            <label>Telefone</label>
+            <div className="auth-input">
+              <FaPhone />
+              <input
+                type="tel"
+                placeholder="Telefone para contato"
+                value={telefone}
+                onChange={(evento) => setTelefone(evento.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="auth-grupo">
+            <label>Setor / area</label>
+            <div className="auth-input">
+              <FaIdBadge />
+              <input
+                type="text"
+                placeholder="Ex.: Automotivo, Chassi, Pintura"
+                value={setor}
+                onChange={(evento) => setSetor(evento.target.value)}
+              />
             </div>
           </div>
 
           {erro && <p className="auth-mensagem-erro">{erro}</p>}
 
           <button type="submit" className="auth-botao" disabled={carregando}>
-            {carregando ? "Cadastrando..." : "Cadastrar senha"}
+            {carregando ? "Salvando..." : "Concluir cadastro"}
           </button>
         </div>
       </form>

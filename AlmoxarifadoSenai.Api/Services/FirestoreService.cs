@@ -3,6 +3,7 @@ using AlmoxarifadoSenai.Api.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 namespace AlmoxarifadoSenai.Api.Services
 {
@@ -80,6 +81,28 @@ namespace AlmoxarifadoSenai.Api.Services
                         usuario.Ativo = Convert.ToBoolean(data["Ativo"]);
                     else
                         usuario.Ativo = true;
+
+                    if (data.ContainsKey("email"))
+                        usuario.Email = data["email"]?.ToString() ?? "";
+                    else if (data.ContainsKey("Email"))
+                        usuario.Email = data["Email"]?.ToString() ?? "";
+
+                    if (data.ContainsKey("telefone"))
+                        usuario.Telefone = data["telefone"]?.ToString() ?? "";
+                    else if (data.ContainsKey("Telefone"))
+                        usuario.Telefone = data["Telefone"]?.ToString() ?? "";
+
+                    if (data.ContainsKey("setor"))
+                        usuario.Setor = data["setor"]?.ToString() ?? "";
+                    else if (data.ContainsKey("Setor"))
+                        usuario.Setor = data["Setor"]?.ToString() ?? "";
+
+                    if (data.ContainsKey("primeiroAcesso"))
+                        usuario.PrimeiroAcesso = Convert.ToBoolean(data["primeiroAcesso"]);
+                    else if (data.ContainsKey("PrimeiroAcesso"))
+                        usuario.PrimeiroAcesso = Convert.ToBoolean(data["PrimeiroAcesso"]);
+                    else
+                        usuario.PrimeiroAcesso = string.IsNullOrWhiteSpace(usuario.Email);
 
                     if (data.ContainsKey("dataNascimento") && data["dataNascimento"] != null)
                     {
@@ -173,6 +196,28 @@ namespace AlmoxarifadoSenai.Api.Services
                         else
                             usuario.Ativo = true;
 
+                        if (data.ContainsKey("email"))
+                            usuario.Email = data["email"]?.ToString() ?? "";
+                        else if (data.ContainsKey("Email"))
+                            usuario.Email = data["Email"]?.ToString() ?? "";
+
+                        if (data.ContainsKey("telefone"))
+                            usuario.Telefone = data["telefone"]?.ToString() ?? "";
+                        else if (data.ContainsKey("Telefone"))
+                            usuario.Telefone = data["Telefone"]?.ToString() ?? "";
+
+                        if (data.ContainsKey("setor"))
+                            usuario.Setor = data["setor"]?.ToString() ?? "";
+                        else if (data.ContainsKey("Setor"))
+                            usuario.Setor = data["Setor"]?.ToString() ?? "";
+
+                        if (data.ContainsKey("primeiroAcesso"))
+                            usuario.PrimeiroAcesso = Convert.ToBoolean(data["primeiroAcesso"]);
+                        else if (data.ContainsKey("PrimeiroAcesso"))
+                            usuario.PrimeiroAcesso = Convert.ToBoolean(data["PrimeiroAcesso"]);
+                        else
+                            usuario.PrimeiroAcesso = string.IsNullOrWhiteSpace(usuario.Email);
+
                         if (data.ContainsKey("dataNascimento") && data["dataNascimento"] != null)
                         {
                             var valor = data["dataNascimento"];
@@ -218,6 +263,19 @@ namespace AlmoxarifadoSenai.Api.Services
             Console.WriteLine("========================================");
 
             return usuarios;
+        }
+
+        public async Task<Usuario?> ObterUsuarioPorEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            var usuarios = await ObterTodosUsuariosAsync();
+            return usuarios.FirstOrDefault(usuario =>
+                !string.IsNullOrWhiteSpace(usuario.Email) &&
+                string.Equals(usuario.Email.Trim(), email.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         // --- MÉTODOS DA SPRINT 3: DEMANDAS ---

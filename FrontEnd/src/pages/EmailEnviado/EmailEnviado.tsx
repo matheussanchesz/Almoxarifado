@@ -1,10 +1,17 @@
 import { FaCheck } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import "../../styles/authFlow.css";
 
+type EmailEnviadoState = {
+  mensagem?: string;
+  email?: string;
+};
+
 function EmailEnviado() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = (location.state ?? {}) as EmailEnviadoState;
 
   return (
     <main className="auth-pagina">
@@ -19,12 +26,18 @@ function EmailEnviado() {
           <FaCheck />
         </div>
 
-        <h2>E-mail enviado!</h2>
+        <h2>Acesso localizado</h2>
 
         <p className="auth-texto">
-          Enviamos um link de recuperação para o e-mail informado.
-          Verifique sua caixa de entrada.
+          {state.mensagem ??
+            "Seu cadastro foi localizado. Volte para o login e entre com sua matricula e data de nascimento."}
         </p>
+
+        {state.email && (
+          <p className="auth-texto">
+            E-mail cadastrado: <strong>{state.email}</strong>
+          </p>
+        )}
 
         <button
           type="button"

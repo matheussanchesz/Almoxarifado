@@ -181,7 +181,7 @@ function Almoxarifado() {
       <Sidebar />
 
       <main className="almoxarifado-main">
-        <Header titulo="Almoxarifado" />
+        <Header titulo="" />
         <section className="almoxarifado-conteudo">
           <header className="almoxarifado-cabecalho">
             <div>

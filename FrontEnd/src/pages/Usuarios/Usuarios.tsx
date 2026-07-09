@@ -30,6 +30,9 @@ type Usuario = {
   perfil: PerfilUsuario;
   dataNascimento: string;
   ativo: boolean;
+  email: string;
+  telefone: string;
+  setor: string;
 };
 
 type UsuarioApiResponse = {
@@ -43,6 +46,12 @@ type UsuarioApiResponse = {
   DataNascimento?: string;
   ativo?: boolean;
   Ativo?: boolean;
+  email?: string;
+  Email?: string;
+  telefone?: string;
+  Telefone?: string;
+  setor?: string;
+  Setor?: string;
 };
 
 type UsuarioForm = {
@@ -51,6 +60,9 @@ type UsuarioForm = {
   perfil: PerfilUsuario;
   dataNascimento: string;
   ativo: boolean;
+  email: string;
+  telefone: string;
+  setor: string;
 };
 
 const formularioVazio: UsuarioForm = {
@@ -59,6 +71,9 @@ const formularioVazio: UsuarioForm = {
   perfil: "Professor",
   dataNascimento: "",
   ativo: true,
+  email: "",
+  telefone: "",
+  setor: "",
 };
 
 function mapearUsuario(usuario: UsuarioApiResponse): Usuario {
@@ -68,6 +83,9 @@ function mapearUsuario(usuario: UsuarioApiResponse): Usuario {
     perfil: usuario.perfil ?? usuario.Perfil ?? "Professor",
     dataNascimento: usuario.dataNascimento ?? usuario.DataNascimento ?? "",
     ativo: usuario.ativo ?? usuario.Ativo ?? true,
+    email: usuario.email ?? usuario.Email ?? "",
+    telefone: usuario.telefone ?? usuario.Telefone ?? "",
+    setor: usuario.setor ?? usuario.Setor ?? "",
   };
 }
 
@@ -165,6 +183,9 @@ export default function Usuarios() {
       perfil: usuario.perfil,
       dataNascimento: usuario.dataNascimento,
       ativo: usuario.ativo,
+      email: usuario.email,
+      telefone: usuario.telefone,
+      setor: usuario.setor,
     });
     setMenuAberto(null);
     setErro("");
@@ -195,6 +216,9 @@ export default function Usuarios() {
       nome: formulario.nome.trim(),
       perfil: formulario.perfil,
       dataNascimento: formulario.dataNascimento.trim(),
+      email: formulario.email.trim(),
+      telefone: formulario.telefone.trim(),
+      setor: formulario.setor.trim(),
     };
 
     setSalvando(true);
@@ -209,6 +233,9 @@ export default function Usuarios() {
           perfil: dados.perfil,
           dataNascimento: dados.dataNascimento,
           ativo: formulario.ativo,
+          email: dados.email,
+          telefone: dados.telefone,
+          setor: dados.setor,
         });
       }
 
@@ -266,7 +293,7 @@ export default function Usuarios() {
       <Sidebar />
 
       <main className="users-main">
-        <Header titulo="Usuários" />
+        <Header titulo="" />
 
         <section className="users-conteudo">
           <header className="users-header">
@@ -499,10 +526,39 @@ export default function Usuarios() {
                 >
                   <option value="Admin">Admin</option>
                   <option value="Coordenador">Coordenador</option>
-                  <option value="Almoxarife">Almoxarife</option>
                   <option value="Almoxarifado">Almoxarifado</option>
                   <option value="Professor">Professor</option>
                 </select>
+              </label>
+
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  value={formulario.email}
+                  onChange={(evento) => alterarCampo("email", evento.target.value)}
+                  placeholder="Opcional no cadastro inicial"
+                />
+              </label>
+
+              <label>
+                Telefone
+                <input
+                  type="tel"
+                  value={formulario.telefone}
+                  onChange={(evento) => alterarCampo("telefone", evento.target.value)}
+                  placeholder="Opcional"
+                />
+              </label>
+
+              <label>
+                Setor / area
+                <input
+                  type="text"
+                  value={formulario.setor}
+                  onChange={(evento) => alterarCampo("setor", evento.target.value)}
+                  placeholder="Opcional"
+                />
               </label>
 
               {modoModal === "editar" && (

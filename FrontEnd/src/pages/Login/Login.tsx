@@ -31,7 +31,17 @@ function Login() {
     try {
       setCarregando(true);
 
-      await login(matricula, dataNascimento);
+      const resultado = await login(matricula, dataNascimento);
+
+      if (resultado.precisaCompletarCadastro) {
+        navigate("/primeiro-acesso", {
+          state: {
+            matricula,
+            dataNascimento,
+          },
+        });
+        return;
+      }
 
       navigate("/dashboard");
     } catch {

@@ -9,4 +9,8 @@ export interface UsuarioLogado {
   nome: string;
   matricula: string;
   perfil: Perfil;
+  email?: string;
+  telefone?: string;
+  setor?: string;
+  primeiroAcesso?: boolean;
 }

@@ -20,5 +20,17 @@ namespace AlmoxarifadoSenai.Api.Models
 
         [FirestoreProperty]
         public bool Ativo { get; set; } = true;
+
+        [FirestoreProperty]
+        public string Email { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        public string Telefone { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        public string Setor { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        public bool PrimeiroAcesso { get; set; } = true;
     }
 }

@@ -12,7 +12,9 @@ import {
   editarChecklistApi,
   excluirChecklistApi,
   listarChecklistsApi,
+  listarExecucoesChecklistApi,
   type ChecklistApi,
+  type ExecucaoChecklistApi,
 } from "../../services/checklists";
 
 import "./Checklists.css";
@@ -23,6 +25,7 @@ function Checklists() {
   const podeExcluir = usuario?.perfil === "Admin";
 
   const [modelos, setModelos] = useState<ChecklistApi[]>([]);
+  const [execucoes, setExecucoes] = useState<ExecucaoChecklistApi[]>([]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
@@ -33,11 +36,18 @@ function Checklists() {
   const [itemAtual, setItemAtual] = useState("");
   const [itens, setItens] = useState<string[]>([]);
   const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(true);
+  const [salvando, setSalvando] = useState(false);
 
   async function recarregarModelos() {
     try {
-      const dados = await listarChecklistsApi(false);
-      setModelos(dados);
+      const [dadosModelos, dadosExecucoes] = await Promise.all([
+        listarChecklistsApi(false),
+        listarExecucoesChecklistApi(),
+      ]);
+
+      setModelos(dadosModelos);
+      setExecucoes(dadosExecucoes);
       setErro("");
     } catch {
       setErro("Nao foi possivel carregar os checklists no momento.");
@@ -49,15 +59,23 @@ function Checklists() {
 
     async function carregarModelos() {
       try {
-        const dados = await listarChecklistsApi(false);
+        const [dadosModelos, dadosExecucoes] = await Promise.all([
+          listarChecklistsApi(false),
+          listarExecucoesChecklistApi(),
+        ]);
 
         if (ativo) {
-          setModelos(dados);
+          setModelos(dadosModelos);
+          setExecucoes(dadosExecucoes);
           setErro("");
         }
       } catch {
         if (ativo) {
           setErro("Nao foi possivel carregar os checklists no momento.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
         }
       }
     }
@@ -70,13 +88,18 @@ function Checklists() {
   }, []);
 
   const indicadores = useMemo(() => {
+    const checklistsExecutados = new Set(
+      execucoes.map((execucao) => execucao.checklistId),
+    );
+
     return {
       total: modelos.length,
-      executados: 0,
-      rascunhos: 0,
+      executados: checklistsExecutados.size,
+      rascunhos: modelos.filter((modelo) => modelo.ativo && modelo.itens.length === 0)
+        .length,
       inativos: modelos.filter((modelo) => !modelo.ativo).length,
     };
-  }, [modelos]);
+  }, [execucoes, modelos]);
 
   const modelosFiltrados = useMemo(() => {
     const termo = busca.toLowerCase();
@@ -142,30 +165,32 @@ function Checklists() {
   async function salvarChecklist(evento: FormEvent) {
     evento.preventDefault();
 
-    if (!nome || !oficina || !categoria || itens.length === 0) {
+    if (!nome.trim() || !oficina.trim() || !categoria.trim() || itens.length === 0) {
       alert("Preencha nome, oficina, categoria e pelo menos um item.");
       return;
     }
 
+    setSalvando(true);
+
     try {
       if (modeloEditando) {
         await editarChecklistApi(modeloEditando.id, {
-          nome,
-          descricao: categoria,
-          oficina,
+          nome: nome.trim(),
+          descricao: categoria.trim(),
+          oficina: oficina.trim(),
           ativo: modeloEditando.ativo,
           itens: itens.map((item, index) => ({
             id: modeloEditando.itens[index]?.id ?? "",
-            descricao: item,
-            categoria,
+            descricao: item.trim(),
+            categoria: categoria.trim(),
           })),
         });
       } else {
         await criarChecklistApi({
-          nome,
-          descricao: categoria,
-          oficina,
-          itens: itens.map((item) => ({ descricao: item, categoria })),
+          nome: nome.trim(),
+          descricao: categoria.trim(),
+          oficina: oficina.trim(),
+          itens: itens.map((item) => ({ descricao: item.trim(), categoria: categoria.trim() })),
         });
       }
 
@@ -174,31 +199,45 @@ function Checklists() {
       await recarregarModelos();
     } catch {
       setErro("Nao foi possivel salvar o checklist. Confira os dados e tente novamente.");
+    } finally {
+      setSalvando(false);
     }
   }
 
   async function duplicarModelo(id: string) {
-    await duplicarChecklistApi(id);
-    await recarregarModelos();
+    try {
+      await duplicarChecklistApi(id);
+      await recarregarModelos();
+    } catch {
+      setErro("Nao foi possivel duplicar o checklist no momento.");
+    }
   }
 
   async function excluirModelo(id: string) {
     const confirmar = window.confirm("Deseja excluir este checklist?");
     if (!confirmar) return;
 
-    await excluirChecklistApi(id);
-    await recarregarModelos();
+    try {
+      await excluirChecklistApi(id);
+      await recarregarModelos();
+    } catch {
+      setErro("Nao foi possivel excluir o checklist no momento.");
+    }
   }
 
   async function alternarStatus(modelo: ChecklistApi) {
-    await editarChecklistApi(modelo.id, {
-      nome: modelo.nome,
-      descricao: modelo.descricao,
-      oficina: modelo.oficina,
-      ativo: !modelo.ativo,
-      itens: modelo.itens,
-    });
-    await recarregarModelos();
+    try {
+      await editarChecklistApi(modelo.id, {
+        nome: modelo.nome,
+        descricao: modelo.descricao,
+        oficina: modelo.oficina,
+        ativo: !modelo.ativo,
+        itens: modelo.itens,
+      });
+      await recarregarModelos();
+    } catch {
+      setErro("Nao foi possivel atualizar o status do checklist.");
+    }
   }
 
   return (
@@ -206,7 +245,7 @@ function Checklists() {
       <Sidebar />
 
       <main className="checklists-main">
-        <Header titulo="Checklists" />
+        <Header titulo="" />
 
         <section className="checklists-conteudo">
           <header className="checklists-cabecalho">
@@ -235,7 +274,7 @@ function Checklists() {
             </div>
           </header>
 
-          {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
+          {erro && <p className="checklists-alerta">{erro}</p>}
 
           <section className="checklists-indicadores">
             <article>
@@ -297,6 +336,7 @@ function Checklists() {
                 <footer>
                   <button
                     type="button"
+                    disabled={!modelo.ativo}
                     onClick={() => navigate(`/checklists/execucao/${modelo.id}`)}
                   >
                     Executar
@@ -326,7 +366,11 @@ function Checklists() {
               </article>
             ))}
 
-            {modelosFiltrados.length === 0 && (
+            {carregando && (
+              <div className="checklists-vazio">Carregando checklists...</div>
+            )}
+
+            {!carregando && modelosFiltrados.length === 0 && (
               <div className="checklists-vazio">Nenhum checklist encontrado.</div>
             )}
           </section>
@@ -402,7 +446,9 @@ function Checklists() {
                 <button type="button" onClick={() => setModalAberto(false)}>
                   Cancelar
                 </button>
-                <button type="submit">Salvar</button>
+                <button type="submit" disabled={salvando}>
+                  {salvando ? "Salvando..." : "Salvar"}
+                </button>
               </div>
             </form>
           </aside>

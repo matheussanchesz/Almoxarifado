@@ -102,7 +102,7 @@ function Compras() {
       <Sidebar />
 
       <main className="compras-main">
-        <Header titulo="Compras" />
+        <Header titulo="" />
 
         <section className="compras-conteudo">
           <header className="compras-cabecalho">

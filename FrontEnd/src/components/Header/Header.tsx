@@ -51,7 +51,7 @@ export default function Header({ titulo = "Dashboard" }: HeaderProps) {
           <FiMenu />
         </button>
 
-        <h2>{titulo}</h2>
+        {titulo && <h2>{titulo}</h2>}
       </div>
 
       <div className="header-profile">

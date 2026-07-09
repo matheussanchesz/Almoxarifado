@@ -188,6 +188,13 @@
   border-color: #b9cdf7;
 }
 
+.checklists-lista footer button:disabled {
+  background: #e5e7eb;
+  border-color: #e5e7eb;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .checklists-lista footer button.danger {
   color: #dc2626;
 }
@@ -200,6 +207,17 @@
   display: grid;
   place-items: center;
   color: #667085;
+  font-weight: 700;
+}
+
+.checklists-alerta {
+  margin: 0 0 12px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 12px 14px;
+  font-size: 14px;
   font-weight: 700;
 }
 
