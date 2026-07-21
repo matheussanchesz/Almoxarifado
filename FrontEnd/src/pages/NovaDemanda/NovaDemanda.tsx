@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   FiAlertTriangle,
   FiBox,
-  FiCalendar,
   FiChevronDown,
   FiCircle,
   FiSettings,
@@ -91,7 +90,7 @@ function NovaDemanda() {
       alert("Demanda salva com sucesso!");
       navigate("/demandas");
     } catch {
-      alert("Nao foi possivel salvar a demanda. Tente novamente.");
+      alert("Não foi possível salvar a demanda. Tente novamente.");
     } finally {
       setSalvando(false);
     }
@@ -115,8 +114,8 @@ function NovaDemanda() {
 
       <main className="nova-demanda-main">
         <Header titulo="Nova Demanda" />
+        <section className="nova-demanda-conteudo">
         <header className="nova-demanda-topo">
-          <h1>Nova Demanda</h1>
           <div className="nova-demanda-breadcrumb">
             <button type="button" onClick={() => navigate("/demandas")}>
               Demandas
@@ -226,7 +225,6 @@ function NovaDemanda() {
                   onChange={(evento) => setDataSolicitada(evento.target.value)}
                   required
                 />
-                <FiCalendar />
               </div>
             </div>
 
@@ -363,6 +361,7 @@ function NovaDemanda() {
             </button>
           </div>
         </form>
+        </section>
       </main>
     </div>
   );

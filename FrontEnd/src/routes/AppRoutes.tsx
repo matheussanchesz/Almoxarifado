@@ -25,6 +25,7 @@ import Notificacoes from "../pages/Notificacoes/Notificacoes";
 import Relatorios from "../pages/Relatorios/Relatorios";
 
 import PrivateRoute from "./PrivateRoute";
+import { perfisPermitidos } from "../services/permissoes";
 
 function AppRoutes() {
   return (
@@ -83,7 +84,7 @@ function AppRoutes() {
         <Route
           path="/nova-demanda"
           element={
-            <PrivateRoute allowedProfiles={["Coordenador", "Professor", "Almoxarifado"]}>
+            <PrivateRoute allowedProfiles={perfisPermitidos("novaDemanda")}>
               <NovaDemanda />
             </PrivateRoute>
           }
@@ -123,7 +124,7 @@ function AppRoutes() {
         <Route
           path="/checklists"
           element={
-            <PrivateRoute allowedProfiles={["Admin", "Almoxarife", "Almoxarifado"]}>
+            <PrivateRoute allowedProfiles={perfisPermitidos("novaCompra")}>
               <Checklists />
             </PrivateRoute>
           }

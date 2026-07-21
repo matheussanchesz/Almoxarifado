@@ -16,8 +16,6 @@ function SuporteAcesso() {
       <section className="auth-card">
         <header className="auth-logo">
           <h1>SENAI</h1>
-          <p>AUTOMOTIVO</p>
-          <p>CAXIAS DO SUL</p>
         </header>
 
         <div className="auth-icone erro">

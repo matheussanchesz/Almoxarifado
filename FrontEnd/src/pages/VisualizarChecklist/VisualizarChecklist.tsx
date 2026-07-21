@@ -53,7 +53,7 @@ function VisualizarChecklist() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar a execucao no momento.");
+      setErro("Não foi possível carregar a execução no momento.");
         }
       } finally {
         if (ativo) {
@@ -173,7 +173,7 @@ function VisualizarChecklist() {
               >
                 <div>
                   <h2>{item.descricao}</h2>
-                  <p>{item.observacao || "Sem observacao registrada."}</p>
+                <p>{item.observacao || "Sem observação registrada."}</p>
                 </div>
 
                 <div className="visualizar-item-acoes">

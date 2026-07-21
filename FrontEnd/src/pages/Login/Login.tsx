@@ -6,8 +6,14 @@ import {
   FaEyeSlash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { FiMoon, FiSun } from "react-icons/fi";
 
 import { login } from "../../services/auth";
+import {
+  alternarTema,
+  getTemaSalvo,
+  type ThemeMode,
+} from "../../services/theme";
 import "./Login.css";
 
 function Login() {
@@ -17,6 +23,11 @@ function Login() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [tema, setTema] = useState<ThemeMode>(getTemaSalvo);
+
+  function mudarTema() {
+    setTema(alternarTema());
+  }
 
   async function entrar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -43,6 +54,17 @@ function Login() {
 
   return (
     <main className="login-pagina">
+      <button
+        type="button"
+        className="login-tema-flutuante"
+        onClick={mudarTema}
+        aria-label={tema === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+        title={tema === "dark" ? "Modo claro" : "Modo escuro"}
+      >
+        {tema === "dark" ? <FiSun /> : <FiMoon />}
+        <span>{tema === "dark" ? "Modo claro" : "Modo escuro"}</span>
+      </button>
+
       <section className="login-conteudo">
         <header className="login-logo">
           <h1>SENAI</h1>
@@ -98,7 +120,6 @@ function Login() {
             className="botao-esqueceu"
             onClick={() => navigate("/recuperar-acesso")}
           >
-            Recuperar acesso
           </button>
 
           {erro && <p className="mensagem-erro">{erro}</p>}

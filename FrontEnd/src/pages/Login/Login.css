@@ -342,3 +342,101 @@
     gap: 14px 0;
   }
 }
+
+/* ===== TEMA DA TELA INICIAL ===== */
+
+.login-logo h1 {
+  font-size: clamp(56px, 5vw, 76px);
+  line-height: 0.95;
+  margin-bottom: 18px;
+  text-shadow: 0 8px 24px rgba(0, 87, 217, 0.16);
+}
+
+.login-tema-flutuante {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 20;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #344054;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.login-tema-flutuante:hover {
+  transform: translateY(-2px);
+  background: #f8fafc;
+  border-color: #b8c5d8;
+}
+
+.login-tema-flutuante svg {
+  font-size: 19px;
+}
+
+html.dark .botao-entrar,
+html.dark .botao-entrar:not(:disabled) {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.3);
+}
+
+html.dark .botao-entrar:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+html.dark .botao-entrar:active:not(:disabled) {
+  background: #1e40af !important;
+  transform: translateY(1px);
+}
+
+html.dark .login-tema-flutuante {
+  background: #111827;
+  border-color: #334155;
+  color: #f8fafc;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+}
+
+html.dark .login-tema-flutuante:hover {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+@media (max-width: 600px) {
+  .login-logo h1 {
+    font-size: clamp(46px, 14vw, 60px);
+    margin-bottom: 14px;
+  }
+
+  .login-tema-flutuante {
+    top: 14px;
+    right: 14px;
+    width: 44px;
+    padding: 0;
+  }
+
+  .login-tema-flutuante span {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-logo h1 {
+    font-size: 44px;
+  }
+}

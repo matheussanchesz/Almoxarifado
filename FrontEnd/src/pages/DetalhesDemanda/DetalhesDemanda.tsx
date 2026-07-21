@@ -52,7 +52,7 @@ function DetalhesDemanda() {
         }
       } catch {
         if (ativo) {
-          setErro("Demanda nao encontrada ou indisponivel no momento.");
+      setErro("Demanda não encontrada ou indisponível no momento.");
         }
       } finally {
         if (ativo) {
@@ -69,7 +69,7 @@ function DetalhesDemanda() {
         }
       } catch {
         if (ativo) {
-          setErroAnexos("Nao foi possivel carregar os anexos.");
+        setErroAnexos("Não foi possível carregar os anexos.");
         }
       }
     }
@@ -217,11 +217,11 @@ function DetalhesDemanda() {
             <article className="detalhes-demanda-card">
               <h2>
                 <FiFileText />
-                Dados da Solicitacao
+                  Dados da Solicitação
               </h2>
 
               <div className="detalhes-demanda-info">
-                <span>Oficina / Laboratorio</span>
+                <span>Oficina / Laboratório</span>
                 <strong>{demanda.oficina}</strong>
               </div>
 
@@ -231,12 +231,12 @@ function DetalhesDemanda() {
               </div>
 
               <div className="detalhes-demanda-info">
-                <span>Matricula</span>
+                    <span>Matrícula</span>
                 <strong>{demanda.professorMatricula}</strong>
               </div>
 
               <div className="detalhes-demanda-info">
-                <span>Data de criacao</span>
+                    <span>Data de criação</span>
                 <strong>{formatarData(demanda.dataHoraCriacao)}</strong>
               </div>
             </article>
@@ -244,11 +244,11 @@ function DetalhesDemanda() {
             <article className="detalhes-demanda-card">
               <h2>
                 <FiFileText />
-                Descricao / Recursos necessarios
+                  Descrição / Recursos necessários
               </h2>
 
               <p className="detalhes-demanda-descricao">
-                {demanda.descricao || "Nenhuma descricao informada."}
+                  {demanda.descricao || "Nenhuma descrição informada."}
               </p>
             </article>
 
@@ -264,7 +264,7 @@ function DetalhesDemanda() {
 
               {!erroAnexos && anexos.length === 0 && (
                 <div className="detalhes-demanda-anexos-vazio">
-                  Nenhum anexo disponivel nesta visualizacao.
+                      Nenhum anexo disponível nesta visualização.
                 </div>
               )}
 
@@ -308,7 +308,7 @@ function DetalhesDemanda() {
                           try {
                             await baixarAnexoApi(anexo);
                           } catch {
-                            setErroAnexos("Nao foi possivel baixar o anexo.");
+                              setErroAnexos("Não foi possível baixar o anexo.");
                           }
                         }}
                         title="Baixar anexo"
@@ -324,7 +324,7 @@ function DetalhesDemanda() {
             <aside className="detalhes-demanda-card detalhes-demanda-timeline">
               <h2>
                 <FiClock />
-                Historico
+                Histórico
               </h2>
 
               <div className="detalhes-demanda-evento">

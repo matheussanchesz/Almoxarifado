@@ -6,6 +6,7 @@ import { FiCopy, FiEdit2, FiPlus, FiSearch, FiTrash2, FiX } from "react-icons/fi
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { getUsuarioLogado } from "../../services/auth";
+import { temPermissao } from "../../services/permissoes";
 import {
   criarChecklistApi,
   duplicarChecklistApi,
@@ -21,6 +22,7 @@ function Checklists() {
   const navigate = useNavigate();
   const usuario = getUsuarioLogado();
   const podeExcluir = usuario?.perfil === "Admin";
+  const podeCriarChecklist = temPermissao(usuario?.perfil, "novoChecklist");
 
   const [modelos, setModelos] = useState<ChecklistApi[]>([]);
   const [busca, setBusca] = useState("");
@@ -40,7 +42,7 @@ function Checklists() {
       setModelos(dados);
       setErro("");
     } catch {
-      setErro("Nao foi possivel carregar os checklists no momento.");
+      setErro("Não foi possível carregar os checklists no momento.");
     }
   }
 
@@ -57,7 +59,7 @@ function Checklists() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os checklists no momento.");
+      setErro("Não foi possível carregar os checklists no momento.");
         }
       }
     }
@@ -173,7 +175,7 @@ function Checklists() {
       setModalAberto(false);
       await recarregarModelos();
     } catch {
-      setErro("Nao foi possivel salvar o checklist. Confira os dados e tente novamente.");
+      setErro("Não foi possível salvar o checklist. Confira os dados e tente novamente.");
     }
   }
 
@@ -212,7 +214,7 @@ function Checklists() {
           <header className="checklists-cabecalho">
             <div>
               <h1>Modelos de Checklists</h1>
-              <p>Modelos cadastrados para execucao operacional.</p>
+          <p>Modelos cadastrados para execução operacional.</p>
             </div>
 
             <div className="checklists-acoes-cabecalho">
@@ -221,17 +223,19 @@ function Checklists() {
                 className="checklists-botao-historico"
                 onClick={() => navigate("/checklists/historico")}
               >
-                Historico de Execucoes
+              Histórico de Execuções
               </button>
 
-              <button
-                type="button"
-                className="checklists-botao-novo"
-                onClick={abrirNovoChecklist}
-              >
-                <FiPlus />
-                Novo checklist
-              </button>
+              {podeCriarChecklist && (
+                <button
+                  type="button"
+                  className="checklists-botao-novo"
+                  onClick={abrirNovoChecklist}
+                >
+                  <FiPlus />
+                  Novo checklist
+                </button>
+              )}
             </div>
           </header>
 
@@ -291,7 +295,7 @@ function Checklists() {
                   <span>{modelo.ativo ? "Ativo" : "Inativo"}</span>
                 </div>
 
-                <p>{modelo.descricao || "Sem descricao."}</p>
+                  <p>{modelo.descricao || "Sem descrição."}</p>
                 <small>{modelo.itens.length} item(ns)</small>
 
                 <footer>
@@ -342,7 +346,7 @@ function Checklists() {
             <header>
               <div>
                 <h2>{modeloEditando ? "Editar checklist" : "Novo checklist"}</h2>
-                <p>Salve o modelo para uso nas execucoes.</p>
+              <p>Salve o modelo para uso nas execuções.</p>
               </div>
               <button type="button" onClick={() => setModalAberto(false)}>
                 <FiX />

@@ -287,6 +287,83 @@
   color: #ffffff;
 }
 
+/* ===== MODO ESCURO ===== */
+
+html.dark .nova-compra-card,
+html.dark .nova-compra-resumo,
+html.dark .modal-confirmacao {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow);
+}
+
+html.dark .nova-compra-card h2,
+html.dark .nova-compra-resumo h2,
+html.dark .nova-compra-resumo strong,
+html.dark .modal-confirmacao h2,
+html.dark .modal-confirmacao li {
+  color: var(--app-text);
+}
+
+html.dark .nova-compra-cabecalho p,
+html.dark .nova-compra-resumo span,
+html.dark .nova-compra-resumo p,
+html.dark .modal-confirmacao p {
+  color: var(--app-muted);
+}
+
+html.dark .nova-compra-card label {
+  color: #e2e8f0;
+}
+
+html.dark .nova-compra-card input,
+html.dark .nova-compra-card select,
+html.dark .nova-compra-card textarea {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+  color: var(--app-text);
+}
+
+html.dark .nova-compra-card input::placeholder,
+html.dark .nova-compra-card textarea::placeholder {
+  color: #94a3b8;
+}
+
+html.dark .nova-compra-resumo div {
+  border-color: #253044;
+}
+
+html.dark .nova-compra-voltar,
+html.dark .nova-compra-cancelar,
+html.dark .modal-botoes button:first-child {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+  color: var(--app-text);
+}
+
+html.dark .nova-compra-card::-webkit-scrollbar-track {
+  background: var(--app-surface);
+}
+
+html.dark .nova-compra-card::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 999px;
+  border: 3px solid var(--app-surface);
+}
+
+html.dark .toast.sucesso {
+  background: #052e16;
+  border-color: #166534;
+  color: #bbf7d0;
+}
+
+html.dark .toast.erro {
+  background: #450a0a;
+  border-color: #991b1b;
+  color: #fecaca;
+}
+
 @media (max-width: 1000px) {
   .nova-compra-conteudo {
     overflow-y: auto;

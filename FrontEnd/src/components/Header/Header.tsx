@@ -1,8 +1,9 @@
-import { FiMenu, FiLogOut, FiMoon } from "react-icons/fi";
-import { useState } from "react";
+import { FiBell, FiMenu, FiLogOut, FiMoon } from "react-icons/fi";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUsuarioLogado, logout } from "../../services/auth";
 import { alternarTema } from "../../services/theme";
+import { contarNotificacoesNaoLidasApi } from "../../services/notificacoes";
 import "./Header.css";
 
 type HeaderProps = {
@@ -21,10 +22,34 @@ function gerarIniciais(nome: string) {
 
 export default function Header({ titulo = "Dashboard" }: HeaderProps) {
   const [perfilAberto, setPerfilAberto] = useState(false);
+  const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(0);
   const navigate = useNavigate();
   const usuario = getUsuarioLogado();
-  const nomeUsuario = usuario?.nome ?? "Usuario";
+  const nomeUsuario = usuario?.nome ?? "Usuário";
   const iniciais = gerarIniciais(nomeUsuario) || "SN";
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function atualizarContador() {
+      try {
+        const total = await contarNotificacoesNaoLidasApi();
+        if (ativo) setNotificacoesNaoLidas(total);
+      } catch {
+        if (ativo) setNotificacoesNaoLidas(0);
+      }
+    }
+
+    void atualizarContador();
+    const intervalo = window.setInterval(() => void atualizarContador(), 30000);
+    window.addEventListener("notificacoes-atualizadas", atualizarContador);
+
+    return () => {
+      ativo = false;
+      window.clearInterval(intervalo);
+      window.removeEventListener("notificacoes-atualizadas", atualizarContador);
+    };
+  }, []);
 
   function abrirMenuMobile() {
     window.dispatchEvent(new CustomEvent("abrir-menu-mobile"));
@@ -55,6 +80,18 @@ export default function Header({ titulo = "Dashboard" }: HeaderProps) {
       </div>
 
       <div className="header-profile">
+        <button
+          type="button"
+          className="header-notifications"
+          onClick={() => navigate("/notificacoes")}
+          aria-label={`${notificacoesNaoLidas} notificações não lidas`}
+        >
+          <FiBell />
+          {notificacoesNaoLidas > 0 && (
+            <span>{notificacoesNaoLidas > 99 ? "99+" : notificacoesNaoLidas}</span>
+          )}
+        </button>
+
         <button
           type="button"
           className="header-avatar"

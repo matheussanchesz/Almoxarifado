@@ -48,7 +48,7 @@ function NovaCompra() {
 
       setToast({
         tipo: "sucesso",
-        mensagem: "Solicitacao enviada com sucesso.",
+        mensagem: "Solicitação enviada com sucesso.",
       });
 
       setAbrirModal(false);
@@ -59,7 +59,7 @@ function NovaCompra() {
     } catch {
       setToast({
         tipo: "erro",
-        mensagem: "Nao foi possivel enviar a solicitacao. Tente novamente.",
+        mensagem: "Não foi possível enviar a solicitação. Tente novamente.",
       });
     } finally {
       setSalvando(false);

@@ -36,7 +36,7 @@ function HistoricoChecklists() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar o historico no momento.");
+      setErro("Não foi possível carregar o histórico no momento.");
         }
       }
     }
@@ -106,7 +106,7 @@ function HistoricoChecklists() {
             </button>
 
             <h1>Histórico de Checklists</h1>
-            <p>Consulte as execucoes registradas no sistema.</p>
+              <p>Consulte as execuções registradas no sistema.</p>
           </header>
 
           {erro && <p style={{ color: "#b91c1c", marginBottom: 12 }}>{erro}</p>}
@@ -114,7 +114,7 @@ function HistoricoChecklists() {
           <section className="historico-indicadores">
             <div>
               <strong>{totais.total}</strong>
-              <span>Execucoes</span>
+              <span>Execuções</span>
             </div>
 
             <div className="ok">
@@ -179,7 +179,7 @@ function HistoricoChecklists() {
                     <th>Almoxarife</th>
                     <th>Status</th>
                     <th>Itens</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
 
@@ -213,7 +213,7 @@ function HistoricoChecklists() {
                   {historicoFiltrado.length === 0 && (
                     <tr>
                       <td colSpan={6} className="historico-vazio">
-                        Nenhuma execucao encontrada.
+                        Nenhuma execução encontrada.
                       </td>
                     </tr>
                   )}

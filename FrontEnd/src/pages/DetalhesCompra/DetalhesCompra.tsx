@@ -42,7 +42,7 @@ function DetalhesCompra() {
         }
       } catch {
         if (ativo) {
-          setErro("Solicitacao nao encontrada ou indisponivel no momento.");
+      setErro("Solicitação não encontrada ou indisponível no momento.");
         }
       } finally {
         if (ativo) {
@@ -66,7 +66,7 @@ function DetalhesCompra() {
       setCompra(compraAtualizada);
       setErro("");
     } catch {
-      setErro("Nao foi possivel atualizar o status da compra.");
+      setErro("Não foi possível atualizar o status da compra.");
     }
   }
 
@@ -88,7 +88,7 @@ function DetalhesCompra() {
               Voltar
             </button>
 
-            <h1>{carregando ? "Carregando solicitacao..." : erro}</h1>
+              <h1>{carregando ? "Carregando solicitação..." : erro}</h1>
           </section>
         </main>
       </div>
@@ -174,7 +174,7 @@ function DetalhesCompra() {
             </div>
 
             <div>
-              <span>Urgencia</span>
+                <span>Urgência</span>
               <strong>{compra.urgencia}</strong>
             </div>
 
@@ -184,14 +184,14 @@ function DetalhesCompra() {
             </div>
 
             <div>
-              <span>Data da solicitacao</span>
+                <span>Data da solicitação</span>
               <strong>{formatarData(compra.dataSolicitacao)}</strong>
             </div>
           </section>
 
           <section className="detalhes-compra-grid">
             <article className="detalhes-compra-card">
-              <h2>Dados da Solicitacao</h2>
+              <h2>Dados da Solicitação</h2>
 
               <div className="detalhes-compra-info">
                 <span>Categoria</span>
@@ -209,7 +209,7 @@ function DetalhesCompra() {
               </div>
 
               <div className="detalhes-compra-info">
-                <span>Especificacao tecnica</span>
+                  <span>Especificação técnica</span>
                 <p>{compra.especificacao}</p>
               </div>
 
@@ -220,13 +220,13 @@ function DetalhesCompra() {
             </article>
 
             <aside className="detalhes-compra-card">
-              <h2>Historico</h2>
+              <h2>Histórico</h2>
 
               <div className="detalhes-compra-timeline">
                 <div>
                   <FiClock />
                   <section>
-                    <strong>Solicitacao criada</strong>
+                  <strong>Solicitação criada</strong>
                     <span>{formatarData(compra.dataSolicitacao)}</span>
                   </section>
                 </div>

@@ -48,8 +48,6 @@ function AtualizarSenha() {
       <form className="auth-card" onSubmit={redefinirSenha}>
         <header className="auth-logo">
           <h1>SENAI</h1>
-          <p>AUTOMOTIVO</p>
-          <p>CAXIAS DO SUL</p>
         </header>
 
         <div className="auth-icone">

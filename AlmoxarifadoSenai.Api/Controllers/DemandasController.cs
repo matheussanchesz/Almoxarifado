@@ -61,7 +61,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
             };
 
             await _firestoreService.SalvarDemandaAsync(novaDemanda);
-            await NotificarCoordenadoresNovaDemandaAsync(novaDemanda, professorMatricula);
+            await NotificarTodosNovaDemandaAsync(novaDemanda);
 
             return Ok(new { mensagem = "Demanda cadastrada com sucesso!", demanda = novaDemanda });
         }
@@ -280,42 +280,27 @@ namespace AlmoxarifadoSenai.Api.Controllers
             return Ok(demandas);
         }
 
-        private async Task NotificarCoordenadoresNovaDemandaAsync(Demanda demanda, string remetenteMatricula)
+        private async Task NotificarTodosNovaDemandaAsync(Demanda demanda)
         {
-            try
+            var total = await _firestoreService.NotificarTodosUsuariosAtivosAsync(new Notificacao
             {
-                var coordenadores = await _firestoreService.ObterUsuariosAtivosPorPerfisAsync(Perfis.Coordenador);
-                var destinatarios = coordenadores
-                    .Where(c => c.Matricula != remetenteMatricula)
-                    .ToList();
-
-                foreach (var coordenador in destinatarios)
+                Titulo = "Nova demanda aberta",
+                Mensagem = $"{demanda.ProfessorNome} abriu a demanda \"{demanda.Titulo}\".",
+                Tipo = demanda.Prioridade == "Urgente" ? "Urgente" : "Informacao",
+                Icone = demanda.Prioridade == "Urgente" ? "alert" : "info",
+                Cor = demanda.Prioridade == "Urgente" ? "red" : "blue",
+                Link = $"/demandas/detalhes/{demanda.Id}",
+                DemandaId = demanda.Id,
+                DadosAdicionais = new Dictionary<string, string>
                 {
-                    await _firestoreService.SalvarNotificacaoAsync(new Notificacao
-                    {
-                        UsuarioMatricula = coordenador.Matricula,
-                        Titulo = "Nova demanda aberta",
-                        Mensagem = $"{demanda.ProfessorNome} abriu a demanda \"{demanda.Titulo}\".",
-                        Tipo = demanda.Prioridade == "Urgente" ? "Urgente" : "Informacao",
-                        Icone = demanda.Prioridade == "Urgente" ? "alert" : "info",
-                        Cor = demanda.Prioridade == "Urgente" ? "red" : "blue",
-                        Link = $"/demandas/detalhes/{demanda.Id}",
-                        DemandaId = demanda.Id,
-                        DadosAdicionais = new Dictionary<string, string>
-                        {
-                            ["remetenteMatricula"] = demanda.ProfessorMatricula,
-                            ["prioridade"] = demanda.Prioridade,
-                            ["oficina"] = demanda.Oficina
-                        }
-                    });
+                    ["evento"] = "demanda_criada",
+                    ["remetenteMatricula"] = demanda.ProfessorMatricula,
+                    ["prioridade"] = demanda.Prioridade,
+                    ["oficina"] = demanda.Oficina
                 }
+            });
 
-                Console.WriteLine($"Notificacoes de nova demanda criadas: {destinatarios.Count} para demanda {demanda.Id}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao notificar coordenadores sobre demanda {demanda.Id}: {ex.Message}");
-            }
+            Console.WriteLine($"Notificações de nova demanda criadas: {total} para demanda {demanda.Id}.");
         }
 
         private async Task NotificarRemetenteRespostaCoordenadorAsync(Demanda demanda, string novoStatus)

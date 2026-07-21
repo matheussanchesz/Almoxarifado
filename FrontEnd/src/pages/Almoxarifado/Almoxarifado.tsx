@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   FiChevronDown,
   FiFilter,
-  FiMoreVertical,
   FiX,
   FiClock,
   FiUser,
@@ -96,7 +95,7 @@ function Almoxarifado() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar a fila no momento.");
+      setErro("Não foi possível carregar a fila no momento.");
         }
       } finally {
         if (ativo) {
@@ -156,7 +155,7 @@ function Almoxarifado() {
         ),
       );
     } catch {
-      setErro("Nao foi possivel atualizar a demanda. Tente novamente.");
+      setErro("Não foi possível atualizar a demanda. Tente novamente.");
       return;
     }
 
@@ -193,7 +192,7 @@ function Almoxarifado() {
           <section className="almoxarifado-menu-operacional">
             <div className="almoxarifado-perfil-operacional">
               <span>Perfil ativo</span>
-              <strong>{usuario?.nome ?? "Usuario"}</strong>
+              <strong>{usuario?.nome ?? "Usuário"}</strong>
               <small>{usuario?.perfil ?? "Almoxarifado"}</small>
             </div>
 
@@ -395,9 +394,7 @@ function Almoxarifado() {
                               avancarStatus(demanda);
                             }}
                             title="Avançar status"
-                          >
-                            <FiMoreVertical />
-                          </button>
+                          ></button>
                         </div>
 
                         <span

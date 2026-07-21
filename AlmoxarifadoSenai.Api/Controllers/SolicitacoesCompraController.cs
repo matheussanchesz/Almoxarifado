@@ -44,6 +44,23 @@ namespace AlmoxarifadoSenai.Api.Controllers
             };
 
             await _firestoreService.SalvarSolicitacaoCompraAsync(solicitacao);
+            await _firestoreService.NotificarTodosUsuariosAtivosAsync(new Notificacao
+            {
+                Titulo = "Nova solicitação de compra",
+                Mensagem = $"{almoxarifeNome} solicitou {solicitacao.Quantidade} unidade(s) de \"{solicitacao.NomeItem}\".",
+                Tipo = solicitacao.Urgencia == "Urgente" ? "Urgente" : "Informacao",
+                Icone = solicitacao.Urgencia == "Urgente" ? "alert" : "cart",
+                Cor = solicitacao.Urgencia == "Urgente" ? "red" : "blue",
+                Link = $"/compras/detalhes/{solicitacao.Id}",
+                DadosAdicionais = new Dictionary<string, string>
+                {
+                    ["evento"] = "compra_criada",
+                    ["solicitacaoId"] = solicitacao.Id,
+                    ["remetenteMatricula"] = almoxarifeMatricula,
+                    ["urgencia"] = solicitacao.Urgencia
+                }
+            });
+
             return Ok(new { mensagem = "Solicitação de compra criada com sucesso!", solicitacao });
         }
 

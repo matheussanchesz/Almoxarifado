@@ -108,7 +108,7 @@ export default function Usuarios() {
       const usuariosReais = response.data.map(mapearUsuario);
       setUsuarios(usuariosReais);
     } catch {
-      setErro("Nao foi possivel carregar os usuarios no momento.");
+      setErro("Não foi possível carregar os usuários no momento.");
     } finally {
       setCarregando(false);
     }
@@ -128,7 +128,7 @@ export default function Usuarios() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os usuarios no momento.");
+      setErro("Não foi possível carregar os usuários no momento.");
         }
       } finally {
         if (ativo) {
@@ -215,7 +215,7 @@ export default function Usuarios() {
       await carregarUsuarios();
       fecharModal();
     } catch {
-      setErro("Nao foi possivel salvar o usuario. Confira os dados e tente novamente.");
+      setErro("Não foi possível salvar o usuário. Confira os dados e tente novamente.");
     } finally {
       setSalvando(false);
     }
@@ -223,7 +223,7 @@ export default function Usuarios() {
 
   async function inativarUsuario(usuario: Usuario) {
     if (usuarioLogado?.matricula === usuario.matricula) {
-      window.alert("Voce nao pode inativar o proprio usuario logado.");
+      window.alert("Você não pode inativar o próprio usuário conectado.");
       return;
     }
 
@@ -234,18 +234,18 @@ export default function Usuarios() {
       await api.patch(`/usuarios/${encodeURIComponent(usuario.matricula)}/inativar`);
       await carregarUsuarios();
     } catch {
-      setErro("Nao foi possivel inativar o usuario.");
+      setErro("Não foi possível inativar o usuário.");
     }
   }
 
   async function excluirUsuario(usuario: Usuario) {
     if (usuarioLogado?.matricula === usuario.matricula) {
-      window.alert("Voce nao pode excluir o proprio usuario logado.");
+      window.alert("Você não pode excluir o próprio usuário conectado.");
       return;
     }
 
     const confirmar = window.confirm(
-      `Tem certeza que deseja excluir ${usuario.nome}? Esta acao remove o usuario do sistema.`,
+      `Tem certeza de que deseja excluir ${usuario.nome}? Esta ação remove o usuário do sistema.`,
     );
 
     if (!confirmar) return;
@@ -257,7 +257,7 @@ export default function Usuarios() {
       await api.delete(`/usuarios/${encodeURIComponent(usuario.matricula)}`);
       await carregarUsuarios();
     } catch {
-      setErro("Nao foi possivel excluir o usuario.");
+      setErro("Não foi possível excluir o usuário.");
     }
   }
 
@@ -271,13 +271,12 @@ export default function Usuarios() {
         <section className="users-conteudo">
           <header className="users-header">
             <div>
-              <h1>Usuários</h1>
-              <p>Gerencie os usuarios cadastrados no sistema.</p>
+              <p>Gerencie os usuários cadastrados no sistema.</p>
             </div>
 
             <button type="button" className="new-user-button" onClick={abrirCadastro}>
               <FiPlus />
-              Novo usuario
+              Novo usuário
             </button>
           </header>
 
@@ -289,11 +288,11 @@ export default function Usuarios() {
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Matricula</th>
+                <th>Matrícula</th>
                     <th>Perfil</th>
                     <th>Nascimento</th>
                     <th>Status</th>
-                    <th>Acoes</th>
+                <th>Ações</th>
                   </tr>
                 </thead>
 
@@ -301,7 +300,7 @@ export default function Usuarios() {
                   {carregando && (
                     <tr>
                       <td colSpan={6} className="users-empty">
-                        Carregando usuarios...
+                    Carregando usuários...
                       </td>
                     </tr>
                   )}
@@ -339,7 +338,7 @@ export default function Usuarios() {
                           <div className="user-actions">
                             <button
                               type="button"
-                              title="Editar usuario"
+                          title="Editar usuário"
                               onClick={() => abrirEdicao(usuario)}
                             >
                               <FiEdit2 />
@@ -348,7 +347,7 @@ export default function Usuarios() {
                             <div className="user-more-wrapper">
                               <button
                                 type="button"
-                                title="Mais acoes"
+                          title="Mais ações"
                                 onClick={() =>
                                   setMenuAberto((estadoAtual) =>
                                     estadoAtual === usuario.matricula
@@ -396,7 +395,7 @@ export default function Usuarios() {
                   {!carregando && usuariosOrdenados.length === 0 && (
                     <tr>
                       <td colSpan={6} className="users-empty">
-                        Nenhum usuario cadastrado.
+                    Nenhum usuário cadastrado.
                       </td>
                     </tr>
                   )}
@@ -407,7 +406,7 @@ export default function Usuarios() {
             <div className="users-footer">
               <span>
                 Exibindo {usuariosOrdenados.length > 0 ? 1 : 0} a{" "}
-                {usuariosOrdenados.length} de {usuariosOrdenados.length} usuarios
+          {usuariosOrdenados.length} de {usuariosOrdenados.length} usuários
               </span>
 
               <div className="pagination">
@@ -434,11 +433,11 @@ export default function Usuarios() {
           >
             <header className="user-modal-topo">
               <div>
-                <h2>{modoModal === "criar" ? "Novo usuario" : "Editar usuario"}</h2>
+              <h2>{modoModal === "criar" ? "Novo usuário" : "Editar usuário"}</h2>
                 <p>
                   {modoModal === "criar"
-                    ? "Cadastre um usuario no sistema."
-                    : "Atualize as informacoes do usuario."}
+                  ? "Cadastre um usuário no sistema."
+                  : "Atualize as informações do usuário."}
                 </p>
               </div>
 
@@ -449,7 +448,7 @@ export default function Usuarios() {
 
             <form className="user-form" onSubmit={salvarFormulario}>
               <label>
-                Matricula
+                Matrícula
                 <input
                   type="text"
                   value={formulario.matricula}
@@ -497,10 +496,8 @@ export default function Usuarios() {
                     alterarCampo("perfil", evento.target.value as PerfilUsuario)
                   }
                 >
-                  <option value="Admin">Admin</option>
                   <option value="Coordenador">Coordenador</option>
                   <option value="Almoxarife">Almoxarife</option>
-                  <option value="Almoxarifado">Almoxarifado</option>
                   <option value="Professor">Professor</option>
                 </select>
               </label>

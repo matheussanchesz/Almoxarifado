@@ -73,7 +73,7 @@ export default function Dashboard() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os indicadores no momento.");
+      setErro("Não foi possível carregar os indicadores no momento.");
         }
       }
     }
@@ -165,9 +165,10 @@ export default function Dashboard() {
 
       <main className="dashboard-main">
         <Header />
+        <div className="dashboard-conteudo">
         {erro && (
           <div className="dashboard-alert">
-            Nao foi possivel atualizar os indicadores agora. Tente novamente em
+              Não foi possível atualizar os indicadores agora. Tente novamente em
             alguns instantes.
           </div>
         )}
@@ -317,6 +318,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         </section>
+        </div>
       </main>
     </div>
   );

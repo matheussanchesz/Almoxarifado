@@ -12,6 +12,7 @@ import {
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { getUsuarioLogado } from "../../services/auth";
+import { temPermissao } from "../../services/permissoes";
 import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 
 import "./Demandas.css";
@@ -67,9 +68,7 @@ function mapearDemanda(demanda: DemandaApi): DemandaTabela {
 function Demandas() {
   const navigate = useNavigate();
   const usuario = getUsuarioLogado();
-  const podeCriarDemanda = Boolean(
-    usuario && usuario.perfil !== "Admin" && usuario.perfil !== "Almoxarife",
-  );
+  const podeCriarDemanda = temPermissao(usuario?.perfil, "novaDemanda");
 
   const [buscaDemanda, setBuscaDemanda] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("Todas");
@@ -92,7 +91,7 @@ function Demandas() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar as demandas no momento.");
+      setErro("Não foi possível carregar as demandas no momento.");
         }
       }
     }
@@ -115,7 +114,7 @@ function Demandas() {
       quantidade: demandas.filter((d) => d.status === "Em Andamento").length,
     },
     {
-      titulo: "Concluidas",
+        titulo: "Concluídas",
       quantidade: demandas.filter((d) => d.status === "Concluida").length,
     },
     {
@@ -141,7 +140,7 @@ function Demandas() {
       const correspondeStatus =
         abaAtiva === "Todas" ||
         demanda.status === abaAtiva ||
-        (abaAtiva === "Concluidas" && demanda.status === "Concluida") ||
+        (abaAtiva === "Concluídas" && demanda.status === "Concluida") ||
         (abaAtiva === "Canceladas" && demanda.status === "Cancelada");
 
       const correspondePerfil =
@@ -182,8 +181,7 @@ function Demandas() {
         <section className="demandas-conteudo">
           <div className="demandas-cabecalho">
             <div>
-              <h1>Demandas</h1>
-              <p>Acompanhe as solicitacoes registradas no sistema.</p>
+          <p>Acompanhe as solicitações registradas no sistema.</p>
             </div>
           </div>
 
@@ -223,7 +221,7 @@ function Demandas() {
                 <option value="">Todos os status</option>
                 <option value="Aguardando">Aguardando</option>
                 <option value="Em Andamento">Em Andamento</option>
-                <option value="Concluida">Concluida</option>
+                <option value="Concluida">Concluída</option>
                 <option value="Cancelada">Cancelada</option>
               </select>
               <FiChevronDown />
@@ -277,12 +275,12 @@ function Demandas() {
                   <tr>
                     <th>Prioridade</th>
                     <th>ID</th>
-                    <th>Titulo</th>
-                    <th>Oficina / Laboratorio</th>
+                  <th>Título</th>
+                  <th>Oficina / Laboratório</th>
                     <th>Solicitante</th>
                     <th>Prazo</th>
                     <th>Status</th>
-                    <th>Acoes</th>
+                  <th>Ações</th>
                   </tr>
                 </thead>
 

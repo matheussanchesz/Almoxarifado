@@ -1133,6 +1133,113 @@
   border: 1px solid #e2e8f0;
 }
 
+/* ===== MODO ESCURO ===== */
+
+html.dark .checklists-indicadores article,
+html.dark .checklists-indicadores div,
+html.dark .checklists-card,
+html.dark .checklists-modal,
+html.dark .checklists-item,
+html.dark .checklists-itens-topo span {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow);
+}
+
+html.dark .checklists-indicadores strong,
+html.dark .checklists-card-topo h2,
+html.dark .checklists-modelo-nome,
+html.dark .checklists-modal h2,
+html.dark .checklists-modal-header h2,
+html.dark .checklists-itens-topo h3,
+html.dark .checklists-item span,
+html.dark .checklists-itens li {
+  color: var(--app-text);
+}
+
+html.dark .checklists-indicadores span,
+html.dark .checklists-cabecalho p,
+html.dark .checklists-card-topo p,
+html.dark .checklists-lista .checklists-card > p,
+html.dark .checklists-lista .checklists-card small,
+html.dark .checklists-modelo-descricao,
+html.dark .checklists-vazio,
+html.dark .checklists-modal p,
+html.dark .checklists-modal-header p,
+html.dark .checklists-itens-topo p,
+html.dark .checklists-sem-itens {
+  color: var(--app-muted);
+}
+
+html.dark .checklists-busca,
+html.dark .checklists-filtros select,
+html.dark .checklists-modal input,
+html.dark .checklists-modal select,
+html.dark .checklists-modal textarea {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+  color: var(--app-text);
+}
+
+html.dark .checklists-busca input {
+  background: transparent;
+  color: var(--app-text);
+}
+
+html.dark .checklists-busca,
+html.dark .checklists-busca svg,
+html.dark .checklists-busca input::placeholder {
+  color: #94a3b8;
+}
+
+html.dark .checklists-vazio {
+  background: rgba(15, 23, 42, 0.45);
+  border-color: #334155;
+}
+
+html.dark .checklists-botao-historico,
+html.dark .checklists-lista footer button,
+html.dark .checklists-acao,
+html.dark .checklists-modal-fechar,
+html.dark .checklists-cancelar,
+html.dark .checklists-modal-acoes button:first-child,
+html.dark .checklists-itens li button {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+}
+
+html.dark .checklists-botao-historico,
+html.dark .checklists-modal-fechar,
+html.dark .checklists-cancelar,
+html.dark .checklists-modal-acoes button:first-child {
+  color: var(--app-text);
+}
+
+html.dark .checklists-itens-bloco,
+html.dark .checklists-itens li,
+html.dark .modelo-inativo {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+}
+
+html.dark .checklists-modal label,
+html.dark .checklists-categorias strong {
+  color: #e2e8f0;
+}
+
+html.dark .checklists-categorias-grid button {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+html.dark .checklists-categorias-grid button.ativo {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: #60a5fa;
+  color: #bfdbfe;
+}
+
 .checklists-executar {
   min-width: 138px;
   height: 34px;

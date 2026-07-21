@@ -18,7 +18,6 @@ import { listarDemandasApi, type DemandaApi } from "../../services/demandas";
 import "./Relatorios.css";
 
 type PeriodoRelatorio = "7 dias" | "30 dias" | "90 dias" | "Todos";
-type FormatoExportacao = "csv" | "txt" | "imprimir";
 
 function formatarData(data: string) {
   return new Date(data).toLocaleDateString("pt-BR");
@@ -38,8 +37,10 @@ function baixarArquivo(conteudo: string, nomeArquivo: string, tipo: string) {
 
   link.href = url;
   link.download = nomeArquivo;
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function valorCsv(valor: string | number) {
@@ -48,8 +49,6 @@ function valorCsv(valor: string | number) {
 
 function Relatorios() {
   const [periodo, setPeriodo] = useState<PeriodoRelatorio>("30 dias");
-  const [formatoExportacao, setFormatoExportacao] =
-    useState<FormatoExportacao>("csv");
   const [demandas, setDemandas] = useState<DemandaApi[]>([]);
   const [erro, setErro] = useState("");
 
@@ -66,7 +65,7 @@ function Relatorios() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar os relatorios no momento.");
+      setErro("Não foi possível carregar os relatórios no momento.");
         }
       }
     }
@@ -142,57 +141,34 @@ function Relatorios() {
     }));
   }, [demandasFiltradas]);
 
-  function exportarTxt() {
-    const linhas = [
-      "Relatório de Demandas - SENAI Almoxarifado",
-      `Período: ${periodo}`,
-      `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
-      "",
-      `Total de demandas: ${totalDemandas}`,
-      `Abertas: ${abertas}`,
-      `Em andamento: ${emAndamento}`,
-      `Concluídas: ${concluidas}`,
-      `Urgentes: ${urgentes}`,
-      `Atrasadas: ${atrasadas}`,
-      `Taxa de conclusão: ${taxaConclusao}%`,
-      "",
-      "Demandas por oficina:",
-      ...demandasPorOficina.map(
-        (item) => `- ${item.oficina}: ${item.quantidade}`,
-      ),
-      "",
-      "Demandas:",
-      ...demandasFiltradas.map(
-        (demanda) =>
-          `- ${demanda.id} | ${demanda.titulo} | ${demanda.oficina} | ${demanda.status} | ${demanda.prioridade}`,
-      ),
-    ];
-
-    baixarArquivo(
-      linhas.join("\n"),
-      `relatorio-demandas-${new Date().toISOString().slice(0, 10)}.txt`,
-      "text/plain;charset=utf-8",
-    );
-  }
-
   function exportarCsv() {
     const resumo = [
-      ["Periodo", periodo],
+      ["Período", periodo],
       ["Gerado em", new Date().toLocaleString("pt-BR")],
       ["Total de demandas", totalDemandas],
       ["Abertas", abertas],
       ["Em andamento", emAndamento],
-      ["Concluidas", concluidas],
+      ["Concluídas", concluidas],
       ["Urgentes", urgentes],
       ["Atrasadas", atrasadas],
       ["Taxa de conclusao", `${taxaConclusao}%`],
     ].map((linha) => linha.map(valorCsv).join(";"));
 
     const demandasCsv = [
-      ["ID", "Titulo", "Oficina", "Status", "Prioridade", "Prazo", "Criacao"],
+      [
+        "ID",
+      "Título",
+        "Solicitante",
+        "Oficina",
+        "Status",
+        "Prioridade",
+        "Prazo",
+      "Criação",
+      ],
       ...demandasFiltradas.map((demanda) => [
         demanda.id,
         demanda.titulo,
+        demanda.professorNome,
         demanda.oficina,
         demanda.status,
         demanda.prioridade,
@@ -202,24 +178,10 @@ function Relatorios() {
     ].map((linha) => linha.map(valorCsv).join(";"));
 
     baixarArquivo(
-      [...resumo, "", ...demandasCsv].join("\n"),
+      `\uFEFF${[...resumo, "", ...demandasCsv].join("\r\n")}`,
       `relatorio-demandas-${new Date().toISOString().slice(0, 10)}.csv`,
       "text/csv;charset=utf-8",
     );
-  }
-
-  function exportarRelatorio() {
-    if (formatoExportacao === "txt") {
-      exportarTxt();
-      return;
-    }
-
-    if (formatoExportacao === "csv") {
-      exportarCsv();
-      return;
-    }
-
-    window.print();
   }
 
   return (
@@ -232,7 +194,9 @@ function Relatorios() {
         <section className="relatorios-conteudo">
           <header className="relatorios-cabecalho">
             <div>
-              <h1>Relatórios Gerenciais</h1>
+              <h1 className="relatorios-titulo-impressao">
+                Relatório Gerencial de Demandas
+              </h1>
               <p>
                 Acompanhe indicadores operacionais, prioridades, atrasos e
                 desempenho do almoxarifado.
@@ -255,29 +219,24 @@ function Relatorios() {
                 </select>
               </label>
 
-              <label>
-                {formatoExportacao === "imprimir" ? <FiPrinter /> : <FiDownload />}
-                <select
-                  value={formatoExportacao}
-                  onChange={(evento) =>
-                    setFormatoExportacao(
-                      evento.target.value as FormatoExportacao,
-                    )
-                  }
-                >
-                  <option value="csv">CSV</option>
-                  <option value="txt">TXT</option>
-                  <option value="imprimir">Imprimir</option>
-                </select>
-              </label>
+              <button
+                type="button"
+                className="relatorios-exportar-csv"
+                onClick={exportarCsv}
+                title="Baixar os dados filtrados em CSV"
+              >
+                <FiDownload />
+                Exportar CSV
+              </button>
 
-              <button type="button" onClick={exportarRelatorio}>
-                {formatoExportacao === "imprimir" ? (
-                  <FiPrinter />
-                ) : (
-                  <FiDownload />
-                )}
-                {formatoExportacao === "imprimir" ? "Imprimir" : "Exportar"}
+              <button
+                type="button"
+                className="relatorios-imprimir"
+                onClick={() => window.print()}
+                title="Abrir a visualização de impressão"
+              >
+                <FiPrinter />
+                Imprimir relatório
               </button>
             </div>
           </header>
@@ -413,7 +372,7 @@ function Relatorios() {
                   </thead>
 
                   <tbody>
-                    {demandasFiltradas.slice(0, 8).map((demanda) => (
+                    {demandasFiltradas.map((demanda) => (
                       <tr key={demanda.id}>
                         <td>{demanda.id.slice(0, 6)}</td>
                         <td>{demanda.titulo}</td>

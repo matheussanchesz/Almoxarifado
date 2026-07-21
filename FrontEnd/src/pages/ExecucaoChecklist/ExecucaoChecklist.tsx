@@ -123,7 +123,7 @@ function ExecucaoChecklist() {
     }
 
     if (!modelo) {
-      alert("Modelo de checklist nao encontrado.");
+      alert("Modelo de checklist não encontrado.");
       return;
     }
 
@@ -144,7 +144,7 @@ function ExecucaoChecklist() {
       mostrarNotificacao(
         "erro",
         "Erro ao finalizar",
-        "Nao foi possivel salvar a execucao. Tente novamente.",
+        "Não foi possível salvar a execução. Tente novamente.",
       );
     }
   }
@@ -157,7 +157,7 @@ function ExecucaoChecklist() {
         <main className="execucao-main">
           <Header titulo="Execução do Checklist" />
           <section className="execucao-conteudo">
-            <h1>Checklist nao encontrado.</h1>
+            <h1>Checklist não encontrado.</h1>
             <button type="button" onClick={() => navigate("/checklists")}>
               Voltar
             </button>
@@ -199,7 +199,7 @@ function ExecucaoChecklist() {
             <div className="execucao-titulo">
               <h1>{modelo.nome}</h1>
               <p>{modelo.oficina}</p>
-              <span>Almoxarife: {usuario?.nome ?? "Usuario"}</span>
+              <span>Almoxarife: {usuario?.nome ?? "Usuário"}</span>
             </div>
           </header>
 
@@ -232,7 +232,7 @@ function ExecucaoChecklist() {
                   <tr>
                     <th>Item</th>
                     <th>Status</th>
-                    <th>Observacao</th>
+                    <th>Observação</th>
                     <th>Foto</th>
                   </tr>
                 </thead>
@@ -271,7 +271,7 @@ function ExecucaoChecklist() {
                       <td>
                         <input
                           type="text"
-                          placeholder="Observacao..."
+                            placeholder="Observação..."
                           value={item.observacao}
                           onChange={(e) =>
                             alterarObservacao(item.id, e.target.value)

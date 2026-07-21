@@ -47,6 +47,42 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:is(
+  .dashboard-layout,
+  .users-layout,
+  .demandas-layout,
+  .almoxarifado-layout,
+  .checklists-layout,
+  .compras-layout,
+  .nova-compra-layout,
+  .nova-demanda-layout,
+  .detalhes-demanda-layout,
+  .notificacoes-layout,
+  .relatorios-layout
+) {
+  height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+:is(
+  .dashboard-main,
+  .users-main,
+  .demandas-main,
+  .almoxarifado-main,
+  .checklists-main,
+  .compras-main,
+  .nova-compra-main,
+  .nova-demanda-main,
+  .detalhes-demanda-main,
+  .notificacoes-main,
+  .relatorios-main
+) {
+  height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
 * {
   letter-spacing: 0 !important;
 }
@@ -73,12 +109,13 @@ video {
 :is(
   .dashboard-conteudo,
   .users-content,
+  .users-conteudo,
   .demandas-conteudo,
   .almoxarifado-conteudo,
   .checklists-conteudo,
   .compras-conteudo,
   .nova-compra-conteudo,
-  .nova-demanda-main,
+  .nova-demanda-conteudo,
   .detalhes-compra-conteudo,
   .detalhes-demanda-conteudo,
   .execucao-conteudo,
@@ -88,6 +125,26 @@ video {
   .relatorios-conteudo
 ) {
   padding: 40px 44px 32px !important;
+}
+
+:is(
+  .dashboard-conteudo,
+  .users-conteudo,
+  .demandas-conteudo,
+  .almoxarifado-conteudo,
+  .checklists-conteudo,
+  .compras-conteudo,
+  .nova-compra-conteudo,
+  .nova-demanda-conteudo,
+  .detalhes-demanda-conteudo,
+  .notificacoes-conteudo,
+  .relatorios-conteudo
+) {
+  height: calc(100dvh - 72px) !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable;
 }
 
 :is(
@@ -268,7 +325,7 @@ html.dark :is(input, select, textarea) {
 }
 
 html.dark :is(
-  button:not([class*="primary"]):not([class*="salvar"]):not([class*="novo"]):not([class*="ativo"]),
+  button:not([class*="primary"]):not([class*="salvar"]):not([class*="novo"]):not([class*="ativo"]):not(.botao-entrar):not(.new-user-button),
   .relatorios-acoes label,
   .demandas-select,
   .compras-select,
@@ -572,6 +629,25 @@ html.dark .campo-input input::placeholder {
     min-width: 0;
   }
 
+  :is(
+    .dashboard-conteudo,
+    .users-conteudo,
+    .demandas-conteudo,
+    .almoxarifado-conteudo,
+    .checklists-conteudo,
+    .compras-conteudo,
+    .nova-compra-conteudo,
+    .nova-demanda-conteudo,
+    .detalhes-demanda-conteudo,
+    .notificacoes-conteudo,
+    .relatorios-conteudo
+  ) {
+    height: auto !important;
+    min-height: calc(100dvh - 64px) !important;
+    padding: 28px 18px 24px !important;
+    overflow: visible !important;
+  }
+
   table {
     min-width: 680px;
   }
@@ -582,5 +658,24 @@ html.dark .campo-input input::placeholder {
   .users-table-wrapper,
   .relatorios-tabela-wrapper {
     overflow-x: auto !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :is(
+    .dashboard-conteudo,
+    .users-conteudo,
+    .demandas-conteudo,
+    .almoxarifado-conteudo,
+    .checklists-conteudo,
+    .compras-conteudo,
+    .nova-compra-conteudo,
+    .nova-demanda-conteudo,
+    .detalhes-demanda-conteudo,
+    .notificacoes-conteudo,
+    .relatorios-conteudo
+  ) {
+    padding-right: 14px !important;
+    padding-left: 14px !important;
   }
 }

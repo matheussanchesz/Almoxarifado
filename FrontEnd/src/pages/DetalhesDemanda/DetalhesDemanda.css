@@ -14,9 +14,16 @@
 }
 
 .detalhes-demanda-conteudo {
-  height: 100vh;
-  padding: 56px 44px 34px;
+  height: calc(100dvh - 72px);
+  padding-top: 28px !important;
+  padding-bottom: 28px !important;
   overflow-y: auto;
+  scrollbar-width: none;
+  scrollbar-gutter: auto !important;
+}
+
+.detalhes-demanda-conteudo::-webkit-scrollbar {
+  display: none;
 }
 
 .detalhes-demanda-cabecalho {
@@ -116,7 +123,7 @@
 
 .detalhes-demanda-grid {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   gap: 22px;
 }
 

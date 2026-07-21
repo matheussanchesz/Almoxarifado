@@ -5,6 +5,7 @@ import { FiCheck, FiEye, FiPlus, FiSearch, FiX } from "react-icons/fi";
 import Header from "../../components/Header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { getUsuarioLogado } from "../../services/auth";
+import { temPermissao } from "../../services/permissoes";
 import {
   atualizarStatusCompraApi,
   listarComprasApi,
@@ -23,10 +24,7 @@ function normalizarTexto(texto: string) {
 function Compras() {
   const navigate = useNavigate();
   const usuario = getUsuarioLogado();
-  const podeCriar =
-    usuario?.perfil === "Admin" ||
-    usuario?.perfil === "Almoxarife" ||
-    usuario?.perfil === "Almoxarifado";
+  const podeCriar = temPermissao(usuario?.perfil, "novaCompra");
   const podeAprovar =
     usuario?.perfil === "Admin" || usuario?.perfil === "Coordenador";
 
@@ -48,7 +46,7 @@ function Compras() {
         }
       } catch {
         if (ativo) {
-          setErro("Nao foi possivel carregar as solicitacoes no momento.");
+      setErro("Não foi possível carregar as solicitações no momento.");
         }
       }
     }
@@ -93,7 +91,7 @@ function Compras() {
       );
       setErro("");
     } catch {
-      setErro("Nao foi possivel atualizar o status da compra.");
+      setErro("Não foi possível atualizar o status da compra.");
     }
   }
 
@@ -107,8 +105,8 @@ function Compras() {
         <section className="compras-conteudo">
           <header className="compras-cabecalho">
             <div>
-              <h1>Solicitacoes de Compra</h1>
-              <p>Acompanhe as solicitacoes registradas no sistema.</p>
+          <h1>Solicitações de Compra</h1>
+          <p>Acompanhe as solicitações registradas no sistema.</p>
             </div>
 
             {podeCriar && (
@@ -118,7 +116,7 @@ function Compras() {
                 onClick={() => navigate("/compras/nova")}
               >
                 <FiPlus />
-                Nova Solicitacao
+              Nova Solicitação
               </button>
             )}
           </header>
@@ -128,7 +126,7 @@ function Compras() {
           <section className="compras-indicadores">
             <div>
               <strong>{total}</strong>
-              <span>Total de solicitacoes</span>
+              <span>Total de solicitações</span>
             </div>
 
             <div className="aguardando">
@@ -143,7 +141,7 @@ function Compras() {
 
             <div className="recebido">
               <strong>{concluidas}</strong>
-              <span>Concluidas</span>
+              <span>Concluídas</span>
             </div>
           </section>
 
@@ -152,7 +150,7 @@ function Compras() {
               <FiSearch />
               <input
                 type="text"
-                placeholder="Buscar por item, categoria ou codigo..."
+                placeholder="Buscar por item, categoria ou código..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
               />
@@ -166,7 +164,7 @@ function Compras() {
               <option value="Aguardando">Aguardando</option>
               <option value="Aprovado">Aprovado</option>
               <option value="Rejeitado">Rejeitado</option>
-              <option value="Concluído">Concluido</option>
+              <option value="Concluído">Concluído</option>
             </select>
           </section>
 
@@ -175,13 +173,13 @@ function Compras() {
               <table className="compras-tabela">
                 <thead>
                   <tr>
-                    <th>Codigo</th>
+                    <th>Código</th>
                     <th>Item</th>
                     <th>Categoria</th>
                     <th>Qtd.</th>
-                    <th>Urgencia</th>
+                  <th>Urgência</th>
                     <th>Status</th>
-                    <th>Acoes</th>
+                  <th>Ações</th>
                   </tr>
                 </thead>
 
@@ -294,7 +292,7 @@ function Compras() {
                   {comprasFiltradas.length === 0 && (
                     <tr>
                       <td colSpan={7} className="compras-vazio">
-                        Nenhuma solicitacao encontrada.
+                  Nenhuma solicitação encontrada.
                       </td>
                     </tr>
                   )}

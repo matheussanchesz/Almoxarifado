@@ -77,6 +77,110 @@
 
 .relatorios-acoes button {
   cursor: pointer;
+  font-weight: 700;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.relatorios-titulo-impressao {
+  display: none;
+}
+
+.relatorios-acoes button:hover {
+  transform: translateY(-1px);
+}
+
+.relatorios-acoes .relatorios-exportar-csv {
+  background: #0046c7;
+  border-color: #0046c7;
+  color: #ffffff;
+}
+
+.relatorios-acoes .relatorios-exportar-csv:hover {
+  background: #003cab;
+  border-color: #003cab;
+}
+
+.relatorios-acoes .relatorios-imprimir {
+  color: #344054;
+}
+
+.relatorios-acoes .relatorios-imprimir:hover {
+  background: #f8fafc;
+  border-color: #b8c5d8;
+}
+
+html.dark .relatorios-acoes .relatorios-exportar-csv {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+html.dark .relatorios-acoes .relatorios-imprimir {
+  background: var(--app-surface-soft);
+  border-color: #334155;
+  color: var(--app-text);
+}
+
+html.dark .relatorios-indicadores article {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow);
+}
+
+html.dark .relatorios-indicadores strong {
+  color: var(--app-text);
+}
+
+html.dark .relatorios-indicadores span {
+  color: var(--app-muted);
+}
+
+html.dark .relatorios-indicadores svg {
+  background: rgba(37, 99, 235, 0.18);
+  color: #60a5fa;
+}
+
+html.dark .relatorios-indicadores .concluidas svg {
+  background: rgba(22, 163, 74, 0.18);
+  color: #4ade80;
+}
+
+html.dark .relatorios-indicadores .atrasadas svg {
+  background: rgba(220, 38, 38, 0.18);
+  color: #f87171;
+}
+
+html.dark .relatorios-acoes .relatorios-exportar-csv {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+html.dark .relatorios-acoes .relatorios-exportar-csv:hover {
+  background: #1d4ed8 !important;
+  border-color: #2563eb !important;
+}
+
+html.dark .relatorios-acoes .relatorios-imprimir,
+html.dark .relatorios-acoes label {
+  background: var(--app-surface) !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .relatorios-acoes select {
+  color: #e2e8f0;
+}
+
+html.dark .relatorios-barras::-webkit-scrollbar-thumb,
+html.dark .relatorios-prioridades::-webkit-scrollbar-thumb,
+html.dark .relatorios-tabela-wrapper::-webkit-scrollbar-thumb {
+  background: #475569;
 }
 
 .relatorios-indicadores {
@@ -422,36 +526,148 @@
 }
 
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
   .sidebar,
   .sidebar-mobile-toggle,
-  .relatorios-acoes {
+  .relatorios-acoes,
+  .relatorios-main > .header {
     display: none !important;
   }
 
   .relatorios-layout,
   .relatorios-main,
   .relatorios-conteudo {
-    display: block;
-    height: auto;
-    overflow: visible;
-    padding: 0;
-    background: #ffffff;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #ffffff !important;
   }
 
-  .relatorios-cabecalho,
-  .relatorios-grid,
+  .relatorios-conteudo {
+    font-size: 10pt;
+  }
+
+  .relatorios-cabecalho {
+    display: flex !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #111827;
+  }
+
+  .relatorios-titulo-impressao {
+    display: block !important;
+    margin: 0 0 4px !important;
+    color: #111827 !important;
+    font-size: 22pt !important;
+    line-height: 1.15 !important;
+  }
+
   .relatorios-indicadores {
-    display: block;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .relatorios-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: 10px !important;
+    overflow: visible !important;
   }
 
   .relatorios-indicadores article,
-  .relatorios-card {
-    break-inside: avoid;
-    margin-bottom: 12px;
+  .relatorios-card,
+  html.dark .relatorios-indicadores article,
+  html.dark .relatorios-card {
+    break-inside: avoid-page;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    box-shadow: none !important;
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  .relatorios-indicadores article {
+    display: flex !important;
+    min-height: 64px !important;
+  }
+
+  .relatorios-indicadores strong,
+  .relatorios-indicadores span,
+  .relatorios-card h2,
+  .relatorios-card p,
+  .relatorios-card strong,
+  .relatorios-card span,
+  .relatorios-card small,
+  .relatorios-cabecalho h1,
+  .relatorios-cabecalho p {
+    color: #111827 !important;
+  }
+
+  .relatorios-card-tabela {
+    grid-column: 1 / -1 !important;
   }
 
   .relatorios-tabela {
-    min-width: 0;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .relatorios-tabela-wrapper,
+  .relatorios-barras,
+  .relatorios-prioridades {
+    overflow: visible;
+    max-height: none;
+  }
+
+  .relatorios-tabela th,
+  .relatorios-tabela td {
+    padding: 6px 8px !important;
+    font-size: 9pt !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+    background: #ffffff !important;
+  }
+
+  .relatorios-vazio,
+  html.dark .relatorios-vazio {
+    min-height: 60px !important;
+    padding: 14px !important;
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+  }
+
+  .relatorios-prioridade {
+    min-height: 32px;
+  }
+
+  .relatorios-card-topo {
+    margin-bottom: 8px;
+  }
+
+  .relatorios-taxa {
+    margin-top: 8px;
+    padding-top: 8px;
   }
 }
 

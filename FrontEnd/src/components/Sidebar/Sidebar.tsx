@@ -17,6 +17,7 @@ import {
 
 import "./Sidebar.css";
 import { alternarTema } from "../../services/theme";
+import { temPermissao, type Recurso } from "../../services/permissoes";
 
 type Perfil = "Admin" | "Coordenador" | "Professor" | "Almoxarife" | "Almoxarifado";
 
@@ -24,7 +25,7 @@ type ItemMenu = {
   icone: React.ReactNode;
   titulo: string;
   caminho: string;
-  perfis: Perfil[];
+  recurso: Recurso;
 };
 
 const itensMenu: ItemMenu[] = [
@@ -32,49 +33,49 @@ const itensMenu: ItemMenu[] = [
     icone: <FiHome />,
     titulo: "Dashboard",
     caminho: "/dashboard",
-    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife", "Almoxarifado"],
+    recurso: "dashboard",
   },
   {
     icone: <FiFileText />,
     titulo: "Demandas",
     caminho: "/demandas",
-    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife", "Almoxarifado"],
+    recurso: "demandas",
   },
   {
     icone: <FiArchive />,
     titulo: "Almoxarifado",
     caminho: "/almoxarifado",
-    perfis: ["Admin", "Coordenador", "Almoxarife", "Almoxarifado"],
+    recurso: "almoxarifado",
   },
   {
     icone: <FiShoppingCart />,
     titulo: "Compras",
     caminho: "/compras",
-    perfis: ["Admin", "Coordenador", "Almoxarife", "Almoxarifado"],
+    recurso: "compras",
   },
   {
     icone: <FiClipboard />,
     titulo: "Checklists",
     caminho: "/checklists",
-    perfis: ["Admin", "Almoxarife", "Almoxarifado"],
+    recurso: "checklists",
   },
   {
     icone: <FiBarChart2 />,
     titulo: "Relatórios",
     caminho: "/relatorios",
-    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife", "Almoxarifado"],
+    recurso: "relatorios",
   },
   {
     icone: <FiUsers />,
     titulo: "Usuários",
     caminho: "/usuarios",
-    perfis: ["Admin", "Coordenador"],
+    recurso: "usuarios",
   },
   {
     icone: <FiBell />,
     titulo: "Notificações",
     caminho: "/notificacoes",
-    perfis: ["Admin", "Coordenador", "Professor", "Almoxarife", "Almoxarifado"],
+    recurso: "notificacoes",
   },
 ];
 
@@ -114,7 +115,7 @@ export default function Sidebar() {
   const [menuUsuarioAberto, setMenuUsuarioAberto] = useState(false);
 
   const itensPermitidos = itensMenu.filter((item) =>
-    item.perfis.includes(usuario.perfil),
+    temPermissao(usuario.perfil, item.recurso),
   );
 
   useEffect(() => {

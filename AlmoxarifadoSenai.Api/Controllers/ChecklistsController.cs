@@ -25,6 +25,8 @@ namespace AlmoxarifadoSenai.Api.Controllers
         [Authorize(Roles = $"{Perfis.OperacaoAlmoxarifado},{Perfis.Admin}")]
         public async Task<IActionResult> CriarChecklist([FromBody] ChecklistCriarDto dto)
         {
+            var responsavelMatricula = User.FindFirst("Matricula")?.Value ?? string.Empty;
+            var responsavelNome = User.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
             var checklist = new Checklist
             {
                 Nome = dto.Nome,
@@ -41,6 +43,23 @@ namespace AlmoxarifadoSenai.Api.Controllers
             };
 
             await _firestoreService.SalvarChecklistAsync(checklist);
+            await _firestoreService.NotificarTodosUsuariosAtivosAsync(new Notificacao
+            {
+                Titulo = "Novo checklist disponível",
+                Mensagem = $"{responsavelNome} criou o checklist \"{checklist.Nome}\" para {checklist.Oficina}.",
+                Tipo = "Informacao",
+                Icone = "clipboard",
+                Cor = "blue",
+                Link = "/checklists",
+                DadosAdicionais = new Dictionary<string, string>
+                {
+                    ["evento"] = "checklist_criado",
+                    ["checklistId"] = checklist.Id,
+                    ["remetenteMatricula"] = responsavelMatricula,
+                    ["oficina"] = checklist.Oficina
+                }
+            });
+
             return Ok(new { mensagem = "Checklist criado com sucesso!", checklist });
         }
 
@@ -174,6 +193,25 @@ namespace AlmoxarifadoSenai.Api.Controllers
             };
 
             await _firestoreService.SalvarExecucaoChecklistAsync(execucao);
+            await _firestoreService.NotificarTodosUsuariosAtivosAsync(new Notificacao
+            {
+                Titulo = "Checklist concluído",
+                Mensagem = $"{almoxarifeNome} concluiu o checklist \"{checklist.Nome}\" em {checklist.Oficina}.",
+                Tipo = "Sucesso",
+                Icone = "check",
+                Cor = "green",
+                Link = $"/checklists/visualizar/{execucao.Id}",
+                DemandaId = string.IsNullOrWhiteSpace(execucao.DemandaId) ? null : execucao.DemandaId,
+                DadosAdicionais = new Dictionary<string, string>
+                {
+                    ["evento"] = "checklist_concluido",
+                    ["checklistId"] = checklist.Id,
+                    ["execucaoId"] = execucao.Id,
+                    ["remetenteMatricula"] = almoxarifeMatricula,
+                    ["oficina"] = checklist.Oficina
+                }
+            });
+
             return Ok(new { mensagem = "Checklist executado com sucesso!", execucao });
         }
 
