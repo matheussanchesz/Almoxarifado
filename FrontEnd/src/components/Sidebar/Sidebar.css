@@ -31,7 +31,7 @@
 
 .sidebar-logo h1 {
   color: #0057d9;
-  font-size: 36px;
+  font-size: 46px;
   line-height: 1;
   font-weight: 900;
   font-style: italic;
@@ -300,7 +300,7 @@ html.dark .sidebar-user-menu button.sair:hover {
   }
 
   .sidebar-logo h1 {
-    font-size: 32px;
+    font-size: 40px;
   }
 
   .sidebar-menu {

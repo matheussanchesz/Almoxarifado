@@ -14,6 +14,19 @@ export type Recurso =
   | "notificacoes";
 
 const permissoes: Record<Perfil, Recurso[]> = {
+  Desenvolvedor: [
+    "dashboard",
+    "demandas",
+    "novaDemanda",
+    "almoxarifado",
+    "compras",
+    "novaCompra",
+    "checklists",
+    "novoChecklist",
+    "relatorios",
+    "usuarios",
+    "notificacoes",
+  ],
   Admin: [
     "dashboard",
     "demandas",

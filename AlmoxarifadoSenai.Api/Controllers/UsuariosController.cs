@@ -4,6 +4,9 @@ using AlmoxarifadoSenai.Api.Models;
 using AlmoxarifadoSenai.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace AlmoxarifadoSenai.Api.Controllers
@@ -24,6 +27,11 @@ namespace AlmoxarifadoSenai.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CriarUsuario([FromBody] UsuarioCreateDto dto)
         {
+            if (EhPerfilDesenvolvedor(dto.Perfil))
+            {
+                return Forbid();
+            }
+
             var usuarioExistente = await _firestoreService.ObterUsuarioPorMatriculaAsync(dto.Matricula);
             if (usuarioExistente != null)
             {
@@ -48,6 +56,14 @@ namespace AlmoxarifadoSenai.Api.Controllers
         public async Task<IActionResult> ListarTodos()
         {
             var usuarios = await _firestoreService.ObterTodosUsuariosAsync();
+
+            if (EhCoordenadorLogado())
+            {
+                usuarios = usuarios
+                    .Where(usuario => !EhPerfilDesenvolvedor(usuario.Perfil))
+                    .ToList();
+            }
+
             return Ok(usuarios);
         }
 
@@ -57,6 +73,10 @@ namespace AlmoxarifadoSenai.Api.Controllers
         {
             var usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
             if (usuario == null)
+            {
+                return NotFound($"Usuário com matrícula {matricula} não foi encontrado.");
+            }
+            if (EhPerfilDesenvolvedor(usuario.Perfil) && EhCoordenadorLogado())
             {
                 return NotFound($"Usuário com matrícula {matricula} não foi encontrado.");
             }
@@ -71,6 +91,11 @@ namespace AlmoxarifadoSenai.Api.Controllers
             if (usuarioExistente == null)
             {
                 return NotFound($"Usuário com matrícula {matricula} não encontrado para edição.");
+            }
+
+            if (EhPerfilDesenvolvedor(usuarioExistente.Perfil) || EhPerfilDesenvolvedor(dto.Perfil))
+            {
+                return Forbid();
             }
 
             usuarioExistente.Nome = dto.Nome;
@@ -90,6 +115,11 @@ namespace AlmoxarifadoSenai.Api.Controllers
                 return NotFound($"Usuario com matricula {matricula} nao encontrado para inativacao.");
             }
 
+            if (EhPerfilDesenvolvedor(usuarioExistente.Perfil))
+            {
+                return Forbid();
+            }
+
             usuarioExistente.Ativo = false;
 
             await _firestoreService.SalvarUsuarioAsync(usuarioExistente);
@@ -105,9 +135,23 @@ namespace AlmoxarifadoSenai.Api.Controllers
                 return NotFound($"Usuario com matricula {matricula} nao encontrado para exclusao.");
             }
 
+            if (EhPerfilDesenvolvedor(usuarioExistente.Perfil))
+            {
+                return Forbid();
+            }
+
             await _firestoreService.DeletarUsuarioAsync(matricula);
             return NoContent();
         }
+
+        private static bool EhPerfilDesenvolvedor(string? perfil) =>
+            string.Equals(perfil?.Trim(), Perfis.Desenvolvedor, StringComparison.OrdinalIgnoreCase);
+
+        private bool EhCoordenadorLogado() =>
+            string.Equals(
+                User.FindFirst(ClaimTypes.Role)?.Value,
+                Perfis.Coordenador,
+                StringComparison.OrdinalIgnoreCase);
     }
 
     

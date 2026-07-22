@@ -18,6 +18,7 @@ import { api } from "../../services/api";
 import "./Usuarios.css";
 
 type PerfilUsuario =
+  | "Desenvolvedor"
   | "Admin"
   | "Coordenador"
   | "Almoxarife"
@@ -105,14 +106,20 @@ export default function Usuarios() {
 
     try {
       const response = await api.get<UsuarioApiResponse[]>("/usuarios");
-      const usuariosReais = response.data.map(mapearUsuario);
+      const usuariosReais = response.data
+        .map(mapearUsuario)
+        .filter(
+          (usuario) =>
+            usuarioLogado?.perfil !== "Coordenador" ||
+            usuario.perfil !== "Desenvolvedor",
+        );
       setUsuarios(usuariosReais);
     } catch {
       setErro("Não foi possível carregar os usuários no momento.");
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [usuarioLogado?.perfil]);
 
   useEffect(() => {
     let ativo = true;
@@ -120,7 +127,13 @@ export default function Usuarios() {
     async function carregarInicial() {
       try {
         const response = await api.get<UsuarioApiResponse[]>("/usuarios");
-        const usuariosReais = response.data.map(mapearUsuario);
+        const usuariosReais = response.data
+          .map(mapearUsuario)
+          .filter(
+            (usuario) =>
+              usuarioLogado?.perfil !== "Coordenador" ||
+              usuario.perfil !== "Desenvolvedor",
+          );
 
         if (ativo) {
           setUsuarios(usuariosReais);
@@ -142,7 +155,7 @@ export default function Usuarios() {
     return () => {
       ativo = false;
     };
-  }, []);
+  }, [usuarioLogado?.perfil]);
 
   const usuariosOrdenados = useMemo(() => {
     return [...usuarios].sort((a, b) => a.nome.localeCompare(b.nome));

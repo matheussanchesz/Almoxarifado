@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using AlmoxarifadoSenai.Api.Constants;
 using AlmoxarifadoSenai.Api.Models;
 
 namespace AlmoxarifadoSenai.Api.Services
@@ -28,12 +29,20 @@ namespace AlmoxarifadoSenai.Api.Services
                 SecurityAlgorithms.HmacSha256
             );
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.Role, usuario.Perfil),
                 new Claim("Matricula", usuario.Matricula)
             };
+
+            // O perfil Desenvolvedor e provisionado somente direto no Firestore.
+            // As claims adicionais fazem esse perfil satisfazer todas as politicas
+            // de papel existentes sem abrir a criacao desse papel pela API.
+            if (string.Equals(usuario.Perfil.Trim(), Perfis.Desenvolvedor, StringComparison.OrdinalIgnoreCase))
+            {
+                claims.AddRange(Perfis.Todos.Select(perfil => new Claim(ClaimTypes.Role, perfil)));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],

@@ -24,17 +24,20 @@ namespace AlmoxarifadoSenai.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            var matricula = request.Matricula.Trim();
+            var dataNascimento = SomenteDigitos(request.DataNascimento);
+
             Console.WriteLine("========================================");
             Console.WriteLine("TENTANDO LOGIN");
-            Console.WriteLine($"Matricula: '{request.Matricula}'");
-            Console.WriteLine($"Data informada: '{request.DataNascimento}'");
+            Console.WriteLine($"Matricula: '{matricula}'");
+            Console.WriteLine($"Data informada: '{dataNascimento}'");
             Console.WriteLine("========================================");
 
             Usuario? usuario;
 
             try
             {
-                usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(request.Matricula);
+                usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
             }
             catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unauthenticated)
             {
@@ -44,9 +47,12 @@ namespace AlmoxarifadoSenai.Api.Controllers
 
             if (usuario == null)
             {
-                Console.WriteLine($"Usuario '{request.Matricula}' nao encontrado");
+                Console.WriteLine($"Usuario '{matricula}' nao encontrado");
                 return Unauthorized("Usuario ou senha (data de nascimento) invalidos.");
             }
+
+            usuario.Matricula = usuario.Matricula.Trim();
+            usuario.Perfil = usuario.Perfil.Trim();
 
             Console.WriteLine("Usuario encontrado:");
             Console.WriteLine($"   - Nome: {usuario.Nome}");
@@ -60,7 +66,7 @@ namespace AlmoxarifadoSenai.Api.Controllers
                 return Unauthorized("Este usuario esta inativo no sistema. Procure o Administrador.");
             }
 
-            if (request.DataNascimento != usuario.DataNascimento)
+            if (dataNascimento != SomenteDigitos(usuario.DataNascimento))
             {
                 return Unauthorized("Usuario ou senha (data de nascimento) invalidos.");
             }
@@ -87,14 +93,22 @@ namespace AlmoxarifadoSenai.Api.Controllers
             });
         }
 
+        private static string SomenteDigitos(string? valor) =>
+            new((valor ?? string.Empty).Where(char.IsDigit).ToArray());
+
         [HttpPost("completar-cadastro")]
         public async Task<IActionResult> CompletarCadastro([FromBody] CompletarCadastroDto request)
         {
-            var usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(request.Matricula);
-            if (usuario == null || request.DataNascimento != usuario.DataNascimento)
+            var matricula = request.Matricula.Trim();
+            var usuario = await _firestoreService.ObterUsuarioPorMatriculaAsync(matricula);
+            if (usuario == null ||
+                SomenteDigitos(request.DataNascimento) != SomenteDigitos(usuario.DataNascimento))
             {
                 return Unauthorized("Dados invalidos para completar o cadastro.");
             }
+
+            usuario.Matricula = usuario.Matricula.Trim();
+            usuario.Perfil = usuario.Perfil.Trim();
 
             if (!usuario.Ativo)
             {

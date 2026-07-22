@@ -1,4 +1,5 @@
 export type Perfil =
+  | "Desenvolvedor"
   | "Admin"
   | "Coordenador"
   | "Professor"

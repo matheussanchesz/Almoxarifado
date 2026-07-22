@@ -19,7 +19,7 @@ import "./Sidebar.css";
 import { alternarTema } from "../../services/theme";
 import { temPermissao, type Recurso } from "../../services/permissoes";
 
-type Perfil = "Admin" | "Coordenador" | "Professor" | "Almoxarife" | "Almoxarifado";
+type Perfil = "Desenvolvedor" | "Admin" | "Coordenador" | "Professor" | "Almoxarife" | "Almoxarifado";
 
 type ItemMenu = {
   icone: React.ReactNode;

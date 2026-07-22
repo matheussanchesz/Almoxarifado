@@ -710,73 +710,6 @@
   }
 }
 
-.almoxarifado-menu-operacional {
-  flex-shrink: 0;
-  border: 1px solid #dbe3ef;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 12px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.almoxarifado-perfil-operacional {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.almoxarifado-perfil-operacional span,
-.almoxarifado-perfil-operacional small {
-  color: #667085;
-  font-size: 12px;
-}
-
-.almoxarifado-perfil-operacional strong {
-  color: #111827;
-  font-size: 15px;
-}
-
-.almoxarifado-atalhos {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.almoxarifado-atalhos button {
-  height: 36px;
-  border: 1px solid #b9c7e6;
-  border-radius: 9px;
-  background: #ffffff;
-  color: #0046c7;
-  padding: 0 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.almoxarifado-atalhos button:hover {
-  background: #eef4ff;
-}
-
-html.dark .almoxarifado-menu-operacional {
-  background: #111827;
-  border-color: #334155;
-}
-
-html.dark .almoxarifado-perfil-operacional strong {
-  color: #f8fafc;
-}
-
-html.dark .almoxarifado-atalhos button {
-  background: #0f172a;
-  border-color: #334155;
-  color: #93c5fd;
-}
-
 html.dark .almoxarifado-layout,
 html.dark .almoxarifado-main {
   background: #020617;
@@ -872,13 +805,6 @@ html.dark .almoxarifado-resumo-card.material {
 
 html.dark .almoxarifado-resumo-card.concluidas {
   background: rgba(20, 83, 45, 0.24);
-}
-
-@media (max-width: 760px) {
-  .almoxarifado-menu-operacional {
-    align-items: stretch;
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 1100px) {
